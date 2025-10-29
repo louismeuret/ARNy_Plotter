@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGLViewer XTC Trajectory Example</title>
+    <!-- Include NGLViewer CSS -->
+    <link href="https://unpkg.com/ngl/dist/ngl.css" rel="stylesheet">
+    <!-- Include NGLViewer JS -->
+    <script src="https://unpkg.com/ngl/dist/ngl.js"></script>
+    <style>
+        #viewport {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewport"></div>
+
+    <script>
+        // Initialize NGLViewer
+        var stage = new NGL.Stage("viewport");
+
+        // Load PDB topology file
+        stage.loadFile("/home/cya/Téléchargements/Projet_STAGE/Analysis_rna_GAAA/Compair/frame_0000_m.pdb").then(function (structureComponent) {
+            // Load XTC trajectory file
+            stage.loadFile("/home/cya/Téléchargements/Projet_STAGE/Analysis_rna_GAAA/Compair/full_centered2.xtc", { defaultRepresentation: true }).then(function (trajectoryComponent) {
+                // Auto view the structure
+                stage.autoView();
+            }).catch(function (error) {
+                console.error("Error loading trajectory:", error);
+            });
+        }).catch(function (error) {
+            console.error("Error loading topology:", error);
+        });
+    </script>
+</body>
+</html>
+

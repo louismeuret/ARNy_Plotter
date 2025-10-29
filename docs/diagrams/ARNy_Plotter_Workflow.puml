@@ -1,0 +1,114 @@
+@startuml ARNy_Plotter_Workflow
+!theme plain
+title ARNy_Plotter System Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 10
+skinparam defaultTextAlignment center
+
+rectangle "User Interface" as UI {
+    rectangle "Web Frontend\n(Flask)" as WEB #lightblue
+    rectangle "Command Line API" as CLI #lightblue
+}
+
+rectangle "Session Management" as SESSION {
+    rectangle "File Upload &\nValidation" as UPLOAD #lightgreen
+    rectangle "Session ID &\nDirectory Setup" as SETUP #lightgreen
+}
+
+rectangle "Trajectory Preprocessing" as PREPROC {
+    rectangle "MDAnalysis\nUniverse Creation" as MDANALYSIS #lightyellow
+    rectangle "Structure Alignment" as ALIGN #lightyellow
+    rectangle "Backbone Extraction" as BACKBONE #lightyellow
+    rectangle "Frame Filtering" as FILTER #lightyellow
+}
+
+rectangle "Analysis Planning" as PLANNING {
+    rectangle "Dependency\nResolution" as DEPS #lightcyan
+    rectangle "Resource\nEstimation" as RESOURCE #lightcyan
+    rectangle "Parallel Execution\nOptimization" as PARALLEL #lightcyan
+}
+
+rectangle "Parallel Computation Engine" as COMPUTE {
+    rectangle "Celery Worker 1\nRMSD/eRMSD" as WORKER1 #lightpink
+    rectangle "Celery Worker 2\nTorsion Analysis" as WORKER2 #lightpink
+    rectangle "Celery Worker N\nContact Maps" as WORKERN #lightpink
+}
+
+rectangle "Caching System" as CACHE {
+    rectangle "Memory Cache\n(Thread-Safe)" as MEMCACHE #lightgray
+    rectangle "Disk Persistence\n(Compressed)" as DISKCACHE #lightgray
+    rectangle "Shared Computation\nOptimization" as SHAREDCACHE #lightgray
+}
+
+rectangle "Visualization Generation" as VISUAL {
+    rectangle "Interactive Plotly\nPlots (HTML)" as PLOTLY #lightsalmon
+    rectangle "Static Matplotlib\nImages" as MATPLOTLIB #lightsalmon
+    rectangle "Data Export\n(CSV)" as EXPORT #lightsalmon
+    rectangle "Result Packaging\n(ZIP)" as PACKAGE #lightsalmon
+}
+
+rectangle "Results Delivery" as RESULTS {
+    rectangle "Real-time Progress\n(WebSocket)" as PROGRESS #lightsteelblue
+    rectangle "Interactive Plot\nExploration" as EXPLORE #lightsteelblue
+    rectangle "Download\nManagement" as DOWNLOAD #lightsteelblue
+}
+
+note right of COMPUTE
+  Analysis Types:
+  • RMSD/eRMSD (Structural Deviation)
+  • Torsion Angles (Backbone Flexibility)
+  • Contact Maps (Inter-residue Interactions)
+  • Energy Landscapes (Free Energy Surfaces)
+  • Arc Diagrams (Secondary Structure)
+  • Base Pairing (RNA H-bonding)
+end note
+
+note left of CACHE
+  Core Technologies:
+  • Backend: Flask + Celery + Redis
+  • Analysis: MDAnalysis + Barnaba + MDTraj
+  • Visualization: Plotly + Matplotlib
+  • Optimization: Numba JIT + Multi-level Caching
+end note
+
+' Connections
+WEB --> SESSION
+CLI --> SESSION
+SESSION --> UPLOAD
+UPLOAD --> SETUP
+SETUP --> PREPROC
+PREPROC --> MDANALYSIS
+MDANALYSIS --> ALIGN
+ALIGN --> BACKBONE
+BACKBONE --> FILTER
+FILTER --> PLANNING
+PLANNING --> DEPS
+DEPS --> RESOURCE
+RESOURCE --> PARALLEL
+PARALLEL --> COMPUTE
+COMPUTE --> WORKER1
+COMPUTE --> WORKER2
+COMPUTE --> WORKERN
+WORKER1 --> CACHE
+WORKER2 --> CACHE
+WORKERN --> CACHE
+CACHE --> MEMCACHE
+CACHE --> DISKCACHE
+CACHE --> SHAREDCACHE
+MEMCACHE --> VISUAL
+DISKCACHE --> VISUAL
+SHAREDCACHE --> VISUAL
+VISUAL --> PLOTLY
+VISUAL --> MATPLOTLIB
+VISUAL --> EXPORT
+VISUAL --> PACKAGE
+PLOTLY --> RESULTS
+MATPLOTLIB --> RESULTS
+EXPORT --> RESULTS
+PACKAGE --> RESULTS
+RESULTS --> PROGRESS
+RESULTS --> EXPLORE
+RESULTS --> DOWNLOAD
+
+@enduml

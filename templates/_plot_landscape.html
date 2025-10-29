@@ -1,0 +1,41 @@
+<div class="box mt-5">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <div>
+            <img
+                src="{{ url_for('static', filename=plot_info[2]) }}"
+                alt="plt_landscape"
+                class="plt_landscape"
+            />
+            <script>
+                console.log("HERE");
+                console.log("{{ plot_infos }}");
+                window.addEventListener("resize", function () {
+                    Plotly.Plots.resize(
+                        document.getElementById("{{ plot_info[1] }}"),
+                    );
+                });
+            </script>
+        </div>
+    </div>
+    <div id="{{ plot_info[1] }}"></div>
+    <div
+        style="
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        "
+    >
+        <a
+            href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download {{ plot_info[0] }} Data</a
+        >
+        <a
+            href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download Plot</a
+        >
+    </div>
+</div>

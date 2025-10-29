@@ -1,0 +1,465 @@
+/* Base styles */
+body {
+overflow: hidden !important;
+margin: 0;
+padding: 0;
+font-family: Arial, sans-serif;
+}
+
+.trajectory-viewer {
+padding: 0 10px;
+position: relative;
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(255, 255, 255, 0.9);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+.loading-content {
+text-align: center;
+}
+
+.loading-spinner {
+border: 5px solid #f3f3f3;
+border-top: 5px solid #3498db;
+border-radius: 50%;
+width: 50px;
+height: 50px;
+animation: spin 1s linear infinite;
+margin: 0 auto 20px;
+}
+
+@keyframes spin {
+0% {
+    transform: rotate(0deg);
+}
+100% {
+    transform: rotate(360deg);
+}
+}
+
+.viewport-loading,
+.plots-loading {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+height: 100%;
+background: rgba(255, 255, 255, 0.8);
+}
+
+.error-message {
+color: #d9534f;
+font-weight: bold;
+}
+
+/* Header styles */
+.header-container {
+max-width: 90%;
+margin: 10px auto;
+padding: 6px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: space-between;
+border-radius: 12px;
+box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+background: #fff;
+border: 1px solid #ddd;
+transition: all 0.3s ease;
+}
+
+.title-container {
+flex: 1;
+text-align: left;
+}
+
+.title {
+font-size: 1.9em;
+color: #333;
+font-weight: 600;
+margin: 0;
+}
+
+.session-info-container {
+flex: 2;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 100px;
+text-align: center;
+}
+
+.session {
+font-size: 1.3em;
+color: #333;
+max-width: 400px;
+margin: 0;
+}
+
+.session-description {
+font-size: 1em;
+color: #444;
+max-width: 400px;
+margin: 0;
+}
+
+.share-button {
+background: #007bff;
+color: white;
+padding: 8px 16px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 1em;
+transition: background 0.2s;
+}
+
+.share-button:hover {
+background: #0056b3;
+}
+
+.links-container {
+flex: 1;
+text-align: right;
+display: flex;
+gap: 16px;
+}
+
+.nav-link {
+color: #007bff;
+text-decoration: none;
+font-weight: 500;
+}
+
+/* Main content styles */
+.main-content-container {
+display: flex;
+height: calc(100vh - 100px);
+margin-top: 20px;
+}
+
+.viewer-column {
+display: flex;
+flex-direction: column;
+flex-grow: 1;
+height: 100%;
+}
+
+.viewer-container {
+position: sticky;
+z-index: 9;
+background: white;
+border-radius: 10px;
+padding: 10px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+height: calc(100% - 100px);
+}
+
+.viewport {
+width: 100%;
+flex-grow: 1;
+z-index: 1;
+border-radius: 8px;
+overflow: hidden;
+margin-bottom: 10px;
+}
+
+.player-controls {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin: 10px 0;
+}
+
+.frame-slider {
+width: 70%;
+z-index: 10;
+}
+
+.frame-input {
+width: 60px;
+z-index: 10;
+text-align: center;
+}
+
+.control-buttons {
+display: flex;
+justify-content: center;
+gap: 10px;
+margin-top: 20px;
+flex-wrap: wrap;
+}
+
+.control-button {
+padding: 8px 16px;
+border: 1px solid #ddd;
+border-radius: 8px;
+background: white;
+cursor: pointer;
+transition: all 0.2s;
+z-index: 10;
+}
+
+.control-button:hover {
+background: #f0f0f0;
+}
+
+.control-button:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+.plots-column {
+overflow-y: auto;
+height: calc(100% + 400px);
+display: flex;
+flex-direction: column;
+}
+
+.plots-scrollable-container {
+height: 100%;
+overflow-y: auto;
+padding-right: 10px; /* Add some padding to prevent scrollbar overlap */
+}
+
+/* Ensure last plot is fully visible */
+.plots-scrollable-container > *:last-child {
+margin-bottom: 100px;
+}
+
+.plots-scrollable-container {
+padding-top: 0;
+margin-top: 0;
+}
+
+.plots-scrollable-container > *:first-child {
+margin-top: 0 !important;
+padding-top: 0 !important;
+}
+
+/* Additional specificity to override potential default margins */
+.plots-column > div > *:first-child {
+margin-top: 0 !important;
+padding-top: 0 !important;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+.trajectory-viewer {
+    padding: 10px !important;
+}
+
+.header-container {
+    flex-direction: column;
+    gap: 15px;
+    margin: 5px !important;
+    padding: 15px !important;
+}
+
+.title-container,
+.session-info-container,
+.links-container {
+    flex: none;
+    width: 100%;
+    text-align: center;
+}
+
+.main-content-container {
+    flex-direction: column;
+    height: auto;
+}
+
+.viewer-column,
+.plots-column {
+    width: 100%;
+}
+
+.control-buttons {
+    flex-direction: column;
+    align-items: center;
+}
+}
+
+/* Expanded plot styles */
+.expanded {
+position: fixed;
+top: 10%;
+left: 10%;
+width: 80%;
+height: 80%;
+z-index: 10;
+background-color: white;
+padding: 20px;
+box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+transition: all 0.3s ease-in-out;
+overflow: auto;
+}
+
+/* Header styling adjustments */
+.title {
+    font-size: 1.5rem !important; /* Smaller title */
+}
+
+.session-info-tooltip {
+    color: #3498db;
+    cursor: pointer;
+    margin-left: 5px;
+    font-weight: bold;
+    font-size: 1.2em;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 50%;
+    background: #f0f8ff;
+    border: 1px solid #3498db;
+    transition: all 0.2s ease;
+}
+
+.session-info-tooltip:hover {
+    background: #3498db;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Responsive Design - Mobile and Tablet Layout */
+@media screen and (max-width: 1023px) {
+    /* Enable scrolling on mobile */
+    body {
+        overflow: auto !important;
+        height: auto !important;
+    }
+    
+    .trajectory-viewer {
+        height: auto;
+        overflow: visible;
+    }
+    
+    /* Stack columns vertically on smaller screens */
+    .main-content-container.columns {
+        flex-direction: column !important;
+        height: auto !important;
+    }
+    
+    /* Viewer column (left column) - shows first */
+    .viewer-column.column.is-half {
+        width: 100% !important;
+        order: 1;
+        margin-bottom: 1rem;
+        height: auto;
+    }
+    
+    /* Plots column (right column) - shows second */
+    .plots-column.column.is-half {
+        width: 100% !important;
+        order: 2;
+        height: auto;
+    }
+    
+    /* Adjust viewer container for mobile */
+    .viewer-container {
+        min-height: 400px;
+        height: 50vh;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    /* Adjust plots container for mobile */
+    .plots-column {
+        max-height: none !important;
+        overflow-y: visible !important;
+        height: auto !important;
+    }
+    
+    /* Ensure plots are properly sized on mobile */
+    .plot-container {
+        margin-bottom: 1rem;
+        position: relative;
+    }
+}
+
+/* Extra responsive adjustments for very small screens */
+@media screen and (max-width: 768px) {
+    .trajectory-viewer {
+        padding: 0 5px;
+    }
+    
+    .viewer-container {
+        height: 40vh;
+        min-height: 300px;
+    }
+    
+    /* Make header more compact on mobile */
+    .header-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .title-container,
+    .session-info-container,
+    .links-container {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Even smaller title on mobile */
+    .title {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Adjust session info tooltip for mobile */
+    .session-info-tooltip {
+        font-size: 1em;
+        padding: 1px 4px;
+    }
+}
+
+/* Plot controls styling - drag handle and expand icon */
+.flex-container {
+    position: relative;
+}
+
+.drag-handle, .expand-icon {
+    position: absolute !important;
+    top: 10px !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    padding: 4px;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.drag-handle:hover, .expand-icon:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.expand-icon {
+    right: 10px !important;
+}
+
+.drag-handle {
+    right: 45px !important;
+}
+
+/* Fix Plotly modebar (toolbar) positioning */
+.js-plotly-plot .plotly .modebar {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 999 !important;
+}

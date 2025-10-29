@@ -1,0 +1,130 @@
+digraph ARNy_Plotter_Workflow {
+    rankdir=TB;
+    node [fontname="Arial", fontsize=10, shape=box, style=filled];
+    edge [fontname="Arial", fontsize=8];
+    
+    // Styling
+    subgraph cluster_ui {
+        label="User Interface";
+        style=filled;
+        color=lightblue;
+        fillcolor="#e1f5fe";
+        
+        web_frontend [label="Web Frontend\n(Flask)", fillcolor="#81d4fa"];
+        cli_api [label="Command Line API", fillcolor="#81d4fa"];
+    }
+    
+    subgraph cluster_session {
+        label="Session Management";
+        style=filled;
+        color=lightgreen;
+        fillcolor="#e8f5e8";
+        
+        file_upload [label="File Upload &\nValidation", fillcolor="#a5d6a7"];
+        session_setup [label="Session ID &\nDirectory Setup", fillcolor="#a5d6a7"];
+    }
+    
+    subgraph cluster_preproc {
+        label="Trajectory Preprocessing";
+        style=filled;
+        color=lightyellow;
+        fillcolor="#fff9c4";
+        
+        mdanalysis [label="MDAnalysis\nUniverse Creation", fillcolor="#fff176"];
+        alignment [label="Structure\nAlignment", fillcolor="#fff176"];
+        backbone [label="Backbone\nExtraction", fillcolor="#fff176"];
+        filtering [label="Frame Range\nFiltering", fillcolor="#fff176"];
+    }
+    
+    subgraph cluster_planning {
+        label="Analysis Planning";
+        style=filled;
+        color=lightcyan;
+        fillcolor="#e0f2f1";
+        
+        dependencies [label="Dependency\nResolution", fillcolor="#80cbc4"];
+        resources [label="Resource\nEstimation", fillcolor="#80cbc4"];
+        optimization [label="Parallel Execution\nOptimization", fillcolor="#80cbc4"];
+    }
+    
+    subgraph cluster_compute {
+        label="Parallel Computation Engine";
+        style=filled;
+        color=lightpink;
+        fillcolor="#fce4ec";
+        
+        worker1 [label="Celery Worker 1\nRMSD/eRMSD", fillcolor="#f48fb1"];
+        worker2 [label="Celery Worker 2\nTorsion Analysis", fillcolor="#f48fb1"];
+        workern [label="Celery Worker N\nContact Maps", fillcolor="#f48fb1"];
+    }
+    
+    subgraph cluster_cache {
+        label="Caching System";
+        style=filled;
+        color=lightgray;
+        fillcolor="#f5f5f5";
+        
+        memory_cache [label="Memory Cache\n(Thread-Safe)", fillcolor="#e0e0e0"];
+        disk_cache [label="Disk Persistence\n(Compressed)", fillcolor="#e0e0e0"];
+        shared_cache [label="Shared Computation\nOptimization", fillcolor="#e0e0e0"];
+    }
+    
+    subgraph cluster_visual {
+        label="Visualization Generation";
+        style=filled;
+        color=lightsalmon;
+        fillcolor="#fff3e0";
+        
+        plotly [label="Interactive Plotly\nPlots (HTML)", fillcolor="#ffcc80"];
+        matplotlib [label="Static Matplotlib\nImages", fillcolor="#ffcc80"];
+        export [label="Data Export\n(CSV)", fillcolor="#ffcc80"];
+        package [label="Result Packaging\n(ZIP)", fillcolor="#ffcc80"];
+    }
+    
+    subgraph cluster_results {
+        label="Results Delivery";
+        style=filled;
+        color=lightsteelblue;
+        fillcolor="#e3f2fd";
+        
+        progress [label="Real-time Progress\n(WebSocket)", fillcolor="#90caf9"];
+        explore [label="Interactive Plot\nExploration", fillcolor="#90caf9"];
+        download [label="Download\nManagement", fillcolor="#90caf9"];
+    }
+    
+    // Analysis Types (side note)
+    analysis_types [label="Analysis Types:\n• RMSD/eRMSD\n• Torsion Angles\n• Contact Maps\n• Energy Landscapes\n• Arc Diagrams\n• Base Pairing", shape=note, fillcolor="#f0f8ff"];
+    
+    // Core Technologies (side note)
+    technologies [label="Core Technologies:\n• Backend: Flask + Celery + Redis\n• Analysis: MDAnalysis + Barnaba + MDTraj\n• Visualization: Plotly + Matplotlib\n• Optimization: Numba JIT + Multi-level Caching", shape=note, fillcolor="#f0fff0"];
+    
+    // Main workflow connections
+    web_frontend -> file_upload;
+    cli_api -> file_upload;
+    file_upload -> session_setup;
+    session_setup -> mdanalysis;
+    mdanalysis -> alignment;
+    alignment -> backbone;
+    backbone -> filtering;
+    filtering -> dependencies;
+    dependencies -> resources;
+    resources -> optimization;
+    optimization -> worker1;
+    optimization -> worker2;
+    optimization -> workern;
+    worker1 -> memory_cache;
+    worker2 -> disk_cache;
+    workern -> shared_cache;
+    memory_cache -> plotly;
+    disk_cache -> matplotlib;
+    shared_cache -> export;
+    shared_cache -> package;
+    plotly -> progress;
+    matplotlib -> explore;
+    export -> download;
+    package -> download;
+    
+    // Side connections
+    worker1 -> analysis_types [style=dashed, color=gray];
+    memory_cache -> technologies [style=dashed, color=gray];
+}

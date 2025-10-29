@@ -1,0 +1,50 @@
+<div class="box mt-5 plot-container">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <i class="drag-handle" data-lucide="grip"></i>
+        <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}"></div>
+    <div
+        style="
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        "
+    >
+        <div class="content">
+            {% if explainations.get(plot_info[0]).title %}
+            <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+            {% endif %} {% if explainations.get(plot_info[0]).content %}
+            <p>{{ explainations.get(plot_info[0]).content }}</p>
+            {% endif %} {% if explainations.get(plot_info[0]).formula != "" %}
+            <div class="formula">
+                {{ explainations.get(plot_info[0]).formula | safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        var plotData = {{ plot_info[2] | safe }};
+        Plotly.newPlot('{{ plot_info[1] }}', plotData, {});
+        window.addEventListener('resize', () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
+        $(document).on("click", ".expand-icon", () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
+    </script>
+    <a
+        href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
+        class="button is-link"
+        >Download {{ plot_info[0] }} Data</a
+    >
+    <a
+        href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+        class="button is-link"
+        >Download Plot</a
+    >
+</div>
+
+<style>
+    .plot-container.expanded .plot {
+        height: 100%;
+    }
+</style>

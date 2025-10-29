@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <!-- Bulma CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f0f0f0; /* Ensure background color is set */
+            position: relative; /* Establish stacking context */
+        }
+        .container {
+            position: relative;
+            z-index: 1; /* Ensure container content is above canvas */
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Place the canvas behind other content */
+        }
+        #terminal-container {
+            width: 50%;
+            height: 300px;
+            margin: auto;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="terminal-container"></div>
+    <div class="container mt-5">
+        <div class="box">
+            
+            <h1 class="title">Upload Files</h1>
+            <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data">
+                <div class="field">
+                    <label class="label" for="nativePdb">Native PDB File:</label>
+                    <div class="control">
+                        <input type="file" class="input" id="nativePdb" name="nativePdb" accept=".pdb,.gro">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="trajXtc">Trajectory XTC File:</label>
+                    <div class="control">
+                        <input type="file" class="input" id="trajXtc" name="trajXtc" accept=".xtc,.trr,.dcd,.binpos,.netcdf,.mdcrd">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="trajPdb">Trajectory PDB File:</label>
+                    <div class="control">
+                        <input type="file" class="input" id="trajPdb" name="trajPdb" accept=".pdb,.gro">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="frameSettings">Frame Settings:</label>
+                    <div class="columns">
+                        <div class="column">
+                            <input type="number" class="input" placeholder="First Frame" name="firstFrame" id="firstFrame">
+                        </div>
+                        <div class="column">
+                            <input type="number" class="input" placeholder="Last Frame" name="lastFrame" id="lastFrame">
+                        </div>
+                        <div class="column">
+                            <input type="number" class="input" placeholder="Stride" name="stride" id="stride">
+                        </div>
+                    </div>
+                </div>
+                <h2 class="subtitle">Select Plots:</h2>
+                <div class="field">
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" id="rmsd" name="rmsd" value="RMSD"> RMSD
+                            <span class="icon has-tooltip" data-tooltip="Plot a Root mean Square Deviation Scatter plot">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="ermsd" name="ermsd" value="ERMSD"> ERMSD
+                            <span class="icon has-tooltip" data-tooltip="Plot a ERMSD Scatter plot">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="torsion" name="torsion" value="TORSION"> TORSION
+                            <span class="icon has-tooltip" data-tooltip="Plot all angles values for a specific residue">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <input type="text" class="input mt-2" id="torsionResidue" name="torsionResidue" placeholder="Residue name or index"><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="sec_structure" name="sec_structure" value="SEC_STRUCTURE"> SEC_STRUCTURE
+                            <span class="icon has-tooltip" data-tooltip="Secondary Structure">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="dotbracket" name="dotbracket" value="RMSD"> DOTBRACKET
+                            <span class="icon has-tooltip" data-tooltip="Dot-Bracket Notation">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="arc" name="arc" value="ARC"> ARC
+                            <span class="icon has-tooltip" data-tooltip="Plot a diagram in Arc, showing the frequency of contacts during the MD">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="contact_maps" name="contact_maps" value="CONTACT_MAPS"> CONTACT_MAPS
+                            <span class="icon has-tooltip" data-tooltip="Contact Maps">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="annotate" name="annotate" value="ANNOTATE"> ANNOTATE
+                            <span class="icon has-tooltip" data-tooltip="Annotations">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="ds_motif" name="ds_motif" value="DS_MOTIF"> DS_MOTIF
+                            <span class="icon has-tooltip" data-tooltip="Double-Stranded Motifs">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="ss_motif" name="ss_motif" value="SS_MOTIF"> SS_MOTIF
+                            <span class="icon has-tooltip" data-tooltip="Single-Stranded Motifs">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="jcoupling" name="jcoupling" value="JCOUPLING"> JCOUPLING
+                            <span class="icon has-tooltip" data-tooltip="J-Coupling">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="escore" name="escore" value="ESCORE"> ESCORE
+                            <span class="icon has-tooltip" data-tooltip="Energy Score">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label><br>
+                        <label class="checkbox">
+                            <input type="checkbox" id="landscape" name="landscape" value="LANDSCAPE"> LANDSCAPE
+                            <span class="icon has-tooltip" data-tooltip="Energy Landscape">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <input type="text" class="input mt-2" id="landscape_stride" name="landscape_stride" placeholder="Precision of the Energy Landscape"><br>
+                    </div>
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-primary" id="submit_btn">Upload</button>
+                </div>
+            </form>
+        </div>
+        <div class="box mt-5">
+            <h2 class="title">Retrieve Previous Results</h2>
+            <form action="{{ url_for('retrieve_results') }}" method="get">
+                <div class="field">
+                    <label class="label" for="oldSessionId">Old Session ID:</label>
+                    <div class="control">
+                        <input type="text" class="input" id="oldSessionId" name="session_id" placeholder="Enter old session ID">
+                    </div>
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-link">Retrieve Results</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <!-- Bootstrap JS (Optional) -->
+    <link href=" https://cdn.jsdelivr.net/npm/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css " rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" integrity="sha512-u3fPA7V8qQmhBPNT5quvaXVa1mnnLSXUep5PS1qo5NRzHwG19aHmNJnj1Q8hpA/nBWZtZD4r4AX6YOt5ynLN2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script> 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Loaded website");
+            const sessionId = '{{ session_id }}';
+            const socket = io.connect('http://' + document.domain + ':' + location.port, {
+                query: 'session_id=' + sessionId
+            });
+
+            socket.on('connect', function () {
+                console.log("Connected to server");
+                socket.emit('connection', { data: 'connected!' });
+            });
+
+            const terminalContainer = document.getElementById('terminal-container');
+            const term = new Terminal();
+            term.open(terminalContainer);
+
+            document.getElementById('submit_btn').addEventListener('click', () => {
+                socket.emit("go")
+                terminalContainer.style.display = 'block'; // Show the terminal
+                term.write('Hello');
+            });
+
+            socket.on('command_output', (data) => {
+                term.write(data.output + '\r\n');
+                console.log("Received data", data);
+            });
+
+            socket.on('show_terminal', (data) => {
+                term.write('here is the terminal');
+            });
+
+            socket.on('close_terminal', () => {
+                setTimeout(() => {
+                    terminalContainer.style.display = 'none'; // Hide the terminal
+                }, 2000); // Hide terminal after 2 seconds
+            });
+        });
+    </script>
+
+</body>
+
+</html>

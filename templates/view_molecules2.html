@@ -1,0 +1,26 @@
+{% extends 'layout.html' %} {% block content %}
+<h1 class="mt-5">Molecule Viewer</h1>
+<div id="viewport" style="width: 800px; height: 400px"></div>
+
+<script>
+    // Initialize NGL Viewer in the specified div
+    var stage = new NGL.Stage("viewport");
+
+    // Handle window resizing
+    window.addEventListener(
+        "resize",
+        function (event) {
+            stage.handleResize();
+        },
+        false,
+    );
+
+    // Load a molecular structure
+    stage
+        .loadFile("{{ url_for('static', filename=molecule_file) }}")
+        .then(function (o) {
+            o.addRepresentation("cartoon");
+            stage.autoView();
+        });
+</script>
+{% endblock %}

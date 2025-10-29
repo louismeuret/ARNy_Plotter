@@ -1,0 +1,12 @@
+
+{
+    "parameters" : [
+        {
+            "sysName" : "rna",
+            "n_unfolded" : 1,
+            "n_ratchet" : 1,
+            "box_l" : 10,
+            "n_hopfield" : 5
+        }
+    ]
+}

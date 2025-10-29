@@ -1,0 +1,84 @@
+<div class="box mt-5 plot-container">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <i class="drag-handle" data-lucide="grip"></i>
+        <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}"></div>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/fornac.css') }}"
+    />
+    <script src="{{ url_for('static', filename='js/fornac.js') }}"></script>
+    <div id="{{ plot_info[1] }}"></div>
+    <div id="rna_ss" style="height: 500px;"></div>
+    <div class="content">
+        <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+        <p>{{ explainations.get(plot_info[0]).content }}</p>
+    </div>
+    <div
+        style="
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        "
+    >
+        <a
+            href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download {{ plot_info[0] }} Data</a
+        >
+        <a
+            href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download Plot</a
+        >
+    </div>
+</div>
+
+<script>
+    var rnaStructures = {{ plot_info[2][0]|tojson }};
+    var container;  // Define container globally so it can be used in updateRNA()
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        container = new FornaContainer("#rna_ss", { 'applyForce': true });
+        updateRNA(rnaStructures[0]);
+      }, 10);
+    });
+    var frameInput = document.getElementById('frame-slider');
+    if (frameInput) {
+        frameInput.addEventListener('input', function() {
+            var startTime = performance.now();
+            var frameNumber = parseInt(this.value);
+
+            if (rnaStructures[frameNumber]) {
+                updateRNA(rnaStructures[frameNumber]);
+            } else {
+                console.warn("Invalid frame number:", frameNumber);
+            }
+
+            var endTime = performance.now();
+            console.log(`Time to update RNA structure: ${endTime - startTime} milliseconds`);
+        });
+    } else {
+        console.error("Element with ID 'frame-number' not found!");
+    }
+    function updateRNA(structure) {
+        if (!container) {
+            console.error("FornaContainer not initialized.");
+            return;
+        }
+        container.clearNodes();
+        container.addRNA(structure, { 'structure': structure, 'sequence': '{{plot_info[2][1]}}' });
+    }
+</script>
+
+<style>
+    .plot-container.expanded .plot {
+        height: 100%;
+    }
+</style>

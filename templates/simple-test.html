@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Cache Test</title>
+</head>
+<body>
+    <h1>Simple Cache Test</h1>
+    <button onclick="runTest()">Run Test</button>
+    <pre id="output"></pre>
+
+    <script src="{{ url_for('static', filename='js/trajectory-cache.js') }}"></script>
+    <script>
+        function log(message) {
+            document.getElementById('output').textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            console.log(message);
+        }
+
+        async function runTest() {
+            log('🚀 Starting simple cache test...');
+            
+            try {
+                // Test 1: Check if cache exists
+                if (typeof window.trajectoryCache === 'undefined') {
+                    log('❌ window.trajectoryCache is undefined');
+                    return;
+                }
+                log('✅ window.trajectoryCache exists');
+
+                // Test 2: Check support
+                const supported = await window.trajectoryCache.isSupported();
+                log(`✅ Cache supported: ${supported}`);
+
+                // Test 3: Try to initialize
+                await window.trajectoryCache.init();
+                log('✅ Cache initialized');
+
+                // Test 4: Get stats
+                const stats = await window.trajectoryCache.getCacheStats();
+                log(`✅ Cache stats: ${JSON.stringify(stats)}`);
+
+                log('🎉 All tests completed successfully!');
+
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`);
+                log(`❌ Stack: ${error.stack}`);
+            }
+        }
+
+        // Auto-run test after a delay
+        setTimeout(runTest, 2000);
+    </script>
+</body>
+</html>

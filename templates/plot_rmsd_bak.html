@@ -1,0 +1,52 @@
+<div class="box mt-5">
+  <div class="flex-container">
+    <div id="{{ plot_info[0] }}" class="plot"></div>
+    <i class="drag-handle" data-lucide="grip"></i>
+    <i class="expand-icon" data-lucide="expand"></i>
+  </div>
+  <div id="{{ plot_info[1] }}"></div>
+  <div class="content">
+    <script>
+      console.log("HEY");
+      console.log("{{ explainations }}");
+    </script>
+    <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+    <p>{{ explainations.get(plot_info[0]).content }}</p>
+    {% if explainations.get(plot_info[0]).formula != "" %}
+    <div class="formula">{{ explainations.get(plot_info[0]).formula | safe }}</div>
+    {% endif %}
+  </div>
+  <script>
+    var previousValue = 1;
+    var dataLength = {{ trajectory_length }};
+    var plotData_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
+    
+    // Initial plot with the main data
+    Plotly.newPlot('{{ plot_info[1] }}', plotData_{{ plot_info[1] }}, {});
+  
+    // Add marker trace once at initialization
+    var markerTrace = {
+      x: [1],
+      y: [plotData_{{ plot_info[1] }}.data[0].y[1]], 
+      mode: 'markers',
+      marker: {
+        color: 'red',
+        size: 12
+      },
+      name: 'Frame Marker'
+    };
+    Plotly.addTraces('{{ plot_info[1] }}', markerTrace);
+
+    // Update only the marker position on slider change
+    document.getElementById('frame-slider').addEventListener('input', function() {
+      var sliderValue = parseInt(this.value);
+      Plotly.restyle('{{ plot_info[1] }}', {
+        'x': [[sliderValue]],
+        'y': [[plotData_{{ plot_info[1] }}.data[0].y[sliderValue]]]
+      }, [1]);
+    });
+  </script>
+  
+  <a href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download {{ plot_info[0] }} Data</a>
+  <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
+</div>

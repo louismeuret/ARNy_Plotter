@@ -1,0 +1,80 @@
+graph TD
+    A[User Interface] --> B[File Upload & Parameters]
+    A --> C[Command Line API]
+    
+    B --> D[Session Management]
+    C --> D
+    
+    D --> E[File Validation]
+    E --> F[PDB Topology + XTC Trajectory]
+    F --> G[Create Session ID & Directory]
+    
+    G --> H[Trajectory Preprocessing]
+    H --> I[MDAnalysis Universe Creation]
+    I --> J[Structure Alignment]
+    J --> K[Backbone Extraction]
+    K --> L[Frame Range Filtering]
+    
+    L --> M[Analysis Planning]
+    M --> N[Dependency Resolution]
+    N --> O[Resource Estimation]
+    O --> P[Parallel Execution Plan]
+    P --> Q[Cache Strategy]
+    
+    Q --> R[Parallel Computation Engine]
+    R --> S[Celery Worker 1<br/>RMSD/eRMSD Analysis]
+    R --> T[Celery Worker 2<br/>Torsion Analysis]
+    R --> U[Celery Worker N<br/>Contact Maps & Landscapes]
+    
+    S --> V[Caching System]
+    T --> V
+    U --> V
+    V --> W[Memory Cache<br/>Thread-Safe]
+    V --> X[Disk Persistence<br/>Compressed]
+    V --> Y[Shared Computation<br/>Optimization]
+    
+    W --> Z[Visualization Generation]
+    X --> Z
+    Y --> Z
+    
+    Z --> AA[Interactive Plotly Plots]
+    Z --> BB[Static Matplotlib Images]
+    Z --> CC[CSV Data Export]
+    Z --> DD[ZIP Archives]
+    
+    AA --> EE[Results Delivery]
+    BB --> EE
+    CC --> EE
+    DD --> EE
+    
+    EE --> FF[Real-time Progress Updates<br/>WebSocket]
+    EE --> GG[Interactive Plot Exploration]
+    EE --> HH[Download Management]
+    EE --> II[Session Persistence]
+    
+    %% Analysis Types
+    JJ[Analysis Types] --> KK[RMSD/eRMSD<br/>Structural Deviation]
+    JJ --> LL[Torsion Angles<br/>Backbone Flexibility]
+    JJ --> MM[Contact Maps<br/>Inter-residue Interactions]
+    JJ --> NN[Energy Landscapes<br/>Conformational Free Energy]
+    JJ --> OO[Arc Diagrams<br/>Secondary Structure]
+    JJ --> PP[Base Pairing<br/>RNA H-bonding]
+    
+    %% Core Technologies
+    QQ[Core Technologies] --> RR[Backend<br/>Flask + Celery + Redis]
+    QQ --> SS[Analysis<br/>MDAnalysis + Barnaba + MDTraj]
+    QQ --> TT[Visualization<br/>Plotly + Matplotlib]
+    QQ --> UU[Optimization<br/>Numba JIT + Multi-level Caching]
+    
+    %% Styling
+    classDef userInterface fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef processing fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef analysis fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef visualization fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef technology fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    
+    class A,B,C userInterface
+    class D,E,F,G,H,I,J,K,L,M,N,O,P,Q processing
+    class R,S,T,U,V,W,X,Y,JJ,KK,LL,MM,NN,OO,PP analysis
+    class Z,AA,BB,CC,DD,EE,FF,GG,HH,II visualization
+    class QQ,RR,SS,TT,UU technology

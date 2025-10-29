@@ -1,0 +1,1453 @@
+
+=== Service stopped at 2025-10-24 15:42:57.132093 ===
+
+
+=== Service started at 2025-10-24 15:43:00.152392 ===
+ 
+ -------------- celery@pop-os v5.5.2 (immunity)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-24 15:43:02
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x7e68f022a660
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-24 15:43:02,712: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379/0: Error 111 connecting to localhost:6379. Connection refused..
+Trying again in 2.00 seconds... (1/100)
+
+[2025-10-24 15:43:04,714: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379/0: Error 111 connecting to localhost:6379. Connection refused..
+Trying again in 4.00 seconds... (2/100)
+
+[2025-10-24 15:43:08,716: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379/0: Error 111 connecting to localhost:6379. Connection refused..
+Trying again in 6.00 seconds... (3/100)
+
+[2025-10-24 15:43:14,718: ERROR/MainProcess] consumer: Cannot connect to redis://localhost:6379/0: Error 111 connecting to localhost:6379. Connection refused..
+Trying again in 8.00 seconds... (4/100)
+
+[2025-10-24 15:43:22,726: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-24 15:43:22,733: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-24 15:43:23,751: INFO/MainProcess] mingle: all alone
+[2025-10-24 15:43:23,775: INFO/MainProcess] celery@pop-os ready.
+[2025-10-24 15:43:26,335: INFO/MainProcess] Events of group {task} enabled by remote.
+[2025-10-24 15:43:43,739: INFO/MainProcess] Task src.core.tasks.compute_rmsd[caed6125-f5ae-4166-9132-3eb6cd9bae54] received
+[2025-10-24 15:43:43,740: INFO/ForkPoolWorker-3] Starting compute_rmsd
+[2025-10-24 15:43:44,748: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:43:44,749: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:43:44,750: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:43:44,751: WARNING/ForkPoolWorker-3] # found 
+[2025-10-24 15:43:44,751: WARNING/ForkPoolWorker-3]  
+[2025-10-24 15:43:44,751: WARNING/ForkPoolWorker-3] 213
+[2025-10-24 15:43:44,751: WARNING/ForkPoolWorker-3]  
+[2025-10-24 15:43:44,751: WARNING/ForkPoolWorker-3] atoms in common
+[2025-10-24 15:43:46,709: INFO/ForkPoolWorker-3] RMSD computed and saved to static/uploads/b9c5f76d203a4f2481bce8857eef2766/rmsd_data.pkl
+[2025-10-24 15:43:46,710: INFO/ForkPoolWorker-3] Completed compute_rmsd in 2.97s
+[2025-10-24 15:43:46,715: INFO/MainProcess] Task src.core.tasks.compute_ermsd[b5ecea0a-1ae0-4d7f-bc53-4e7abd94ae96] received
+[2025-10-24 15:43:46,716: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_rmsd[caed6125-f5ae-4166-9132-3eb6cd9bae54] succeeded in 2.975971292002214s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/b9c5f76d203a4f2481bce8857eef2766/rmsd_data.pkl'}
+[2025-10-24 15:43:46,717: INFO/ForkPoolWorker-3] Starting compute_ermsd
+[2025-10-24 15:43:47,210: WARNING/ForkPoolWorker-3] # Loaded reference /home/louis/Downloads/Plot_RNA4/static/uploads/b9c5f76d203a4f2481bce8857eef2766/frame_0_noions.pdb 
+# Loaded target /home/louis/Downloads/Plot_RNA4/static/uploads/b9c5f76d203a4f2481bce8857eef2766/traj_uploaded.xtc 
+[2025-10-24 15:43:47,210: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:43:47,211: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:43:59,128: INFO/ForkPoolWorker-3] eRMSD computed and saved to static/uploads/b9c5f76d203a4f2481bce8857eef2766/ermsd_data.pkl
+[2025-10-24 15:43:59,128: INFO/ForkPoolWorker-3] Completed compute_ermsd in 12.41s
+[2025-10-24 15:43:59,129: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_ermsd[b5ecea0a-1ae0-4d7f-bc53-4e7abd94ae96] succeeded in 12.411337120000098s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/b9c5f76d203a4f2481bce8857eef2766/ermsd_data.pkl'}
+[2025-10-24 15:43:59,220: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[242edf1b-89dd-4d15-962d-f58b4e0b5f00] received
+[2025-10-24 15:43:59,221: INFO/ForkPoolWorker-3] Starting generate_rmsd_plot
+[2025-10-24 15:43:59,222: WARNING/ForkPoolWorker-3] LOADED RMSD FROM SAVED DATA
+[2025-10-24 15:43:59,222: INFO/ForkPoolWorker-3] Default plots are used
+[2025-10-24 15:43:59,222: INFO/ForkPoolWorker-3] Starting plot_rmsd
+[2025-10-24 15:43:59,285: INFO/ForkPoolWorker-3] Completed plot_rmsd successfully
+[2025-10-24 15:43:59,288: WARNING/ForkPoolWorker-3] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('td4COhnplz2Qq6w9kTbbPWcHej1wAt' ... '8i8mU/HJSAP714ST+7LkQ/4bZ6Pw=='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-24 15:43:59,324: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[aec72849-59d5-4b60-a338-d59ed0ae7f97] received
+[2025-10-24 15:43:59,325: INFO/ForkPoolWorker-4] Starting generate_ermsd_plot
+[2025-10-24 15:43:59,326: WARNING/ForkPoolWorker-4] LOADED eRMSD FROM SAVED DATA
+[2025-10-24 15:43:59,326: INFO/ForkPoolWorker-4] Starting plot_ermsd
+[2025-10-24 15:43:59,358: INFO/ForkPoolWorker-3] Completed generate_rmsd_plot in 0.14s
+[2025-10-24 15:43:59,359: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_rmsd_plot[242edf1b-89dd-4d15-962d-f58b4e0b5f00] succeeded in 0.13803091400041012s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"td4COhnplz2Qq6w9kTbbPWcHej1wAtc9M5rCPazx0D1DxwI+J5i3Pesy2z0NMyE+qvWwPQhgxT0YY9A96SfjPTAvxj3\u002ffbA9SAKPPZhinD0uCMw9U950PVZzwT23Rs49wUnHPUkP7T0HQ7s9rTpzPa3QCz4gy\u002f09Sor0PbKvwz1fnrE9\u002fCKpPRaZwD2FJgI+8MqtPWPn3D33Erc9kvcDPoEesT26R409It+1Pegyij36bK09ELG9PWQCwD39TYk9xnCtPTPkaD3aQgM+6H\u002fkPWmyrz0lDCI+fVkTPof4pz1XkZA9DDfiPV3cUj51OgU+s6PGPlBlyT7Gkrs+b\u002frAPgxpwz7qk74+Etm\u002fPpcivz4fQMk+te6\u002fPr+Iqz5kZrc+eVq1Pg4Ipj4GFac+VVWrPsMsrD5LAqo+2xOtPhv7sD73RbE+TiuxPos3rz5q67k+e2qoPrH2pz7YLbA+HRmQPlH3ZT6oWps+QDJVPqts7T1Fk7Q9NxYGPkhCuj1Zs9Y9dPyVPZLupT2+INw9eSCYPZUZlz1Ata49DXzkPS4NlD1Y9LI9oSvNPX1+1j16d5w9fXV0PSS\u002fzj1JVPA97m4APgxXtD02Ppg9TK+YPaRFxT3TZd09+12cPUmbmD1WAoo9WEqyPZmLvT1Cybs9ehqTPXDsnj0xxdE9PZOgPTH84D2gjyA+COfBPZ\u002fIyj21Fs89vo10PSnqCT7aqlA+ifGfPZyo2j2ZP6M9wrqcPXDJtT3HmpE9XC+XPQLYuj0GsbA9sOWbPQgYoD07jxU+JXgNPqQAAz6NIus9HQGYPRnqHj6zshc+IJxKPt0JmT5rk5w+oSuxPn9Asj4Z7bA+u+iyPn4LtT4+E74+VNi0PkWrxz44YaU+jIujPvNcpz6DOY4+oLC0PpABqj5FYr...'
+[2025-10-24 15:43:59,383: INFO/ForkPoolWorker-4] Completed plot_ermsd successfully
+[2025-10-24 15:43:59,511: INFO/ForkPoolWorker-4] Completed generate_ermsd_plot in 0.19s
+[2025-10-24 15:43:59,517: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_ermsd_plot[aec72849-59d5-4b60-a338-d59ed0ae7f97] succeeded in 0.19205619600325008s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"oUwgbGCgcT\u002fgJckfe\u002fXZP8urzE9xdtc\u002f05wR69xl4D+XJ8BHGXTTPyi3EgAKFN4\u002fBTg7Us\u002fb2T8s4InWsL3aP8lHAN8B8OI\u002fWM2L3mhr3D\u002fScdaFs1\u002ffPyYDVsC3rOQ\u002fYyJRdIUt2T9hukOqN4DXP+nMWuuHuN4\u002fDOr7sNNS3D\u002fWWVxVPDHYP6bVa2QGydY\u002fPldEiSua1j+2VZJl9BLWP8bvx+b73tc\u002fyOb50j8a1z9qduhJgpraP1XuArV\u002fUds\u002f14g+Rh+c1j8bTs3K1LfcP+uy7b\u002fHtNY\u002fCZ1k840k1j8Eaex+qGfkP695GLWsFt0\u002fv4U5Fbuo3z+znQ1qjgrVP6XIkh7tPdc\u002fNzZUShjN1D91lcG\u002fo9\u002fbP+BIOxZYDOM\u002fZumfWRCY2j9qGX+XmQLiP\u002fJz5BDhY9U\u002f+0RqoKfs4T9JW9EHZHnYPxgvUNON5NI\u002fT7mPozkk2j\u002fO19u396zXPzGyCSgnhNw\u002flqR2MUPg2D+1yWV8OBvZPyFLSFqx4tM\u002f4mA5ExkT2D+K\u002fjxI\u002fdbSPxAD0EhOxd4\u002fXMRp8FtU3j8L8\u002fkqgV3YPzm64Ew9FeM\u002fdHAQYGZr4z++OeB1ECbgP5ZiheP5BNc\u002fAepx+km72T9+adM8P9bgP\u002fVWVfEwLOA\u002f+UKIJK407D8fQKEedRbtP77042U6Wew\u002fB6BA2aZa7D\u002f6jZ1JnUvqPyKR44pp1uo\u002fmmFUK9jl6j9+zfIQLT\u002fqP+vABpWJJOw\u002faKprGneM7j\u00...'
+[2025-10-24 15:57:32,941: INFO/MainProcess] Task src.core.tasks.compute_rmsd[d7c51075-9998-408e-bda0-e7af46aa0f96] received
+[2025-10-24 15:57:32,942: INFO/ForkPoolWorker-3] Starting compute_rmsd
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:57:33,611: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] # found 
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3]  
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] 213
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3]  
+[2025-10-24 15:57:33,612: WARNING/ForkPoolWorker-3] atoms in common
+[2025-10-24 15:57:35,476: INFO/ForkPoolWorker-3] RMSD computed and saved to static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/rmsd_data.pkl
+[2025-10-24 15:57:35,476: INFO/ForkPoolWorker-3] Completed compute_rmsd in 2.53s
+[2025-10-24 15:57:35,478: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_rmsd[d7c51075-9998-408e-bda0-e7af46aa0f96] succeeded in 2.5354985869998927s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/rmsd_data.pkl'}
+[2025-10-24 15:57:35,478: INFO/MainProcess] Task src.core.tasks.compute_ermsd[f74d49de-233c-4110-adf0-5ee4195d2011] received
+[2025-10-24 15:57:35,479: INFO/ForkPoolWorker-3] Starting compute_ermsd
+[2025-10-24 15:57:36,068: WARNING/ForkPoolWorker-3] # Loaded reference /home/louis/Downloads/Plot_RNA4/static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/frame_0_noions.pdb 
+# Loaded target /home/louis/Downloads/Plot_RNA4/static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/traj_uploaded.xtc 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 15:57:36,069: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 15:57:49,308: INFO/ForkPoolWorker-3] eRMSD computed and saved to static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/ermsd_data.pkl
+[2025-10-24 15:57:49,308: INFO/ForkPoolWorker-3] Completed compute_ermsd in 13.83s
+[2025-10-24 15:57:49,309: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_ermsd[f74d49de-233c-4110-adf0-5ee4195d2011] succeeded in 13.82955365000089s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/01b2e2767ccf4d9aa08ec7372af86e73/ermsd_data.pkl'}
+[2025-10-24 15:57:49,333: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[645413fa-1ef2-4538-a8f2-d53dfb8ccb39] received
+[2025-10-24 15:57:49,334: INFO/ForkPoolWorker-3] Starting generate_rmsd_plot
+[2025-10-24 15:57:49,334: WARNING/ForkPoolWorker-3] LOADED RMSD FROM SAVED DATA
+[2025-10-24 15:57:49,334: INFO/ForkPoolWorker-3] Default plots are used
+[2025-10-24 15:57:49,334: INFO/ForkPoolWorker-3] Starting plot_rmsd
+[2025-10-24 15:57:49,336: INFO/ForkPoolWorker-3] Completed plot_rmsd successfully
+[2025-10-24 15:57:49,340: WARNING/ForkPoolWorker-3] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('td4COhnplz2Qq6w9kTbbPWcHej1wAt' ... '8i8mU/HJSAP714ST+7LkQ/4bZ6Pw=='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-24 15:57:49,420: INFO/ForkPoolWorker-3] Completed generate_rmsd_plot in 0.09s
+[2025-10-24 15:57:49,422: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_rmsd_plot[645413fa-1ef2-4538-a8f2-d53dfb8ccb39] succeeded in 0.08859019000010449s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"td4COhnplz2Qq6w9kTbbPWcHej1wAtc9M5rCPazx0D1DxwI+J5i3Pesy2z0NMyE+qvWwPQhgxT0YY9A96SfjPTAvxj3\u002ffbA9SAKPPZhinD0uCMw9U950PVZzwT23Rs49wUnHPUkP7T0HQ7s9rTpzPa3QCz4gy\u002f09Sor0PbKvwz1fnrE9\u002fCKpPRaZwD2FJgI+8MqtPWPn3D33Erc9kvcDPoEesT26R409It+1Pegyij36bK09ELG9PWQCwD39TYk9xnCtPTPkaD3aQgM+6H\u002fkPWmyrz0lDCI+fVkTPof4pz1XkZA9DDfiPV3cUj51OgU+s6PGPlBlyT7Gkrs+b\u002frAPgxpwz7qk74+Etm\u002fPpcivz4fQMk+te6\u002fPr+Iqz5kZrc+eVq1Pg4Ipj4GFac+VVWrPsMsrD5LAqo+2xOtPhv7sD73RbE+TiuxPos3rz5q67k+e2qoPrH2pz7YLbA+HRmQPlH3ZT6oWps+QDJVPqts7T1Fk7Q9NxYGPkhCuj1Zs9Y9dPyVPZLupT2+INw9eSCYPZUZlz1Ata49DXzkPS4NlD1Y9LI9oSvNPX1+1j16d5w9fXV0PSS\u002fzj1JVPA97m4APgxXtD02Ppg9TK+YPaRFxT3TZd09+12cPUmbmD1WAoo9WEqyPZmLvT1Cybs9ehqTPXDsnj0xxdE9PZOgPTH84D2gjyA+COfBPZ\u002fIyj21Fs89vo10PSnqCT7aqlA+ifGfPZyo2j2ZP6M9wrqcPXDJtT3HmpE9XC+XPQLYuj0GsbA9sOWbPQgYoD07jxU+JXgNPqQAAz6NIus9HQGYPRnqHj6zshc+IJxKPt0JmT5rk5w+oSuxPn9Asj4Z7bA+u+iyPn4LtT4+E74+VNi0PkWrxz44YaU+jIujPvNcpz6DOY4+oLC0PpABqj5FYr...'
+[2025-10-24 15:57:49,437: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[285f765d-2b6d-489c-9a89-190ffbab75e1] received
+[2025-10-24 15:57:49,439: INFO/ForkPoolWorker-3] Starting generate_ermsd_plot
+[2025-10-24 15:57:49,440: WARNING/ForkPoolWorker-3] LOADED eRMSD FROM SAVED DATA
+[2025-10-24 15:57:49,440: INFO/ForkPoolWorker-3] Starting plot_ermsd
+[2025-10-24 15:57:49,443: INFO/ForkPoolWorker-3] Completed plot_ermsd successfully
+[2025-10-24 15:57:49,584: INFO/ForkPoolWorker-3] Completed generate_ermsd_plot in 0.14s
+[2025-10-24 15:57:49,587: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_ermsd_plot[285f765d-2b6d-489c-9a89-190ffbab75e1] succeeded in 0.14795327499814448s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"oUwgbGCgcT\u002fgJckfe\u002fXZP8urzE9xdtc\u002f05wR69xl4D+XJ8BHGXTTPyi3EgAKFN4\u002fBTg7Us\u002fb2T8s4InWsL3aP8lHAN8B8OI\u002fWM2L3mhr3D\u002fScdaFs1\u002ffPyYDVsC3rOQ\u002fYyJRdIUt2T9hukOqN4DXP+nMWuuHuN4\u002fDOr7sNNS3D\u002fWWVxVPDHYP6bVa2QGydY\u002fPldEiSua1j+2VZJl9BLWP8bvx+b73tc\u002fyOb50j8a1z9qduhJgpraP1XuArV\u002fUds\u002f14g+Rh+c1j8bTs3K1LfcP+uy7b\u002fHtNY\u002fCZ1k840k1j8Eaex+qGfkP695GLWsFt0\u002fv4U5Fbuo3z+znQ1qjgrVP6XIkh7tPdc\u002fNzZUShjN1D91lcG\u002fo9\u002fbP+BIOxZYDOM\u002fZumfWRCY2j9qGX+XmQLiP\u002fJz5BDhY9U\u002f+0RqoKfs4T9JW9EHZHnYPxgvUNON5NI\u002fT7mPozkk2j\u002fO19u396zXPzGyCSgnhNw\u002flqR2MUPg2D+1yWV8OBvZPyFLSFqx4tM\u002f4mA5ExkT2D+K\u002fjxI\u002fdbSPxAD0EhOxd4\u002fXMRp8FtU3j8L8\u002fkqgV3YPzm64Ew9FeM\u002fdHAQYGZr4z++OeB1ECbgP5ZiheP5BNc\u002fAepx+km72T9+adM8P9bgP\u002fVWVfEwLOA\u002f+UKIJK407D8fQKEedRbtP77042U6Wew\u002fB6BA2aZa7D\u002f6jZ1JnUvqPyKR44pp1uo\u002fmmFUK9jl6j9+zfIQLT\u002fqP+vABpWJJOw\u002faKprGneM7j\u00...'
+[2025-10-24 16:00:25,550: INFO/MainProcess] Task src.core.tasks.compute_rmsd[1d8fa904-23f1-42a6-b858-df5772bcdbdd] received
+[2025-10-24 16:00:25,551: INFO/ForkPoolWorker-3] Starting compute_rmsd
+[2025-10-24 16:00:26,323: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:00:26,324: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:00:26,325: WARNING/ForkPoolWorker-3] # found 
+[2025-10-24 16:00:26,325: WARNING/ForkPoolWorker-3]  
+[2025-10-24 16:00:26,325: WARNING/ForkPoolWorker-3] 213
+[2025-10-24 16:00:26,325: WARNING/ForkPoolWorker-3]  
+[2025-10-24 16:00:26,325: WARNING/ForkPoolWorker-3] atoms in common
+[2025-10-24 16:00:28,279: INFO/ForkPoolWorker-3] RMSD computed and saved to static/uploads/7b1e84bf309d40328dece558e4ce4be0/rmsd_data.pkl
+[2025-10-24 16:00:28,279: INFO/ForkPoolWorker-3] Completed compute_rmsd in 2.73s
+[2025-10-24 16:00:28,281: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_rmsd[1d8fa904-23f1-42a6-b858-df5772bcdbdd] succeeded in 2.729723622000165s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/7b1e84bf309d40328dece558e4ce4be0/rmsd_data.pkl'}
+[2025-10-24 16:00:28,281: INFO/MainProcess] Task src.core.tasks.compute_ermsd[78ce502c-0f70-4c62-b36b-fef432dbe24f] received
+[2025-10-24 16:00:28,282: INFO/ForkPoolWorker-3] Starting compute_ermsd
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Loaded reference /home/louis/Downloads/Plot_RNA4/static/uploads/7b1e84bf309d40328dece558e4ce4be0/frame_0_noions.pdb 
+# Loaded target /home/louis/Downloads/Plot_RNA4/static/uploads/7b1e84bf309d40328dece558e4ce4be0/traj_uploaded.xtc 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:00:28,981: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:00:28,982: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:00:41,080: INFO/ForkPoolWorker-3] eRMSD computed and saved to static/uploads/7b1e84bf309d40328dece558e4ce4be0/ermsd_data.pkl
+[2025-10-24 16:00:41,080: INFO/ForkPoolWorker-3] Completed compute_ermsd in 12.80s
+[2025-10-24 16:00:41,081: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_ermsd[78ce502c-0f70-4c62-b36b-fef432dbe24f] succeeded in 12.799120030002086s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/7b1e84bf309d40328dece558e4ce4be0/ermsd_data.pkl'}
+[2025-10-24 16:00:41,129: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[084253b1-d87a-4dce-8b3d-7e9ce28e11e5] received
+[2025-10-24 16:00:41,131: INFO/ForkPoolWorker-3] Starting generate_rmsd_plot
+[2025-10-24 16:00:41,131: WARNING/ForkPoolWorker-3] LOADED RMSD FROM SAVED DATA
+[2025-10-24 16:00:41,131: INFO/ForkPoolWorker-3] Default plots are used
+[2025-10-24 16:00:41,131: INFO/ForkPoolWorker-3] Starting plot_rmsd
+[2025-10-24 16:00:41,133: INFO/ForkPoolWorker-3] Completed plot_rmsd successfully
+[2025-10-24 16:00:41,137: WARNING/ForkPoolWorker-3] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('td4COhnplz2Qq6w9kTbbPWcHej1wAt' ... '8i8mU/HJSAP714ST+7LkQ/4bZ6Pw=='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-24 16:00:41,202: INFO/ForkPoolWorker-3] Completed generate_rmsd_plot in 0.07s
+[2025-10-24 16:00:41,204: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_rmsd_plot[084253b1-d87a-4dce-8b3d-7e9ce28e11e5] succeeded in 0.0730337069981033s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"td4COhnplz2Qq6w9kTbbPWcHej1wAtc9M5rCPazx0D1DxwI+J5i3Pesy2z0NMyE+qvWwPQhgxT0YY9A96SfjPTAvxj3\u002ffbA9SAKPPZhinD0uCMw9U950PVZzwT23Rs49wUnHPUkP7T0HQ7s9rTpzPa3QCz4gy\u002f09Sor0PbKvwz1fnrE9\u002fCKpPRaZwD2FJgI+8MqtPWPn3D33Erc9kvcDPoEesT26R409It+1Pegyij36bK09ELG9PWQCwD39TYk9xnCtPTPkaD3aQgM+6H\u002fkPWmyrz0lDCI+fVkTPof4pz1XkZA9DDfiPV3cUj51OgU+s6PGPlBlyT7Gkrs+b\u002frAPgxpwz7qk74+Etm\u002fPpcivz4fQMk+te6\u002fPr+Iqz5kZrc+eVq1Pg4Ipj4GFac+VVWrPsMsrD5LAqo+2xOtPhv7sD73RbE+TiuxPos3rz5q67k+e2qoPrH2pz7YLbA+HRmQPlH3ZT6oWps+QDJVPqts7T1Fk7Q9NxYGPkhCuj1Zs9Y9dPyVPZLupT2+INw9eSCYPZUZlz1Ata49DXzkPS4NlD1Y9LI9oSvNPX1+1j16d5w9fXV0PSS\u002fzj1JVPA97m4APgxXtD02Ppg9TK+YPaRFxT3TZd09+12cPUmbmD1WAoo9WEqyPZmLvT1Cybs9ehqTPXDsnj0xxdE9PZOgPTH84D2gjyA+COfBPZ\u002fIyj21Fs89vo10PSnqCT7aqlA+ifGfPZyo2j2ZP6M9wrqcPXDJtT3HmpE9XC+XPQLYuj0GsbA9sOWbPQgYoD07jxU+JXgNPqQAAz6NIus9HQGYPRnqHj6zshc+IJxKPt0JmT5rk5w+oSuxPn9Asj4Z7bA+u+iyPn4LtT4+E74+VNi0PkWrxz44YaU+jIujPvNcpz6DOY4+oLC0PpABqj5FYr...'
+[2025-10-24 16:00:41,232: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[edafaea0-3fcb-4d70-8cf0-827cac8cdf05] received
+[2025-10-24 16:00:41,233: INFO/ForkPoolWorker-3] Starting generate_ermsd_plot
+[2025-10-24 16:00:41,234: WARNING/ForkPoolWorker-3] LOADED eRMSD FROM SAVED DATA
+[2025-10-24 16:00:41,234: INFO/ForkPoolWorker-3] Starting plot_ermsd
+[2025-10-24 16:00:41,236: INFO/ForkPoolWorker-3] Completed plot_ermsd successfully
+[2025-10-24 16:00:41,345: INFO/ForkPoolWorker-3] Completed generate_ermsd_plot in 0.11s
+[2025-10-24 16:00:41,347: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_ermsd_plot[edafaea0-3fcb-4d70-8cf0-827cac8cdf05] succeeded in 0.11349933900055476s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"oUwgbGCgcT\u002fgJckfe\u002fXZP8urzE9xdtc\u002f05wR69xl4D+XJ8BHGXTTPyi3EgAKFN4\u002fBTg7Us\u002fb2T8s4InWsL3aP8lHAN8B8OI\u002fWM2L3mhr3D\u002fScdaFs1\u002ffPyYDVsC3rOQ\u002fYyJRdIUt2T9hukOqN4DXP+nMWuuHuN4\u002fDOr7sNNS3D\u002fWWVxVPDHYP6bVa2QGydY\u002fPldEiSua1j+2VZJl9BLWP8bvx+b73tc\u002fyOb50j8a1z9qduhJgpraP1XuArV\u002fUds\u002f14g+Rh+c1j8bTs3K1LfcP+uy7b\u002fHtNY\u002fCZ1k840k1j8Eaex+qGfkP695GLWsFt0\u002fv4U5Fbuo3z+znQ1qjgrVP6XIkh7tPdc\u002fNzZUShjN1D91lcG\u002fo9\u002fbP+BIOxZYDOM\u002fZumfWRCY2j9qGX+XmQLiP\u002fJz5BDhY9U\u002f+0RqoKfs4T9JW9EHZHnYPxgvUNON5NI\u002fT7mPozkk2j\u002fO19u396zXPzGyCSgnhNw\u002flqR2MUPg2D+1yWV8OBvZPyFLSFqx4tM\u002f4mA5ExkT2D+K\u002fjxI\u002fdbSPxAD0EhOxd4\u002fXMRp8FtU3j8L8\u002fkqgV3YPzm64Ew9FeM\u002fdHAQYGZr4z++OeB1ECbgP5ZiheP5BNc\u002fAepx+km72T9+adM8P9bgP\u002fVWVfEwLOA\u002f+UKIJK407D8fQKEedRbtP77042U6Wew\u002fB6BA2aZa7D\u002f6jZ1JnUvqPyKR44pp1uo\u002fmmFUK9jl6j9+zfIQLT\u002fqP+vABpWJJOw\u002faKprGneM7j\u00...'
+
+=== Service stopped at 2025-10-24 16:03:25.514733 ===
+
+
+worker: Warm shutdown (MainProcess)
+
+=== Service started at 2025-10-24 16:03:28.283431 ===
+ 
+ -------------- celery@pop-os v5.5.2 (immunity)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-24 16:03:30
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x7fed514e2660
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-24 16:03:30,698: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-24 16:03:30,702: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-24 16:03:31,713: INFO/MainProcess] mingle: all alone
+[2025-10-24 16:03:31,720: INFO/MainProcess] celery@pop-os ready.
+[2025-10-24 16:03:36,333: INFO/MainProcess] Events of group {task} enabled by remote.
+[2025-10-24 16:03:54,392: INFO/MainProcess] Task src.core.tasks.compute_rmsd[969a1eb6-2098-4724-9a98-1b66fad7a437] received
+[2025-10-24 16:03:54,394: INFO/ForkPoolWorker-3] Starting compute_rmsd
+[2025-10-24 16:03:55,149: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:03:55,149: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:03:55,149: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:03:55,149: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:03:55,149: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:03:55,150: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:03:55,151: WARNING/ForkPoolWorker-3] # found 
+[2025-10-24 16:03:55,151: WARNING/ForkPoolWorker-3]  
+[2025-10-24 16:03:55,151: WARNING/ForkPoolWorker-3] 213
+[2025-10-24 16:03:55,151: WARNING/ForkPoolWorker-3]  
+[2025-10-24 16:03:55,151: WARNING/ForkPoolWorker-3] atoms in common
+[2025-10-24 16:03:57,167: INFO/ForkPoolWorker-3] RMSD computed and saved to static/uploads/9359993292944b2b925cdd96cfbf09e6/rmsd_data.pkl
+[2025-10-24 16:03:57,167: INFO/ForkPoolWorker-3] Completed compute_rmsd in 2.77s
+[2025-10-24 16:03:57,174: INFO/MainProcess] Task src.core.tasks.compute_ermsd[d0c38efa-3f8e-44fa-ac1f-425d2ff4194d] received
+[2025-10-24 16:03:57,175: INFO/ForkPoolWorker-3] Task src.core.tasks.compute_rmsd[969a1eb6-2098-4724-9a98-1b66fad7a437] succeeded in 2.78135780500088s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/9359993292944b2b925cdd96cfbf09e6/rmsd_data.pkl'}
+[2025-10-24 16:03:57,176: INFO/ForkPoolWorker-4] Starting compute_ermsd
+[2025-10-24 16:03:57,857: WARNING/ForkPoolWorker-4] # Loaded reference /home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/frame_0_noions.pdb 
+# Loaded target /home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/traj_uploaded.xtc 
+[2025-10-24 16:03:57,857: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-24 16:03:57,858: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-24 16:03:57,859: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-24 16:03:57,859: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-24 16:03:57,859: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-24 16:03:57,859: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-24 16:03:57,859: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-24 16:04:10,383: INFO/ForkPoolWorker-4] eRMSD computed and saved to static/uploads/9359993292944b2b925cdd96cfbf09e6/ermsd_data.pkl
+[2025-10-24 16:04:10,383: INFO/ForkPoolWorker-4] Completed compute_ermsd in 13.21s
+[2025-10-24 16:04:10,386: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_ermsd[d0c38efa-3f8e-44fa-ac1f-425d2ff4194d] succeeded in 13.210461816001043s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/9359993292944b2b925cdd96cfbf09e6/ermsd_data.pkl'}
+[2025-10-24 16:04:10,481: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[effe7e50-0ebe-4975-81e3-2c0e0b545258] received
+[2025-10-24 16:04:10,483: INFO/ForkPoolWorker-3] Starting generate_rmsd_plot
+[2025-10-24 16:04:10,483: WARNING/ForkPoolWorker-3] LOADED RMSD FROM SAVED DATA
+[2025-10-24 16:04:10,484: INFO/ForkPoolWorker-3] Default plots are used
+[2025-10-24 16:04:10,484: INFO/ForkPoolWorker-3] Starting plot_rmsd
+[2025-10-24 16:04:10,551: INFO/ForkPoolWorker-3] Completed plot_rmsd successfully
+[2025-10-24 16:04:10,559: WARNING/ForkPoolWorker-3] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('td4COhnplz2Qq6w9kTbbPWcHej1wAt' ... '8i8mU/HJSAP714ST+7LkQ/4bZ6Pw=='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-24 16:04:10,597: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[4084c73c-2103-44af-91ea-69fa5960751c] received
+[2025-10-24 16:04:10,600: INFO/ForkPoolWorker-4] Starting generate_ermsd_plot
+[2025-10-24 16:04:10,601: WARNING/ForkPoolWorker-4] LOADED eRMSD FROM SAVED DATA
+[2025-10-24 16:04:10,601: INFO/ForkPoolWorker-4] Starting plot_ermsd
+[2025-10-24 16:04:10,680: INFO/ForkPoolWorker-4] Completed plot_ermsd successfully
+[2025-10-24 16:04:10,687: INFO/ForkPoolWorker-3] Completed generate_rmsd_plot in 0.20s
+[2025-10-24 16:04:10,689: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_rmsd_plot[effe7e50-0ebe-4975-81e3-2c0e0b545258] succeeded in 0.20620339900051476s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"td4COhnplz2Qq6w9kTbbPWcHej1wAtc9M5rCPazx0D1DxwI+J5i3Pesy2z0NMyE+qvWwPQhgxT0YY9A96SfjPTAvxj3\u002ffbA9SAKPPZhinD0uCMw9U950PVZzwT23Rs49wUnHPUkP7T0HQ7s9rTpzPa3QCz4gy\u002f09Sor0PbKvwz1fnrE9\u002fCKpPRaZwD2FJgI+8MqtPWPn3D33Erc9kvcDPoEesT26R409It+1Pegyij36bK09ELG9PWQCwD39TYk9xnCtPTPkaD3aQgM+6H\u002fkPWmyrz0lDCI+fVkTPof4pz1XkZA9DDfiPV3cUj51OgU+s6PGPlBlyT7Gkrs+b\u002frAPgxpwz7qk74+Etm\u002fPpcivz4fQMk+te6\u002fPr+Iqz5kZrc+eVq1Pg4Ipj4GFac+VVWrPsMsrD5LAqo+2xOtPhv7sD73RbE+TiuxPos3rz5q67k+e2qoPrH2pz7YLbA+HRmQPlH3ZT6oWps+QDJVPqts7T1Fk7Q9NxYGPkhCuj1Zs9Y9dPyVPZLupT2+INw9eSCYPZUZlz1Ata49DXzkPS4NlD1Y9LI9oSvNPX1+1j16d5w9fXV0PSS\u002fzj1JVPA97m4APgxXtD02Ppg9TK+YPaRFxT3TZd09+12cPUmbmD1WAoo9WEqyPZmLvT1Cybs9ehqTPXDsnj0xxdE9PZOgPTH84D2gjyA+COfBPZ\u002fIyj21Fs89vo10PSnqCT7aqlA+ifGfPZyo2j2ZP6M9wrqcPXDJtT3HmpE9XC+XPQLYuj0GsbA9sOWbPQgYoD07jxU+JXgNPqQAAz6NIus9HQGYPRnqHj6zshc+IJxKPt0JmT5rk5w+oSuxPn9Asj4Z7bA+u+iyPn4LtT4+E74+VNi0PkWrxz44YaU+jIujPvNcpz6DOY4+oLC0PpABqj5FYr...'
+[2025-10-24 16:04:10,802: INFO/ForkPoolWorker-4] Completed generate_ermsd_plot in 0.20s
+[2025-10-24 16:04:10,806: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_ermsd_plot[4084c73c-2103-44af-91ea-69fa5960751c] succeeded in 0.20531471200229134s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"oUwgbGCgcT\u002fgJckfe\u002fXZP8urzE9xdtc\u002f05wR69xl4D+XJ8BHGXTTPyi3EgAKFN4\u002fBTg7Us\u002fb2T8s4InWsL3aP8lHAN8B8OI\u002fWM2L3mhr3D\u002fScdaFs1\u002ffPyYDVsC3rOQ\u002fYyJRdIUt2T9hukOqN4DXP+nMWuuHuN4\u002fDOr7sNNS3D\u002fWWVxVPDHYP6bVa2QGydY\u002fPldEiSua1j+2VZJl9BLWP8bvx+b73tc\u002fyOb50j8a1z9qduhJgpraP1XuArV\u002fUds\u002f14g+Rh+c1j8bTs3K1LfcP+uy7b\u002fHtNY\u002fCZ1k840k1j8Eaex+qGfkP695GLWsFt0\u002fv4U5Fbuo3z+znQ1qjgrVP6XIkh7tPdc\u002fNzZUShjN1D91lcG\u002fo9\u002fbP+BIOxZYDOM\u002fZumfWRCY2j9qGX+XmQLiP\u002fJz5BDhY9U\u002f+0RqoKfs4T9JW9EHZHnYPxgvUNON5NI\u002fT7mPozkk2j\u002fO19u396zXPzGyCSgnhNw\u002flqR2MUPg2D+1yWV8OBvZPyFLSFqx4tM\u002f4mA5ExkT2D+K\u002fjxI\u002fdbSPxAD0EhOxd4\u002fXMRp8FtU3j8L8\u002fkqgV3YPzm64Ew9FeM\u002fdHAQYGZr4z++OeB1ECbgP5ZiheP5BNc\u002fAepx+km72T9+adM8P9bgP\u002fVWVfEwLOA\u002f+UKIJK407D8fQKEedRbtP77042U6Wew\u002fB6BA2aZa7D\u002f6jZ1JnUvqPyKR44pp1uo\u002fmmFUK9jl6j9+zfIQLT\u002fqP+vABpWJJOw\u002faKprGneM7j\u00...'
+[2025-10-24 16:04:25,002: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[94fd9449-cdce-4e1b-8e4b-e48e5164742d] received
+[2025-10-24 16:04:25,004: INFO/ForkPoolWorker-3] Starting update_contact_map_plot
+[2025-10-24 16:04:25,004: ERROR/ForkPoolWorker-3] Contact map update failed: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:04:25,004: ERROR/ForkPoolWorker-3] Failed update_contact_map_plot after 0.00s: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:04:25,009: ERROR/ForkPoolWorker-3] Task src.core.tasks.update_contact_map_plot[94fd9449-cdce-4e1b-8e4b-e48e5164742d] raised unexpected: FileNotFoundError(2, 'No such file or directory')
+Traceback (most recent call last):
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 453, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 736, in __protected_call__
+    return self.run(*args, **kwargs)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 69, in wrapper
+    result = func(self, *args, **kwargs)
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 767, in update_contact_map_plot
+    raise exc
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 747, in update_contact_map_plot
+    with open(os.path.join(generate_data_path, "contact_map_data.pkl"), 'rb') as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:04:28,646: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[3c674f09-7de3-48a6-9acd-ca3ba2be54d3] received
+[2025-10-24 16:04:28,648: INFO/ForkPoolWorker-3] Starting update_contact_map_plot
+[2025-10-24 16:04:28,648: ERROR/ForkPoolWorker-3] Contact map update failed: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:04:28,648: ERROR/ForkPoolWorker-3] Failed update_contact_map_plot after 0.00s: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:04:28,651: ERROR/ForkPoolWorker-3] Task src.core.tasks.update_contact_map_plot[3c674f09-7de3-48a6-9acd-ca3ba2be54d3] raised unexpected: FileNotFoundError(2, 'No such file or directory')
+Traceback (most recent call last):
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 453, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 736, in __protected_call__
+    return self.run(*args, **kwargs)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 69, in wrapper
+    result = func(self, *args, **kwargs)
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 767, in update_contact_map_plot
+    raise exc
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 747, in update_contact_map_plot
+    with open(os.path.join(generate_data_path, "contact_map_data.pkl"), 'rb') as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:31,875: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[3803050f-2bd8-41c3-8016-718450c6c6b6] received
+[2025-10-24 16:05:31,878: INFO/ForkPoolWorker-3] Starting update_contact_map_plot
+[2025-10-24 16:05:31,878: ERROR/ForkPoolWorker-3] Contact map update failed: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:31,878: ERROR/ForkPoolWorker-3] Failed update_contact_map_plot after 0.00s: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:31,882: ERROR/ForkPoolWorker-3] Task src.core.tasks.update_contact_map_plot[3803050f-2bd8-41c3-8016-718450c6c6b6] raised unexpected: FileNotFoundError(2, 'No such file or directory')
+Traceback (most recent call last):
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 453, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 736, in __protected_call__
+    return self.run(*args, **kwargs)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 69, in wrapper
+    result = func(self, *args, **kwargs)
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 767, in update_contact_map_plot
+    raise exc
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 747, in update_contact_map_plot
+    with open(os.path.join(generate_data_path, "contact_map_data.pkl"), 'rb') as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:35,308: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[a3abe6f5-3062-4724-8df7-be21c88e7664] received
+[2025-10-24 16:05:35,309: INFO/ForkPoolWorker-3] Starting update_contact_map_plot
+[2025-10-24 16:05:35,310: ERROR/ForkPoolWorker-3] Contact map update failed: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:35,310: ERROR/ForkPoolWorker-3] Failed update_contact_map_plot after 0.00s: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+[2025-10-24 16:05:35,325: ERROR/ForkPoolWorker-3] Task src.core.tasks.update_contact_map_plot[a3abe6f5-3062-4724-8df7-be21c88e7664] raised unexpected: FileNotFoundError(2, 'No such file or directory')
+Traceback (most recent call last):
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 453, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/miniconda3/envs/Plot_RNA/lib/python3.13/site-packages/celery/app/trace.py", line 736, in __protected_call__
+    return self.run(*args, **kwargs)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 69, in wrapper
+    result = func(self, *args, **kwargs)
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 767, in update_contact_map_plot
+    raise exc
+  File "/home/louis/Downloads/Plot_RNA4/src/core/tasks.py", line 747, in update_contact_map_plot
+    with open(os.path.join(generate_data_path, "contact_map_data.pkl"), 'rb') as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/louis/Downloads/Plot_RNA4/static/uploads/9359993292944b2b925cdd96cfbf09e6/generated_data/contact_map_data.pkl'
+
+=== Service stopped at 2025-10-24 16:12:18.782131 ===
+
+
+worker: Warm shutdown (MainProcess)
+
+=== Service started at 2025-10-24 16:18:29.891587 ===
+ 
+ -------------- celery@pop-os v5.4.0 (opalescent)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-24 16:18:42
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x7b5f50579a90
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-24 16:18:42,979: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-24 16:18:42,987: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-24 16:18:42,988: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-24 16:18:42,991: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-24 16:18:44,016: INFO/MainProcess] mingle: all alone
+[2025-10-24 16:18:44,036: INFO/MainProcess] celery@pop-os ready.
+[2025-10-24 16:18:45,708: INFO/MainProcess] Events of group {task} enabled by remote.
+
+=== Service stopped at 2025-10-24 16:32:53.216098 ===
+
+
+worker: Warm shutdown (MainProcess)
+
+=== Service started at 2025-10-24 16:32:55.635492 ===
+ 
+ -------------- celery@pop-os v5.4.0 (opalescent)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-24 16:32:57
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x74f755d8dbe0
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-24 16:32:57,844: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-24 16:32:57,851: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-24 16:32:57,853: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-24 16:32:57,856: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-24 16:32:58,873: INFO/MainProcess] mingle: all alone
+[2025-10-24 16:32:58,892: INFO/MainProcess] celery@pop-os ready.
+[2025-10-24 16:33:00,709: INFO/MainProcess] Events of group {task} enabled by remote.
+[2025-10-24 16:34:24,458: INFO/MainProcess] Task src.core.tasks.compute_rmsd[8310c1e3-ea2b-4ae3-b0cc-cf12233a3cf6] received
+[2025-10-24 16:34:24,461: INFO/ForkPoolWorker-4] Starting compute_rmsd
+[2025-10-24 16:34:29,745: WARNING/ForkPoolWorker-4] # found 
+[2025-10-24 16:34:29,745: WARNING/ForkPoolWorker-4]  
+[2025-10-24 16:34:29,746: WARNING/ForkPoolWorker-4] 1637
+[2025-10-24 16:34:29,746: WARNING/ForkPoolWorker-4]  
+[2025-10-24 16:34:29,746: WARNING/ForkPoolWorker-4] atoms in common
+[2025-10-24 16:34:37,719: INFO/ForkPoolWorker-4] RMSD computed and saved to static/uploads/551506bcb70145d6a482debc32f5d75d/rmsd_data.pkl
+[2025-10-24 16:34:37,720: INFO/ForkPoolWorker-4] Completed compute_rmsd in 13.26s
+[2025-10-24 16:34:37,730: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_rmsd[8310c1e3-ea2b-4ae3-b0cc-cf12233a3cf6] succeeded in 13.269208127865568s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/551506bcb70145d6a482debc32f5d75d/rmsd_data.pkl'}
+
+=== Service stopped at 2025-10-24 16:44:12.411877 ===
+
+
+worker: Warm shutdown (MainProcess)
+
+=== Service started at 2025-10-29 11:34:14.427927 ===
+ 
+ -------------- celery@pop-os v5.4.0 (opalescent)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-29 11:34:27
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x73e5ab78dbe0
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-29 11:34:27,920: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-29 11:34:27,925: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-29 11:34:27,926: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-29 11:34:27,927: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-29 11:34:28,937: INFO/MainProcess] mingle: all alone
+[2025-10-29 11:34:28,974: INFO/MainProcess] celery@pop-os ready.
+[2025-10-29 11:34:32,271: INFO/MainProcess] Events of group {task} enabled by remote.
+[2025-10-29 11:44:03,409: INFO/MainProcess] Task src.core.tasks.compute_rmsd[157f0f52-8653-4a93-9518-4887785b2d55] received
+[2025-10-29 11:44:03,412: INFO/ForkPoolWorker-4] Starting compute_rmsd
+[2025-10-29 11:44:03,517: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:03,517: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:03,518: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:03,519: WARNING/ForkPoolWorker-4] # found 
+[2025-10-29 11:44:03,519: WARNING/ForkPoolWorker-4]  
+[2025-10-29 11:44:03,519: WARNING/ForkPoolWorker-4] 213
+[2025-10-29 11:44:03,519: WARNING/ForkPoolWorker-4]  
+[2025-10-29 11:44:03,519: WARNING/ForkPoolWorker-4] atoms in common
+[2025-10-29 11:44:03,651: INFO/ForkPoolWorker-4] RMSD computed and saved to static/uploads/89b783ba688c44bda4d8b21f0d914cd5/rmsd_data.pkl
+[2025-10-29 11:44:03,651: INFO/ForkPoolWorker-4] Completed compute_rmsd in 0.24s
+[2025-10-29 11:44:03,657: INFO/MainProcess] Task src.core.tasks.compute_ermsd[599bfb78-1f26-4978-9747-0ce5307d96d6] received
+[2025-10-29 11:44:03,657: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_rmsd[157f0f52-8653-4a93-9518-4887785b2d55] succeeded in 0.24582018901128322s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/89b783ba688c44bda4d8b21f0d914cd5/rmsd_data.pkl'}
+[2025-10-29 11:44:03,659: INFO/ForkPoolWorker-4] Starting compute_ermsd
+[2025-10-29 11:44:03,720: WARNING/ForkPoolWorker-4] # Loaded reference /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/frame_0_noions.pdb 
+# Loaded target /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:03,720: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:03,721: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:04,403: INFO/ForkPoolWorker-4] eRMSD computed and saved to static/uploads/89b783ba688c44bda4d8b21f0d914cd5/ermsd_data.pkl
+[2025-10-29 11:44:04,403: INFO/ForkPoolWorker-4] Completed compute_ermsd in 0.74s
+[2025-10-29 11:44:04,404: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_ermsd[599bfb78-1f26-4978-9747-0ce5307d96d6] succeeded in 0.7456869180023205s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/89b783ba688c44bda4d8b21f0d914cd5/ermsd_data.pkl'}
+[2025-10-29 11:44:04,425: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[b4c58a79-abd2-4e7b-9f18-4ed91329118f] received
+[2025-10-29 11:44:04,427: INFO/ForkPoolWorker-4] Starting generate_rmsd_plot
+[2025-10-29 11:44:04,427: WARNING/ForkPoolWorker-4] LOADED RMSD FROM SAVED DATA
+[2025-10-29 11:44:04,427: INFO/ForkPoolWorker-4] Default plots are used
+[2025-10-29 11:44:04,427: INFO/ForkPoolWorker-4] Starting plot_rmsd
+[2025-10-29 11:44:04,531: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[cc23b598-e515-470b-a2b0-c2cfd31d36da] received
+[2025-10-29 11:44:04,533: INFO/ForkPoolWorker-5] Starting generate_ermsd_plot
+[2025-10-29 11:44:04,534: WARNING/ForkPoolWorker-5] LOADED eRMSD FROM SAVED DATA
+[2025-10-29 11:44:04,535: INFO/ForkPoolWorker-5] Starting plot_ermsd
+[2025-10-29 11:44:04,636: INFO/MainProcess] Task src.core.tasks.generate_contact_map_plot[c24fc183-1e43-4c22-9979-190dbc5656e3] received
+[2025-10-29 11:44:04,639: INFO/ForkPoolWorker-1] Starting generate_contact_map_plot
+[2025-10-29 11:44:04,719: WARNING/ForkPoolWorker-1] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:04,720: WARNING/ForkPoolWorker-1] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:04,741: INFO/MainProcess] Task src.core.tasks.generate_arc_plot[cdde7e91-aaa8-40b9-b089-83c6b762a579] received
+[2025-10-29 11:44:04,744: INFO/ForkPoolWorker-2] Starting generate_arc_plot
+[2025-10-29 11:44:04,745: WARNING/ForkPoolWorker-2] ARC
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:04,826: WARNING/ForkPoolWorker-2] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:04,827: WARNING/ForkPoolWorker-2] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:04,827: WARNING/ForkPoolWorker-2] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:04,827: WARNING/ForkPoolWorker-2] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:04,827: WARNING/ForkPoolWorker-2] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:04,846: INFO/MainProcess] Task src.core.tasks.generate_sec_structure_plot[f0b12b2c-66d4-417c-9a4f-a5b3a52f3ddd] received
+[2025-10-29 11:44:04,850: INFO/ForkPoolWorker-3] Starting generate_sec_structure_plot
+[2025-10-29 11:44:04,930: WARNING/ForkPoolWorker-3] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:04,930: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:04,930: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:04,931: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:04,946: INFO/ForkPoolWorker-5] Completed plot_ermsd successfully
+[2025-10-29 11:44:04,947: INFO/ForkPoolWorker-4] Completed plot_rmsd successfully
+[2025-10-29 11:44:04,951: INFO/MainProcess] Task src.core.tasks.generate_dotbracket_plot[3ee8c1a0-151b-4e8b-af38-c34c8121ebd2] received
+[2025-10-29 11:44:04,952: WARNING/ForkPoolWorker-4] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('fNgTP4MMcz9sLHQ/KlFRPzqZDT8aCj' ... 'U+HbfZPty5UD56ya0+ezoePq2BHz4='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-29 11:44:05,057: INFO/MainProcess] Task src.core.tasks.generate_torsion_plot[f8cde519-cab2-41e2-ac16-191106786d8c] received
+[2025-10-29 11:44:05,087: INFO/ForkPoolWorker-4] Completed generate_rmsd_plot in 0.66s
+[2025-10-29 11:44:05,088: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_rmsd_plot[b4c58a79-abd2-4e7b-9f18-4ed91329118f] succeeded in 0.6611917040136177s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"fNgTP4MMcz9sLHQ\u002fKlFRPzqZDT8aCjY\u002fidNAPwizLj9ZRTs\u002fHKVFP6sWjT8Fc2s\u002f5kBHP9r\u002fZj9T0Fw\u002f7M16P1vwaz9qoXc\u002f24d0P035dj8L7nY\u002fjL89P\u002fqqjz+xAIA\u002faxFhP8PFYT8Y45I\u002fQBdAP3KrkT8H53c\u002fYXobP6xXej9CvHA\u002fFhaDP1braT9grSE\u002fGU5uP+4veD9PNX4\u002fxPhrP7BEKz8YSGs\u002fkYSPPyh8UT9\u002fZ0w\u002f1QpwP2ePWT8gkYY\u002ffWqaP+wRfD+BUG8\u002fNeptP2UvSD+eDWE\u002foZBlP5GQjT8CYiU\u002fPchHP5qGGD9MTAk\u002fl0vuPiy6Dz84KBQ\u002fTOsnP+WIMj9aGj4\u002fMYQiPyoPdz8mozQ\u002fGAxFP4gySj818Fw\u002f1wRaP8cE0D7Qmww\u002fGvFhP1eiYz\u002fJA00\u002fwKdhP7ybYD9pyl4\u002f\u002fGQuP4sJZj9T9EA\u002fAYcKP10hUD\u002fLXnw\u002ficZRPwL6aD8oe4M\u002f0oBaPyCnOj\u002fVVx0\u002fAj+CPzU9iT8OyBo\u002fkpKLPw+6aT837JE\u002fk9NzP7wqVj8DkW8\u002fobyKP5GJjj8Ioms\u002f0ZkTP9N2kD\u002fCKnI\u002f4euFP4qmTz8La2I\u002fYHOJP9RLeD80Y34\u002f7i2IP+7RUz9ix2A\u002f1G0yPy8Mgj8iyYA\u002f+B9VP2XrQD8i0GY\u002fO6VUP6QpgT+9lls\u002fRcx5PxLlYT8wans\u002fYDgoP85jWz+p...'
+[2025-10-29 11:44:05,090: INFO/ForkPoolWorker-4] Starting generate_dotbracket_plot
+[2025-10-29 11:44:05,100: INFO/ForkPoolWorker-5] Completed generate_ermsd_plot in 0.57s
+[2025-10-29 11:44:05,103: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_ermsd_plot[cc23b598-e515-470b-a2b0-c2cfd31d36da] succeeded in 0.5694732789997943s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"cifEwLyh+T83gWbwP+z6P3z1X7D1XPo\u002fPmEADrWj+j\u002fTsLFI9Mz6P\u002fYc2\u002fqZr\u002fw\u002fBr54mzvQ\u002fD+kKD4fvd3+P8CLqqfAdf8\u002fU\u002faQpj+p\u002fD\u002ffU2ZAz4n7PwKo\u002fQlQOPo\u002f3s1YDXDV+z82BMkN\u002fNL5P4As2xlycPg\u002frIhmpQBA+T81zsxi5ST5P4ndjZshwfc\u002fM\u002f6px5jy9z+xJgd5Q4r4P2ZhtTrEk\u002fo\u002fWns+CvXk+T\u002faKGqOOxv4P5LiCO3u1fk\u002fZzvv\u002fwTY+D\u002fFWMYKo0r5P2RZT7RkYvo\u002fRzHcPvGc\u002fD84vtm1da37P1nkhp8O1Po\u002fBb+hmzI3\u002fT9Zf3QOJ5D8P85tMOJCBP0\u002fggSDgFJo\u002fD9QXOx4+Tj7P0kvJ70EfP0\u002fD20DHmHW+T+IFcqC54b7P0AXlt+oQfs\u002fdusriOcb+z\u002f0uPrjmD\u002f8P6ItFjARkfw\u002fNZ5X697S\u002fD\u002fE9F7E\u002fmb7PzmJLaIVyvo\u002f7OnbDgev\u002fD+S\u002fR+KbLf8P+DX4hCCUvw\u002f6Vappf2D\u002fD\u002furk+JWwH+P+4nwmkW0Ps\u002fpTtsIXZA\u002fj+jKofIicL\u002fP4\u002fUUz7hzfs\u002feQhcNij3\u002fD9BeTA9+6X7Pxd1pnNtLP0\u002fOk+TLotG\u002fD9ZNvqugoP9P6VxZHJ2Ufs\u002fNxyF9QIQ+j+L3A+a+ML6P8gPzrmHev0\u002f4bGdHaJp\u002fj+Ed...'
+[2025-10-29 11:44:05,104: INFO/ForkPoolWorker-5] Starting generate_torsion_plot
+[2025-10-29 11:44:05,148: WARNING/ForkPoolWorker-4] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:05,149: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:05,162: INFO/MainProcess] Task src.core.tasks.generate_2Dpairing_plot[b8a9dfd3-2350-4612-a405-3638542942ee] received
+[2025-10-29 11:44:05,170: WARNING/ForkPoolWorker-5] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:05,171: WARNING/ForkPoolWorker-5] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:05,184: INFO/ForkPoolWorker-5] Calculated torsion angles for 10 residues
+[2025-10-29 11:44:05,184: INFO/ForkPoolWorker-5] Torsion plot import successful
+[2025-10-29 11:44:05,184: INFO/ForkPoolWorker-5] Using dual torsion plots for residue: 3
+[2025-10-29 11:44:05,184: INFO/ForkPoolWorker-5] Starting plot_torsion
+[2025-10-29 11:44:06,241: INFO/ForkPoolWorker-5] Completed plot_torsion successfully
+[2025-10-29 11:44:06,241: INFO/ForkPoolWorker-5] Generated time series and distribution plots
+[2025-10-29 11:44:06,333: INFO/ForkPoolWorker-5] Torsion plots saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/TORSION/torsion_time_series.html, /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/TORSION/torsion_distribution.html
+[2025-10-29 11:44:06,486: INFO/ForkPoolWorker-5] Torsion data saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_data/TORSION/torsion_angles.csv
+[2025-10-29 11:44:06,486: INFO/ForkPoolWorker-5] Torsion plots conversion to JSON successful
+[2025-10-29 11:44:06,486: INFO/ForkPoolWorker-5] Completed generate_torsion_plot in 1.38s
+[2025-10-29 11:44:06,489: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_torsion_plot[f8cde519-cab2-41e2-ac16-191106786d8c] succeeded in 1.3849045129900333s: ['{"data":[{"line":{"color":"#636efa","width":2},"marker":{"color":"#636efa","size":3},"mode":"lines+markers","name":"alpha","x":{"dtype":"i2","bdata":"AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAANAA4ADwAQABEAEgATABQAFQAWABcAGAAZABoAGwAcAB0AHgAfACAAIQAiACMAJAAlACYAJwAoACkAKgArACwALQAuAC8AMAAxADIAMwA0ADUANgA3ADgAOQA6ADsAPAA9AD4APwBAAEEAQgBDAEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVABVAFYAVwBYAFkAWgBbAFwAXQBeAF8AYABhAGIAYwBkAGUAZgBnAGgAaQBqAGsAbABtAG4AbwBwAHEAcgBzAHQAdQB2AHcAeAB5AHoAewB8AH0AfgB\u002fAIAAgQCCAIMAhACFAIYAhwCIAIkAigCLAIwAjQCOAI8AkACRAJIAkwCUAJUAlgCXAJgAmQCaAJsAnACdAJ4AnwCgAKEAogCjAKQApQCmAKcAqACpAKoAqwCsAK0ArgCvALAAsQCyALMAtAC1ALYAtwC4ALkAugC7ALwAvQC+AL8AwADBAMIAwwDEAMUAxgDHAMgAyQDKAMsAzADNAM4AzwDQANEA0gDTANQA1QDWANcA2ADZANoA2wDcAN0A3gDfAOAA4QDiAOMA5ADlAOYA5wDoAOkA6gDrAOwA7QDuAO8A8ADxAPIA8wD0APUA9gD3APgA+QD6APsA\u002fAD9AP4A\u002fwAAAQEBAgEDAQQBBQEGAQcBCAEJAQoBCwEMAQ0BDgEPARABEQESARMBFAEVARYBFwEYARkBGgEbARwBHQEeAR8BIAEhASIBIwEkASUBJgEnASgBKQEqASsBLAEtAS4BLwEwATEBMgEzATQBNQE2ATcBOAE5AToBOwE8AT0BPgE\u002fA...', ...]
+[2025-10-29 11:44:06,490: INFO/ForkPoolWorker-5] Starting generate_2Dpairing_plot
+[2025-10-29 11:44:06,549: WARNING/ForkPoolWorker-5] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/traj_uploaded.xtc 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:06,550: WARNING/ForkPoolWorker-5] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:07,432: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/frame_0_noions.pdb 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue G2 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue G3 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue C4 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue G5 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue C6 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue A7 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue A8 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue G9 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue C10 -  missing atoms 
+[2025-10-29 11:44:07,433: WARNING/ForkPoolWorker-2] # Skipping residue C11 -  missing atoms 
+[2025-10-29 11:44:07,435: WARNING/ForkPoolWorker-2] DOTBRACKET NATIVE = (((....)))
+[2025-10-29 11:44:07,435: WARNING/ForkPoolWorker-2] ARC SEQUENCE = GGCGCAAGCC
+[2025-10-29 11:44:07,506: INFO/ForkPoolWorker-3] Completed generate_sec_structure_plot in 2.66s
+[2025-10-29 11:44:07,509: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_sec_structure_plot[f0b12b2c-66d4-417c-9a4f-a5b3a52f3ddd] succeeded in 2.6597232229833025s: [['..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '(.......).', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', , ...]]
+[2025-10-29 11:44:07,600: INFO/ForkPoolWorker-4] Starting plot_dotbracket
+[2025-10-29 11:44:07,632: WARNING/ForkPoolWorker-1] 1919
+[2025-10-29 11:44:07,632: WARNING/ForkPoolWorker-1] RNA length: 10 nucleotides
+[2025-10-29 11:44:07,632: WARNING/ForkPoolWorker-1] Found 1919 frames in the data
+[2025-10-29 11:44:07,698: INFO/ForkPoolWorker-2] Completed generate_arc_plot in 2.95s
+[2025-10-29 11:44:07,701: INFO/ForkPoolWorker-2] Task src.core.tasks.generate_arc_plot[cdde7e91-aaa8-40b9-b089-83c6b762a579] succeeded in 2.957019636000041s: ['{"data":[{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[0],"y":[0],"type":"scattergl"},{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[1],"y":[0],"type":"scattergl"},{"marker":{"color":"orange","size":10},"mode":"markers+text","showlegend":false,"text":"C","textposition":"bottom center","x":[2],"y":[0],"type":"scattergl"},{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[3],"y":[0],"type":"scattergl"},{"marker":{"color":"orange","size":10},"mode":"markers+text","showlegend":false,"text":"C","textposition":"bottom center","x":[4],"y":[0],"type":"scattergl"},{"marker":{"color":"red","size":10},"mode":"markers+text","showlegend":false,"text":"A","textposition":"bottom...', ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11']]
+[2025-10-29 11:44:07,701: INFO/ForkPoolWorker-1] Starting plot_rna_contact_map
+[2025-10-29 11:44:07,707: WARNING/ForkPoolWorker-1] No base pairs to display
+[2025-10-29 11:44:07,719: INFO/ForkPoolWorker-1] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:07,727: INFO/ForkPoolWorker-1] Completed generate_contact_map_plot in 3.09s
+[2025-10-29 11:44:07,729: INFO/ForkPoolWorker-1] Task src.core.tasks.generate_contact_map_plot[c24fc183-1e43-4c22-9979-190dbc5656e3] succeeded in 3.0903705899836496s: '{"data":[],"layout":{"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222...'
+[2025-10-29 11:44:07,798: INFO/ForkPoolWorker-5] Completed generate_2Dpairing_plot in 1.31s
+[2025-10-29 11:44:07,799: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_2Dpairing_plot[b8a9dfd3-2350-4612-a405-3638542942ee] succeeded in 1.3095184529956896s: '{"data":[{"colorbar":{"title":{"text":"Density"}},"colorscale":[[0.0,"rgb(255,247,236)"],[0.125,"rgb(254,232,200)"],[0.25,"rgb(253,212,158)"],[0.375,"rgb(253,187,132)"],[0.5,"rgb(252,141,89)"],[0.625,"rgb(239,101,72)"],[0.75,"rgb(215,48,31)"],[0.875,"rgb(179,0,0)"],[1.0,"rgb(127,0,0)"]],"contours":{"coloring":"heatmap","end":1162.0,"labelfont":{"color":"white","size":12},"showlabels":true,"size":58.1,"start":0},"x":{"dtype":"f8","bdata":"mpmZmZmZ8b\u002fqkz7pkz7xvzmO4ziO4\u002fC\u002fiYiIiIiI8L\u002fZgi3Ygi3wv1D6pE\u002f6pO+\u002f8O7u7u7u7r+P4ziO4zjuvy7Ygi3Ygu2\u002fzszMzMzM7L9twRZswRbsvwy2YAu2YOu\u002frKqqqqqq6r9Kn\u002fRJn\u002fTpv+qTPumTPum\u002fiYiIiIiI6L8ofdInfdLnv8hxHMdxHOe\u002fZ2ZmZmZm5r8GW7AFW7Dlv6ZP+qRP+uS\u002fRURERERE5L\u002fkOI7jOI7jv4Mt2IIt2OK\u002fIyIiIiIi4r\u002fCFmzBFmzhv2ELtmALtuC\u002fAQAAAAAA4L9A6ZM+6ZPev37SJ33SJ92\u002fvLu7u7u727\u002f8pE\u002f6pE\u002favzqO4ziO49i\u002feHd3d3d317+4YAu2YAvWv\u002fZJn\u002fRJn9S\u002fNDMzMzMz079yHMdxHMfRv7IFW7AFW9C\u002f4N3d3d3dzb9csAVbsAXLv9yCLdiCLci\u002...'
+[2025-10-29 11:44:07,851: INFO/MainProcess] Task src.core.tasks.generate_landscape_plot[cea0ce0e-d3f5-4313-884f-3e41e2c07d6e] received
+[2025-10-29 11:44:07,853: INFO/ForkPoolWorker-5] Starting generate_landscape_plot
+[2025-10-29 11:44:07,854: WARNING/ForkPoolWorker-5] LOADED RMSD FROM SAVED DATA FOR LANDSCAPE
+[2025-10-29 11:44:07,854: WARNING/ForkPoolWorker-5] LOADED eRMSD FROM SAVED DATA FOR LANDSCAPE
+[2025-10-29 11:44:07,857: WARNING/ForkPoolWorker-5] Dataframe saved for landscape
+[2025-10-29 11:44:07,865: WARNING/ForkPoolWorker-5] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/src/plotting/energy_3dplot.py:148: RuntimeWarning:
+
+divide by zero encountered in log
+
+
+[2025-10-29 11:44:07,903: INFO/ForkPoolWorker-4] Completed plot_dotbracket successfully
+[2025-10-29 11:44:07,945: INFO/ForkPoolWorker-4] Completed generate_dotbracket_plot in 2.85s
+[2025-10-29 11:44:07,946: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_dotbracket_plot[3ee8c1a0-151b-4e8b-af38-c34c8121ebd2] succeeded in 2.8562316409952473s: '{"data":[{"line":{"color":"rgb(57, 59,...'
+[2025-10-29 11:44:08,221: INFO/ForkPoolWorker-5] Completed generate_landscape_plot in 0.37s
+[2025-10-29 11:44:08,223: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_landscape_plot[cea0ce0e-d3f5-4313-884f-3e41e2c07d6e] succeeded in 0.3701001520093996s: ['{"data":[{"cmax":4.418840607796598,"cmin":0,"colorscale":[[0.0,"rgb(49,54,149)"],[0.1,"rgb(69,117,180)"],[0.2,"rgb(116,173,209)"],[0.3,"rgb(171,217,233)"],[0.4,"rgb(224,243,248)"],[0.5,"rgb(255,255,191)"],[0.6,"rgb(254,224,144)"],[0.7,"rgb(253,174,97)"],[0.8,"rgb(244,109,67)"],[0.9,"rgb(215,48,39)"],[1.0,"rgb(165,0,38)"]],"x":{"dtype":"f8","bdata":"AAAAAAAAAAAAAACA+DuVPwAAAID4O6U\u002fAAAAwPTZrz8AAACA+Du1PwAAAKD2iro\u002fAAAAwPTZvz8AAABweZTCPwAAAID4O8U\u002fAAAAkHfjxz8AAACg9orKPwAAALB1Ms0\u002fAAAAwPTZzz8AAADouUDRPwAAAHB5lNI\u002fAAAA+Djo0z8AAACA+DvVPwAAAAi4j9Y\u002fAAAAkHfj1z8AAAAYNzfZPwAAAKD2ito\u002fAAAAKLbe2z8AAACwdTLdPwAAADg1ht4\u002fAAAAwPTZ3z8AAAAk2pbgPwAAAOi5QOE\u002fAAAArJnq4T8AAABweZTiPwAAADRZPuM\u002fAAAA+Djo4z8AAAC8GJLkPwAAAID4O+U\u002fAAAARNjl5T8AAAAIuI\u002fmPwAAAMyXOec\u002fAAAAkHfj5z8AAABUV43oPwAAABg3N+k\u002fAAAA3Bbh6T8AAACg9orqPwAAAGTWNOs\u002fAAAAKLbe6z8AAADslYjsPwAAALB1Mu0\u002fAAAAdFXc7T8AAAA4NYbuPwAAAPwUMO8\u002fAAAAwPTZ7z8AAABC6kHwPwAAACTalvA\u002fAAAABsrr8D8AAADouUDxPwAAAMqplfE\u002fA...', ...]
+[2025-10-29 11:44:22,427: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[d04f489b-59c6-4003-bd6d-7fb492bd6292] received
+[2025-10-29 11:44:22,430: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:22,543: WARNING/ForkPoolWorker-4] Updating contact map for frame 1531
+[2025-10-29 11:44:22,544: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:22,670: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:22,670: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:22,675: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.25s
+[2025-10-29 11:44:22,676: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[d04f489b-59c6-4003-bd6d-7fb492bd6292] succeeded in 0.24627189699094743s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:44:23,749: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[7278727d-fd34-4e50-b988-7187bc545100] received
+[2025-10-29 11:44:23,751: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:23,861: WARNING/ForkPoolWorker-4] Updating contact map for frame 1138
+[2025-10-29 11:44:23,861: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:23,927: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:23,927: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:23,935: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.18s
+[2025-10-29 11:44:23,936: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[7278727d-fd34-4e50-b988-7187bc545100] succeeded in 0.18474428899935447s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:44:30,684: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[e4eaab3c-4acc-405a-a6be-90e18fb80252] received
+[2025-10-29 11:44:30,686: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:30,890: WARNING/ForkPoolWorker-4] Updating contact map for frame 706
+[2025-10-29 11:44:30,890: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:30,926: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:30,926: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:30,931: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.25s
+[2025-10-29 11:44:30,932: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[e4eaab3c-4acc-405a-a6be-90e18fb80252] succeeded in 0.24632469701464288s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G2","G8"],["C5","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:44:31,356: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[63d22732-1880-49ce-b442-aca71544ae21] received
+[2025-10-29 11:44:31,359: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:31,485: WARNING/ForkPoolWorker-4] Updating contact map for frame 1007
+[2025-10-29 11:44:31,485: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:31,548: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:31,548: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:31,557: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.20s
+[2025-10-29 11:44:31,558: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[63d22732-1880-49ce-b442-aca71544ae21] succeeded in 0.1995500199845992s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:44:32,305: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[659d736a-ec74-4e58-8bec-b7dca5261f2d] received
+[2025-10-29 11:44:32,306: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:32,417: WARNING/ForkPoolWorker-4] Updating contact map for frame 1381
+[2025-10-29 11:44:32,417: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:32,458: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:32,459: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:32,466: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.16s
+[2025-10-29 11:44:32,467: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[659d736a-ec74-4e58-8bec-b7dca5261f2d] succeeded in 0.16111339902272448s: '{"data":[{"customdata":[["G1","C10"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQM="},"y":{"dtype":"i1","bdata":"Cgg="},"type":"scatter"},{"customdata":[["G1","C10"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"Cgg="},"y":{"dtype":"i1","bdata":"AQM="},"type":"scatter"},{"customdata":[["G2","C9"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WWc\u003cbr\u003eResidue i:...'
+[2025-10-29 11:44:32,909: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[1ed3ba63-82f4-44bb-a193-520bfd766047] received
+[2025-10-29 11:44:32,912: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:44:33,119: WARNING/ForkPoolWorker-4] Updating contact map for frame 1544
+[2025-10-29 11:44:33,119: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:44:33,180: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:44:33,180: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:44:33,188: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.28s
+[2025-10-29 11:44:33,189: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[1ed3ba63-82f4-44bb-a193-520bfd766047] succeeded in 0.27715040900511667s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:45:00,510: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[efd01044-b0f5-48e4-a2d4-867b0a6c8018] received
+[2025-10-29 11:45:00,512: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:00,514: INFO/ForkPoolWorker-4] Found closest frame 162 for coordinates Q=0.8501998856663704, RMSD=1.8496612233268386
+[2025-10-29 11:45:00,514: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:00,514: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[efd01044-b0f5-48e4-a2d4-867b0a6c8018] succeeded in 0.002205972996307537s: 162
+[2025-10-29 11:45:00,588: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[73e86cd9-d20e-4642-ae4c-2c6a307338d4] received
+[2025-10-29 11:45:00,590: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:00,697: WARNING/ForkPoolWorker-4] Updating contact map for frame 162
+[2025-10-29 11:45:00,698: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:00,729: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:45:00,730: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:00,735: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.15s
+[2025-10-29 11:45:00,735: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[73e86cd9-d20e-4642-ae4c-2c6a307338d4] succeeded in 0.14603972298209555s: '{"data":[{"customdata":[["G2","C3"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: XXX\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#C0C0C0","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"XXX","x":{"dtype":"i1","bdata":"Ag=="},"y":{"dtype":"i1","bdata":"Aw=="},"type":"scatter"},{"customdata":[["G2","C3"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: XXX\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#C0C0C0","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"XXX (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"Aw=="},"y":{"dtype":"i1","bdata":"Ag=="},"type":"scatter"},{"customdata":[["G2","G4"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WHc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j:...'
+[2025-10-29 11:45:02,289: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[fa75f30e-89cf-4854-bf42-e24f9a5de297] received
+[2025-10-29 11:45:02,291: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:02,292: INFO/ForkPoolWorker-4] Found closest frame 632 for coordinates Q=0.2695755735039711, RMSD=0.9886120331574483
+[2025-10-29 11:45:02,292: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:02,293: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[fa75f30e-89cf-4854-bf42-e24f9a5de297] succeeded in 0.0021772960026282817s: 632
+[2025-10-29 11:45:02,386: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[28032060-e936-4be4-a554-d7d2358e57ec] received
+[2025-10-29 11:45:02,388: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:02,502: WARNING/ForkPoolWorker-4] Updating contact map for frame 632
+[2025-10-29 11:45:02,502: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:02,559: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:45:02,560: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:02,567: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.18s
+[2025-10-29 11:45:02,568: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[28032060-e936-4be4-a554-d7d2358e57ec] succeeded in 0.18007322499761358s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:45:03,559: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[37974e7c-3390-46bc-ac30-6e3fc13f44f0] received
+[2025-10-29 11:45:03,561: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:03,564: INFO/ForkPoolWorker-4] Found closest frame 1051 for coordinates Q=0.10368291288614273, RMSD=0.3826885289641735
+[2025-10-29 11:45:03,564: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:03,565: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[37974e7c-3390-46bc-ac30-6e3fc13f44f0] succeeded in 0.004155895992880687s: 1051
+[2025-10-29 11:45:03,644: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[65ed6198-4d28-4dde-80e1-8b8f659dc1ae] received
+[2025-10-29 11:45:03,646: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:03,833: WARNING/ForkPoolWorker-4] Updating contact map for frame 1051
+[2025-10-29 11:45:03,833: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:03,866: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:45:03,866: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:03,871: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.23s
+[2025-10-29 11:45:03,872: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[65ed6198-4d28-4dde-80e1-8b8f659dc1ae] succeeded in 0.22646849200828s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:45:04,719: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[fbd123e0-abfe-46f7-b4a1-fa7e5e5e757d] received
+[2025-10-29 11:45:04,721: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:04,724: INFO/ForkPoolWorker-4] Found closest frame 296 for coordinates Q=0.8294633030891418, RMSD=1.7220983803387808
+[2025-10-29 11:45:04,724: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:04,725: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[fbd123e0-abfe-46f7-b4a1-fa7e5e5e757d] succeeded in 0.004127724008867517s: 296
+[2025-10-29 11:45:04,797: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[4dd25a59-6eba-4565-905a-4c5637bb3c88] received
+[2025-10-29 11:45:04,799: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:04,911: WARNING/ForkPoolWorker-4] Updating contact map for frame 296
+[2025-10-29 11:45:04,911: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:04,911: WARNING/ForkPoolWorker-4] No base pairs to display
+[2025-10-29 11:45:04,917: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:04,920: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.12s
+[2025-10-29 11:45:04,921: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[4dd25a59-6eba-4565-905a-4c5637bb3c88] succeeded in 0.1220856569998432s: '{"data":[],"layout":{"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222...'
+[2025-10-29 11:45:09,075: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[f38c5d78-6d3f-4ea9-9a0e-ee1a3612b698] received
+[2025-10-29 11:45:09,077: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:09,081: INFO/ForkPoolWorker-4] Found closest frame 1616 for coordinates Q=0.08294633030891418, RMSD=0.3826885289641735
+[2025-10-29 11:45:09,081: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:09,082: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[f38c5d78-6d3f-4ea9-9a0e-ee1a3612b698] succeeded in 0.005444584006909281s: 1616
+[2025-10-29 11:45:09,167: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[f87ca4d2-9623-420b-8643-15f5275e5f3e] received
+[2025-10-29 11:45:09,169: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:09,270: WARNING/ForkPoolWorker-4] Updating contact map for frame 1616
+[2025-10-29 11:45:09,270: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:09,332: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:45:09,332: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:09,341: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.17s
+[2025-10-29 11:45:09,342: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[f87ca4d2-9623-420b-8643-15f5275e5f3e] succeeded in 0.17295100301271304s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+[2025-10-29 11:45:10,890: INFO/MainProcess] Task src.core.tasks.update_landscape_frame[f15dfa4c-ade7-497d-b32a-2b47c7982f37] received
+[2025-10-29 11:45:10,892: INFO/ForkPoolWorker-4] Starting update_landscape_frame
+[2025-10-29 11:45:10,895: INFO/ForkPoolWorker-4] Found closest frame 526 for coordinates Q=0.24883899092674255, RMSD=1.0205027439044627
+[2025-10-29 11:45:10,895: INFO/ForkPoolWorker-4] Completed update_landscape_frame in 0.00s
+[2025-10-29 11:45:10,896: INFO/ForkPoolWorker-4] Task src.core.tasks.update_landscape_frame[f15dfa4c-ade7-497d-b32a-2b47c7982f37] succeeded in 0.004093589988769963s: 526
+[2025-10-29 11:45:10,967: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[1038bf3f-3df9-4fa6-aad3-23fc5d853fb9] received
+[2025-10-29 11:45:10,969: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 11:45:11,208: WARNING/ForkPoolWorker-4] Updating contact map for frame 526
+[2025-10-29 11:45:11,209: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 11:45:11,248: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/89b783ba688c44bda4d8b21f0d914cd5/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 11:45:11,248: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 11:45:11,253: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.28s
+[2025-10-29 11:45:11,254: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[1038bf3f-3df9-4fa6-aad3-23fc5d853fb9] succeeded in 0.2858478450216353s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc (sym)","showlegend":false,"x":{"dtype":"i1","bdata":"CgkI"},"y":{"dtype":"i1","bdata":"AQID"},"type":"scatter"},{"customdata":[["G4","A7"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType:...'
+
+=== Service stopped at 2025-10-29 12:08:56.644249 ===
+
+
+worker: Warm shutdown (MainProcess)
+
+=== Service started at 2025-10-29 12:08:59.614591 ===
+ 
+ -------------- celery@pop-os v5.4.0 (opalescent)
+--- ***** ----- 
+-- ******* ---- Linux-6.9.3-76060903-generic-x86_64-with-glibc2.35 2025-10-29 12:09:01
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         rna_tasks:0x76cb45b6da90
+- ** ---------- .> transport:   redis://localhost:6379/0
+- ** ---------- .> results:     redis://localhost:6379/0
+- *** --- * --- .> concurrency: 5 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . src.core.tasks.compute_annotate
+  . src.core.tasks.compute_ermsd
+  . src.core.tasks.compute_rmsd
+  . src.core.tasks.generate_2Dpairing_plot
+  . src.core.tasks.generate_annotate_plot
+  . src.core.tasks.generate_arc_plot
+  . src.core.tasks.generate_contact_map_plot
+  . src.core.tasks.generate_dotbracket_plot
+  . src.core.tasks.generate_ds_motif_plot
+  . src.core.tasks.generate_ermsd_plot
+  . src.core.tasks.generate_escore_plot
+  . src.core.tasks.generate_jcoupling_plot
+  . src.core.tasks.generate_landscape_plot
+  . src.core.tasks.generate_rmsd_plot
+  . src.core.tasks.generate_sec_structure_plot
+  . src.core.tasks.generate_ss_motif_plot
+  . src.core.tasks.generate_torsion_plot
+  . src.core.tasks.update_contact_map_plot
+  . src.core.tasks.update_landscape_frame
+
+[2025-10-29 12:09:01,752: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-29 12:09:01,759: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2025-10-29 12:09:01,771: WARNING/MainProcess] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/conda_envs/Plot_RNA/lib/python3.13/site-packages/celery/worker/consumer/consumer.py:508: CPendingDeprecationWarning:
+
+The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+
+
+[2025-10-29 12:09:01,774: INFO/MainProcess] mingle: searching for neighbors
+[2025-10-29 12:09:02,791: INFO/MainProcess] mingle: all alone
+[2025-10-29 12:09:02,809: INFO/MainProcess] celery@pop-os ready.
+[2025-10-29 12:09:07,267: INFO/MainProcess] Events of group {task} enabled by remote.
+[2025-10-29 12:09:36,537: INFO/MainProcess] Task src.core.tasks.compute_rmsd[45ee4cf4-33ac-4898-866b-4e9bf07d7066] received
+[2025-10-29 12:09:36,538: INFO/ForkPoolWorker-4] Starting compute_rmsd
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:36,607: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:36,608: WARNING/ForkPoolWorker-4] # found 
+[2025-10-29 12:09:36,608: WARNING/ForkPoolWorker-4]  
+[2025-10-29 12:09:36,608: WARNING/ForkPoolWorker-4] 213
+[2025-10-29 12:09:36,608: WARNING/ForkPoolWorker-4]  
+[2025-10-29 12:09:36,608: WARNING/ForkPoolWorker-4] atoms in common
+[2025-10-29 12:09:36,694: INFO/ForkPoolWorker-4] RMSD computed and saved to static/uploads/5328e25b324140c28e7a47c74d058650/rmsd_data.pkl
+[2025-10-29 12:09:36,694: INFO/ForkPoolWorker-4] Completed compute_rmsd in 0.16s
+[2025-10-29 12:09:36,701: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_rmsd[45ee4cf4-33ac-4898-866b-4e9bf07d7066] succeeded in 0.16260037300526164s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/5328e25b324140c28e7a47c74d058650/rmsd_data.pkl'}
+[2025-10-29 12:09:36,701: INFO/MainProcess] Task src.core.tasks.compute_ermsd[45005be6-e9ba-41b4-a189-8586ba5df864] received
+[2025-10-29 12:09:36,702: INFO/ForkPoolWorker-4] Starting compute_ermsd
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Loaded reference /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/frame_0_noions.pdb 
+# Loaded target /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:36,763: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:36,764: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,394: INFO/ForkPoolWorker-4] eRMSD computed and saved to static/uploads/5328e25b324140c28e7a47c74d058650/ermsd_data.pkl
+[2025-10-29 12:09:37,394: INFO/ForkPoolWorker-4] Completed compute_ermsd in 0.69s
+[2025-10-29 12:09:37,395: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_ermsd[45005be6-e9ba-41b4-a189-8586ba5df864] succeeded in 0.6927731540054083s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/5328e25b324140c28e7a47c74d058650/ermsd_data.pkl'}
+[2025-10-29 12:09:37,459: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[788e8c2b-44ee-487c-a07f-bd806dfc8d99] received
+[2025-10-29 12:09:37,461: INFO/ForkPoolWorker-4] Starting generate_rmsd_plot
+[2025-10-29 12:09:37,461: WARNING/ForkPoolWorker-4] LOADED RMSD FROM SAVED DATA
+[2025-10-29 12:09:37,461: INFO/ForkPoolWorker-4] Default plots are used
+[2025-10-29 12:09:37,461: INFO/ForkPoolWorker-4] Starting plot_rmsd
+[2025-10-29 12:09:37,462: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[fda34992-e061-40a6-b206-3a8a3575ff39] received
+[2025-10-29 12:09:37,465: INFO/MainProcess] Task src.core.tasks.generate_contact_map_plot[564f8db5-5d8e-4dd9-8487-8940ef241763] received
+[2025-10-29 12:09:37,467: INFO/ForkPoolWorker-5] Starting generate_ermsd_plot
+[2025-10-29 12:09:37,467: INFO/ForkPoolWorker-1] Starting generate_contact_map_plot
+[2025-10-29 12:09:37,468: WARNING/ForkPoolWorker-5] LOADED eRMSD FROM SAVED DATA
+[2025-10-29 12:09:37,468: INFO/MainProcess] Task src.core.tasks.generate_torsion_plot[963a3ab6-f99e-4ae8-a15e-dc8f19aa5c97] received
+[2025-10-29 12:09:37,468: INFO/ForkPoolWorker-5] Starting plot_ermsd
+[2025-10-29 12:09:37,472: INFO/MainProcess] Task src.core.tasks.generate_sec_structure_plot[b81f6dff-076b-419c-9aa2-3ad7f1b63345] received
+[2025-10-29 12:09:37,473: INFO/ForkPoolWorker-2] Starting generate_torsion_plot
+[2025-10-29 12:09:37,473: INFO/ForkPoolWorker-3] Starting generate_sec_structure_plot
+[2025-10-29 12:09:37,474: INFO/MainProcess] Task src.core.tasks.generate_dotbracket_plot[3b28544d-8628-4ab0-8bd7-7e127cd50a31] received
+[2025-10-29 12:09:37,477: INFO/MainProcess] Task src.core.tasks.generate_arc_plot[3e95211a-30f4-4a0c-ac04-70549c3e8dd2] received
+[2025-10-29 12:09:37,479: INFO/MainProcess] Task src.core.tasks.generate_2Dpairing_plot[83468171-cf05-4c76-a547-6503feceb122] received
+[2025-10-29 12:09:37,480: INFO/ForkPoolWorker-4] Completed plot_rmsd successfully
+[2025-10-29 12:09:37,482: WARNING/ForkPoolWorker-4] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('fNgTP4MMcz9sLHQ/KlFRPzqZDT8aCj' ... 'U+HbfZPty5UD56ya0+ezoePq2BHz4='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-29 12:09:37,495: INFO/ForkPoolWorker-5] Completed plot_ermsd successfully
+[2025-10-29 12:09:37,522: INFO/ForkPoolWorker-4] Completed generate_rmsd_plot in 0.06s
+[2025-10-29 12:09:37,523: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_rmsd_plot[788e8c2b-44ee-487c-a07f-bd806dfc8d99] succeeded in 0.061637267004698515s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"fNgTP4MMcz9sLHQ\u002fKlFRPzqZDT8aCjY\u002fidNAPwizLj9ZRTs\u002fHKVFP6sWjT8Fc2s\u002f5kBHP9r\u002fZj9T0Fw\u002f7M16P1vwaz9qoXc\u002f24d0P035dj8L7nY\u002fjL89P\u002fqqjz+xAIA\u002faxFhP8PFYT8Y45I\u002fQBdAP3KrkT8H53c\u002fYXobP6xXej9CvHA\u002fFhaDP1braT9grSE\u002fGU5uP+4veD9PNX4\u002fxPhrP7BEKz8YSGs\u002fkYSPPyh8UT9\u002fZ0w\u002f1QpwP2ePWT8gkYY\u002ffWqaP+wRfD+BUG8\u002fNeptP2UvSD+eDWE\u002foZBlP5GQjT8CYiU\u002fPchHP5qGGD9MTAk\u002fl0vuPiy6Dz84KBQ\u002fTOsnP+WIMj9aGj4\u002fMYQiPyoPdz8mozQ\u002fGAxFP4gySj818Fw\u002f1wRaP8cE0D7Qmww\u002fGvFhP1eiYz\u002fJA00\u002fwKdhP7ybYD9pyl4\u002f\u002fGQuP4sJZj9T9EA\u002fAYcKP10hUD\u002fLXnw\u002ficZRPwL6aD8oe4M\u002f0oBaPyCnOj\u002fVVx0\u002fAj+CPzU9iT8OyBo\u002fkpKLPw+6aT837JE\u002fk9NzP7wqVj8DkW8\u002fobyKP5GJjj8Ioms\u002f0ZkTP9N2kD\u002fCKnI\u002f4euFP4qmTz8La2I\u002fYHOJP9RLeD80Y34\u002f7i2IP+7RUz9ix2A\u002f1G0yPy8Mgj8iyYA\u002f+B9VP2XrQD8i0GY\u002fO6VUP6QpgT+9lls\u002fRcx5PxLlYT8wans\u002fYDgoP85jWz+p...'
+[2025-10-29 12:09:37,524: INFO/ForkPoolWorker-4] Starting generate_dotbracket_plot
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,541: WARNING/ForkPoolWorker-2] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,548: WARNING/ForkPoolWorker-1] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,550: INFO/ForkPoolWorker-5] Completed generate_ermsd_plot in 0.08s
+[2025-10-29 12:09:37,553: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_ermsd_plot[fda34992-e061-40a6-b206-3a8a3575ff39] succeeded in 0.08638936598435976s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"cifEwLyh+T83gWbwP+z6P3z1X7D1XPo\u002fPmEADrWj+j\u002fTsLFI9Mz6P\u002fYc2\u002fqZr\u002fw\u002fBr54mzvQ\u002fD+kKD4fvd3+P8CLqqfAdf8\u002fU\u002faQpj+p\u002fD\u002ffU2ZAz4n7PwKo\u002fQlQOPo\u002f3s1YDXDV+z82BMkN\u002fNL5P4As2xlycPg\u002frIhmpQBA+T81zsxi5ST5P4ndjZshwfc\u002fM\u002f6px5jy9z+xJgd5Q4r4P2ZhtTrEk\u002fo\u002fWns+CvXk+T\u002faKGqOOxv4P5LiCO3u1fk\u002fZzvv\u002fwTY+D\u002fFWMYKo0r5P2RZT7RkYvo\u002fRzHcPvGc\u002fD84vtm1da37P1nkhp8O1Po\u002fBb+hmzI3\u002fT9Zf3QOJ5D8P85tMOJCBP0\u002fggSDgFJo\u002fD9QXOx4+Tj7P0kvJ70EfP0\u002fD20DHmHW+T+IFcqC54b7P0AXlt+oQfs\u002fdusriOcb+z\u002f0uPrjmD\u002f8P6ItFjARkfw\u002fNZ5X697S\u002fD\u002fE9F7E\u002fmb7PzmJLaIVyvo\u002f7OnbDgev\u002fD+S\u002fR+KbLf8P+DX4hCCUvw\u002f6Vappf2D\u002fD\u002furk+JWwH+P+4nwmkW0Ps\u002fpTtsIXZA\u002fj+jKofIicL\u002fP4\u002fUUz7hzfs\u002feQhcNij3\u002fD9BeTA9+6X7Pxd1pnNtLP0\u002fOk+TLotG\u002fD9ZNvqugoP9P6VxZHJ2Ufs\u002fNxyF9QIQ+j+L3A+a+ML6P8gPzrmHev0\u002f4bGdHaJp\u002fj+Ed...'
+[2025-10-29 12:09:37,555: INFO/ForkPoolWorker-2] Calculated torsion angles for 10 residues
+[2025-10-29 12:09:37,555: INFO/ForkPoolWorker-2] Torsion plot import successful
+[2025-10-29 12:09:37,555: INFO/ForkPoolWorker-2] Using dual torsion plots for residue: 2
+[2025-10-29 12:09:37,555: INFO/ForkPoolWorker-2] Starting plot_torsion
+[2025-10-29 12:09:37,555: INFO/ForkPoolWorker-5] Starting generate_arc_plot
+[2025-10-29 12:09:37,555: WARNING/ForkPoolWorker-5] ARC
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,558: WARNING/ForkPoolWorker-3] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,581: WARNING/ForkPoolWorker-4] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,582: WARNING/ForkPoolWorker-4] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,582: WARNING/ForkPoolWorker-4] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,621: WARNING/ForkPoolWorker-5] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,622: WARNING/ForkPoolWorker-5] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,655: INFO/ForkPoolWorker-2] Completed plot_torsion successfully
+[2025-10-29 12:09:37,655: INFO/ForkPoolWorker-2] Generated time series and distribution plots
+[2025-10-29 12:09:37,719: INFO/ForkPoolWorker-2] Torsion plots saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/download_plot/TORSION/torsion_time_series.html, /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/download_plot/TORSION/torsion_distribution.html
+[2025-10-29 12:09:37,870: INFO/ForkPoolWorker-2] Torsion data saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/download_data/TORSION/torsion_angles.csv
+[2025-10-29 12:09:37,870: INFO/ForkPoolWorker-2] Torsion plots conversion to JSON successful
+[2025-10-29 12:09:37,870: INFO/ForkPoolWorker-2] Completed generate_torsion_plot in 0.40s
+[2025-10-29 12:09:37,874: INFO/ForkPoolWorker-2] Task src.core.tasks.generate_torsion_plot[963a3ab6-f99e-4ae8-a15e-dc8f19aa5c97] succeeded in 0.4012731619877741s: ['{"data":[{"line":{"color":"#636efa","width":2},"marker":{"color":"#636efa","size":3},"mode":"lines+markers","name":"alpha","x":{"dtype":"i2","bdata":"AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAANAA4ADwAQABEAEgATABQAFQAWABcAGAAZABoAGwAcAB0AHgAfACAAIQAiACMAJAAlACYAJwAoACkAKgArACwALQAuAC8AMAAxADIAMwA0ADUANgA3ADgAOQA6ADsAPAA9AD4APwBAAEEAQgBDAEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVABVAFYAVwBYAFkAWgBbAFwAXQBeAF8AYABhAGIAYwBkAGUAZgBnAGgAaQBqAGsAbABtAG4AbwBwAHEAcgBzAHQAdQB2AHcAeAB5AHoAewB8AH0AfgB\u002fAIAAgQCCAIMAhACFAIYAhwCIAIkAigCLAIwAjQCOAI8AkACRAJIAkwCUAJUAlgCXAJgAmQCaAJsAnACdAJ4AnwCgAKEAogCjAKQApQCmAKcAqACpAKoAqwCsAK0ArgCvALAAsQCyALMAtAC1ALYAtwC4ALkAugC7ALwAvQC+AL8AwADBAMIAwwDEAMUAxgDHAMgAyQDKAMsAzADNAM4AzwDQANEA0gDTANQA1QDWANcA2ADZANoA2wDcAN0A3gDfAOAA4QDiAOMA5ADlAOYA5wDoAOkA6gDrAOwA7QDuAO8A8ADxAPIA8wD0APUA9gD3APgA+QD6APsA\u002fAD9AP4A\u002fwAAAQEBAgEDAQQBBQEGAQcBCAEJAQoBCwEMAQ0BDgEPARABEQESARMBFAEVARYBFwEYARkBGgEbARwBHQEeAR8BIAEhASIBIwEkASUBJgEnASgBKQEqASsBLAEtAS4BLwEwATEBMgEzATQBNQE2ATcBOAE5AToBOwE8AT0BPgE\u002fA...', ...]
+[2025-10-29 12:09:37,876: INFO/ForkPoolWorker-2] Starting generate_2Dpairing_plot
+[2025-10-29 12:09:37,934: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/traj_uploaded.xtc 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:37,935: WARNING/ForkPoolWorker-2] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:37,992: INFO/MainProcess] Task src.core.tasks.generate_landscape_plot[d0529c8d-4232-4bce-8b45-cef333c966a4] received
+[2025-10-29 12:09:38,790: INFO/ForkPoolWorker-2] Completed generate_2Dpairing_plot in 0.91s
+[2025-10-29 12:09:38,792: INFO/ForkPoolWorker-2] Task src.core.tasks.generate_2Dpairing_plot[83468171-cf05-4c76-a547-6503feceb122] succeeded in 0.9168678120186087s: '{"data":[{"colorbar":{"title":{"text":"Density"}},"colorscale":[[0.0,"rgb(255,247,236)"],[0.125,"rgb(254,232,200)"],[0.25,"rgb(253,212,158)"],[0.375,"rgb(253,187,132)"],[0.5,"rgb(252,141,89)"],[0.625,"rgb(239,101,72)"],[0.75,"rgb(215,48,31)"],[0.875,"rgb(179,0,0)"],[1.0,"rgb(127,0,0)"]],"contours":{"coloring":"heatmap","end":1162.0,"labelfont":{"color":"white","size":12},"showlabels":true,"size":58.1,"start":0},"x":{"dtype":"f8","bdata":"mpmZmZmZ8b\u002fqkz7pkz7xvzmO4ziO4\u002fC\u002fiYiIiIiI8L\u002fZgi3Ygi3wv1D6pE\u002f6pO+\u002f8O7u7u7u7r+P4ziO4zjuvy7Ygi3Ygu2\u002fzszMzMzM7L9twRZswRbsvwy2YAu2YOu\u002frKqqqqqq6r9Kn\u002fRJn\u002fTpv+qTPumTPum\u002fiYiIiIiI6L8ofdInfdLnv8hxHMdxHOe\u002fZ2ZmZmZm5r8GW7AFW7Dlv6ZP+qRP+uS\u002fRURERERE5L\u002fkOI7jOI7jv4Mt2IIt2OK\u002fIyIiIiIi4r\u002fCFmzBFmzhv2ELtmALtuC\u002fAQAAAAAA4L9A6ZM+6ZPev37SJ33SJ92\u002fvLu7u7u727\u002f8pE\u002f6pE\u002favzqO4ziO49i\u002feHd3d3d317+4YAu2YAvWv\u002fZJn\u002fRJn9S\u002fNDMzMzMz079yHMdxHMfRv7IFW7AFW9C\u002f4N3d3d3dzb9csAVbsAXLv9yCLdiCLci\u002...'
+[2025-10-29 12:09:38,796: INFO/ForkPoolWorker-2] Starting generate_landscape_plot
+[2025-10-29 12:09:38,796: WARNING/ForkPoolWorker-2] LOADED RMSD FROM SAVED DATA FOR LANDSCAPE
+[2025-10-29 12:09:38,796: WARNING/ForkPoolWorker-2] LOADED eRMSD FROM SAVED DATA FOR LANDSCAPE
+[2025-10-29 12:09:38,802: WARNING/ForkPoolWorker-2] Dataframe saved for landscape
+[2025-10-29 12:09:38,813: WARNING/ForkPoolWorker-2] /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/src/plotting/energy_3dplot.py:148: RuntimeWarning:
+
+divide by zero encountered in log
+
+
+[2025-10-29 12:09:38,882: INFO/ForkPoolWorker-2] Completed generate_landscape_plot in 0.09s
+[2025-10-29 12:09:38,883: INFO/ForkPoolWorker-2] Task src.core.tasks.generate_landscape_plot[d0529c8d-4232-4bce-8b45-cef333c966a4] succeeded in 0.08784489400568418s: ['{"data":[{"cmax":4.418840607796598,"cmin":0,"colorscale":[[0.0,"rgb(49,54,149)"],[0.1,"rgb(69,117,180)"],[0.2,"rgb(116,173,209)"],[0.3,"rgb(171,217,233)"],[0.4,"rgb(224,243,248)"],[0.5,"rgb(255,255,191)"],[0.6,"rgb(254,224,144)"],[0.7,"rgb(253,174,97)"],[0.8,"rgb(244,109,67)"],[0.9,"rgb(215,48,39)"],[1.0,"rgb(165,0,38)"]],"x":{"dtype":"f8","bdata":"AAAAAAAAAAAAAACA+DuVPwAAAID4O6U\u002fAAAAwPTZrz8AAACA+Du1PwAAAKD2iro\u002fAAAAwPTZvz8AAABweZTCPwAAAID4O8U\u002fAAAAkHfjxz8AAACg9orKPwAAALB1Ms0\u002fAAAAwPTZzz8AAADouUDRPwAAAHB5lNI\u002fAAAA+Djo0z8AAACA+DvVPwAAAAi4j9Y\u002fAAAAkHfj1z8AAAAYNzfZPwAAAKD2ito\u002fAAAAKLbe2z8AAACwdTLdPwAAADg1ht4\u002fAAAAwPTZ3z8AAAAk2pbgPwAAAOi5QOE\u002fAAAArJnq4T8AAABweZTiPwAAADRZPuM\u002fAAAA+Djo4z8AAAC8GJLkPwAAAID4O+U\u002fAAAARNjl5T8AAAAIuI\u002fmPwAAAMyXOec\u002fAAAAkHfj5z8AAABUV43oPwAAABg3N+k\u002fAAAA3Bbh6T8AAACg9orqPwAAAGTWNOs\u002fAAAAKLbe6z8AAADslYjsPwAAALB1Mu0\u002fAAAAdFXc7T8AAAA4NYbuPwAAAPwUMO8\u002fAAAAwPTZ7z8AAABC6kHwPwAAACTalvA\u002fAAAABsrr8D8AAADouUDxPwAAAMqplfE\u002fA...', ...]
+[2025-10-29 12:09:40,171: WARNING/ForkPoolWorker-5] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/frame_0_noions.pdb 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue G2 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue G3 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue C4 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue G5 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue C6 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue A7 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue A8 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue G9 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue C10 -  missing atoms 
+[2025-10-29 12:09:40,172: WARNING/ForkPoolWorker-5] # Skipping residue C11 -  missing atoms 
+[2025-10-29 12:09:40,174: WARNING/ForkPoolWorker-5] DOTBRACKET NATIVE = (((....)))
+[2025-10-29 12:09:40,174: WARNING/ForkPoolWorker-5] ARC SEQUENCE = GGCGCAAGCC
+[2025-10-29 12:09:40,175: INFO/ForkPoolWorker-4] Starting plot_dotbracket
+[2025-10-29 12:09:40,194: INFO/ForkPoolWorker-3] Completed generate_sec_structure_plot in 2.72s
+[2025-10-29 12:09:40,198: INFO/ForkPoolWorker-3] Task src.core.tasks.generate_sec_structure_plot[b81f6dff-076b-419c-9aa2-3ad7f1b63345] succeeded in 2.725620264012832s: [['..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '(.......).', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', '..........', , ...]]
+[2025-10-29 12:09:40,243: INFO/ForkPoolWorker-5] Completed generate_arc_plot in 2.69s
+[2025-10-29 12:09:40,245: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_arc_plot[3e95211a-30f4-4a0c-ac04-70549c3e8dd2] succeeded in 2.690043976996094s: ['{"data":[{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[0],"y":[0],"type":"scattergl"},{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[1],"y":[0],"type":"scattergl"},{"marker":{"color":"orange","size":10},"mode":"markers+text","showlegend":false,"text":"C","textposition":"bottom center","x":[2],"y":[0],"type":"scattergl"},{"marker":{"color":"blue","size":10},"mode":"markers+text","showlegend":false,"text":"G","textposition":"bottom center","x":[3],"y":[0],"type":"scattergl"},{"marker":{"color":"orange","size":10},"mode":"markers+text","showlegend":false,"text":"C","textposition":"bottom center","x":[4],"y":[0],"type":"scattergl"},{"marker":{"color":"red","size":10},"mode":"markers+text","showlegend":false,"text":"A","textposition":"bottom...', ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11']]
+[2025-10-29 12:09:40,278: INFO/ForkPoolWorker-4] Completed plot_dotbracket successfully
+[2025-10-29 12:09:40,325: INFO/ForkPoolWorker-4] Completed generate_dotbracket_plot in 2.80s
+[2025-10-29 12:09:40,328: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_dotbracket_plot[3b28544d-8628-4ab0-8bd7-7e127cd50a31] succeeded in 2.8036117300216574s: '{"data":[{"line":{"color":"rgb(57, 59,...'
+[2025-10-29 12:09:40,373: WARNING/ForkPoolWorker-1] 1919
+[2025-10-29 12:09:40,373: WARNING/ForkPoolWorker-1] RNA length: 10 nucleotides
+[2025-10-29 12:09:40,373: WARNING/ForkPoolWorker-1] Found 1919 frames in the data
+[2025-10-29 12:09:40,436: INFO/ForkPoolWorker-1] Starting plot_rna_contact_map
+[2025-10-29 12:09:40,442: WARNING/ForkPoolWorker-1] No base pairs to display
+[2025-10-29 12:09:40,451: INFO/ForkPoolWorker-1] Completed plot_rna_contact_map successfully
+[2025-10-29 12:09:40,457: INFO/ForkPoolWorker-1] Completed generate_contact_map_plot in 2.99s
+[2025-10-29 12:09:40,460: INFO/ForkPoolWorker-1] Task src.core.tasks.generate_contact_map_plot[564f8db5-5d8e-4dd9-8487-8940ef241763] succeeded in 2.9932281569927s: '{"data":[],"layout":{"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222...'
+[2025-10-29 12:10:05,146: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[debddbb9-a823-4284-ae97-cce602bff6fa] received
+[2025-10-29 12:10:05,149: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 12:10:05,275: WARNING/ForkPoolWorker-4] Updating contact map for frame 263
+[2025-10-29 12:10:05,275: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 12:10:05,276: WARNING/ForkPoolWorker-4] No base pairs to display
+[2025-10-29 12:10:05,284: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 12:10:05,288: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.14s
+[2025-10-29 12:10:05,289: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[debddbb9-a823-4284-ae97-cce602bff6fa] succeeded in 0.14005520500359125s: '{"data":[],"layout":{"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222...'
+[2025-10-29 12:10:06,251: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[3bdc6c0c-6f4f-4d7f-8f9e-e0d8f89e5bdb] received
+[2025-10-29 12:10:06,254: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 12:10:06,371: WARNING/ForkPoolWorker-4] Updating contact map for frame 921
+[2025-10-29 12:10:06,371: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 12:10:06,426: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 12:10:06,426: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 12:10:06,431: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.18s
+[2025-10-29 12:10:06,432: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[3bdc6c0c-6f4f-4d7f-8f9e-e0d8f89e5bdb] succeeded in 0.17901874301605858s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc...'
+[2025-10-29 12:10:07,103: INFO/MainProcess] Task src.core.tasks.update_contact_map_plot[c0e4417d-07ae-49b4-b7f2-c8a57efe01b2] received
+[2025-10-29 12:10:07,106: INFO/ForkPoolWorker-4] Starting update_contact_map_plot
+[2025-10-29 12:10:07,382: WARNING/ForkPoolWorker-4] Updating contact map for frame 1892
+[2025-10-29 12:10:07,382: INFO/ForkPoolWorker-4] Starting plot_rna_contact_map
+[2025-10-29 12:10:07,444: WARNING/ForkPoolWorker-4] Contact map saved to /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/5328e25b324140c28e7a47c74d058650/download_plot/CONTACT_MAPS/contact_map.html
+[2025-10-29 12:10:07,444: INFO/ForkPoolWorker-4] Completed plot_rna_contact_map successfully
+[2025-10-29 12:10:07,452: INFO/ForkPoolWorker-4] Completed update_contact_map_plot in 0.35s
+[2025-10-29 12:10:07,453: INFO/ForkPoolWorker-4] Task src.core.tasks.update_contact_map_plot[c0e4417d-07ae-49b4-b7f2-c8a57efe01b2] succeeded in 0.34740965999662876s: '{"data":[{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[0]} ↔ %{customdata[1]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue i: %{x}\u003cbr\u003eResidue j: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc","x":{"dtype":"i1","bdata":"AQID"},"y":{"dtype":"i1","bdata":"CgkI"},"type":"scatter"},{"customdata":[["G1","C10"],["G2","C9"],["C3","G8"]],"hovertemplate":"Base pair: %{customdata[1]} ↔ %{customdata[0]}\u003cbr\u003eType: WCc\u003cbr\u003eResidue j: %{x}\u003cbr\u003eResidue i: %{y}\u003cbr\u003e","marker":{"color":"#E41A1C","line":{"color":"DarkSlateGrey","width":1},"size":8,"symbol":"circle"},"mode":"markers","name":"WCc...'
+[2025-10-29 12:14:52,242: INFO/MainProcess] Task src.core.tasks.compute_rmsd[7bcd0744-de05-45c1-9b6f-269b6528a668] received
+[2025-10-29 12:14:52,244: INFO/ForkPoolWorker-4] Starting compute_rmsd
+[2025-10-29 12:15:19,781: WARNING/ForkPoolWorker-4] # found 
+[2025-10-29 12:15:19,782: WARNING/ForkPoolWorker-4]  
+[2025-10-29 12:15:19,782: WARNING/ForkPoolWorker-4] 1637
+[2025-10-29 12:15:19,782: WARNING/ForkPoolWorker-4]  
+[2025-10-29 12:15:19,782: WARNING/ForkPoolWorker-4] atoms in common
+[2025-10-29 12:16:06,626: INFO/ForkPoolWorker-4] RMSD computed and saved to static/uploads/94aabeeafa60416cbfbcb2936509cd6d/rmsd_data.pkl
+[2025-10-29 12:16:06,626: INFO/ForkPoolWorker-4] Completed compute_rmsd in 74.38s
+[2025-10-29 12:16:06,629: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_rmsd[7bcd0744-de05-45c1-9b6f-269b6528a668] succeeded in 74.38575484298053s: {'metric': 'rmsd', 'status': 'success', 'path': 'static/uploads/94aabeeafa60416cbfbcb2936509cd6d/rmsd_data.pkl'}
+[2025-10-29 12:16:06,630: INFO/MainProcess] Task src.core.tasks.compute_ermsd[858ede97-f546-487c-8fcb-fbd4ffbff4e0] received
+[2025-10-29 12:16:06,632: INFO/ForkPoolWorker-4] Starting compute_ermsd
+[2025-10-29 12:16:33,606: WARNING/ForkPoolWorker-4] # Loaded reference /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/correct_conf.pdb 
+# Loaded target /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:17,162: INFO/ForkPoolWorker-4] eRMSD computed and saved to static/uploads/94aabeeafa60416cbfbcb2936509cd6d/ermsd_data.pkl
+[2025-10-29 12:22:17,171: INFO/ForkPoolWorker-4] Completed compute_ermsd in 370.54s
+[2025-10-29 12:22:17,194: INFO/ForkPoolWorker-4] Task src.core.tasks.compute_ermsd[858ede97-f546-487c-8fcb-fbd4ffbff4e0] succeeded in 370.5619709439925s: {'metric': 'ermsd', 'status': 'success', 'path': 'static/uploads/94aabeeafa60416cbfbcb2936509cd6d/ermsd_data.pkl'}
+[2025-10-29 12:22:17,346: INFO/MainProcess] Task src.core.tasks.generate_rmsd_plot[66484d5d-eeca-416d-8da0-1f0392f53d9f] received
+[2025-10-29 12:22:17,349: INFO/MainProcess] Task src.core.tasks.generate_ermsd_plot[71d7955a-e309-413f-90e1-cf54013c07e0] received
+[2025-10-29 12:22:17,351: INFO/ForkPoolWorker-4] Starting generate_rmsd_plot
+[2025-10-29 12:22:17,352: INFO/MainProcess] Task src.core.tasks.generate_contact_map_plot[69549a3f-094a-44ff-84e1-45ee306d7176] received
+[2025-10-29 12:22:17,352: INFO/ForkPoolWorker-5] Starting generate_ermsd_plot
+[2025-10-29 12:22:17,354: WARNING/ForkPoolWorker-4] LOADED RMSD FROM SAVED DATA
+[2025-10-29 12:22:17,354: INFO/ForkPoolWorker-4] Default plots are used
+[2025-10-29 12:22:17,354: INFO/ForkPoolWorker-4] Starting plot_rmsd
+[2025-10-29 12:22:17,354: WARNING/ForkPoolWorker-5] LOADED eRMSD FROM SAVED DATA
+[2025-10-29 12:22:17,354: INFO/ForkPoolWorker-5] Starting plot_ermsd
+[2025-10-29 12:22:17,354: INFO/MainProcess] Task src.core.tasks.generate_torsion_plot[a02ebf18-e3c9-4189-b0f8-648af5d5e389] received
+[2025-10-29 12:22:17,356: INFO/ForkPoolWorker-1] Starting generate_contact_map_plot
+[2025-10-29 12:22:17,356: INFO/ForkPoolWorker-2] Starting generate_torsion_plot
+[2025-10-29 12:22:17,357: INFO/MainProcess] Task src.core.tasks.generate_sec_structure_plot[afa6e0f2-26e1-45fd-af76-01d08dd5595e] received
+[2025-10-29 12:22:17,359: INFO/MainProcess] Task src.core.tasks.generate_dotbracket_plot[045083aa-19e1-4f07-9766-551a42b34154] received
+[2025-10-29 12:22:17,360: INFO/MainProcess] Task src.core.tasks.generate_arc_plot[1f504cdb-2290-4231-a06e-914483e8be00] received
+[2025-10-29 12:22:17,360: INFO/ForkPoolWorker-4] Completed plot_rmsd successfully
+[2025-10-29 12:22:17,361: INFO/MainProcess] Task src.core.tasks.generate_2Dpairing_plot[29dace16-ea38-43c1-bc6d-94a5c884a940] received
+[2025-10-29 12:22:17,360: INFO/ForkPoolWorker-3] Starting generate_sec_structure_plot
+[2025-10-29 12:22:17,365: INFO/ForkPoolWorker-5] Completed plot_ermsd successfully
+[2025-10-29 12:22:17,382: WARNING/ForkPoolWorker-4] Figure({
+    'data': [{'legendrank': 1,
+              'mode': 'markers',
+              'type': 'scattergl',
+              'y': {'bdata': ('acmhP/kgoj/CUqM/KDOkP4dRpD921K' ... '8+QXvDPn9hxz4cQ8Q+9ujDPlhywT4='),
+                    'dtype': 'f4'}}],
+    'layout': {'hovermode': 'closest',
+               'template': '...',
+               'title': {'text': 'RMSD Scatter Plot'},
+               'xaxis': {'title': {'text': 'Frame'}},
+               'yaxis': {'title': {'text': 'RMSD Value'}}}
+})
+[2025-10-29 12:22:17,713: INFO/ForkPoolWorker-4] Completed generate_rmsd_plot in 0.36s
+[2025-10-29 12:22:17,719: INFO/ForkPoolWorker-4] Task src.core.tasks.generate_rmsd_plot[66484d5d-eeca-416d-8da0-1f0392f53d9f] succeeded in 0.36795498902210966s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f4","bdata":"acmhP\u002fkgoj\u002fCUqM\u002fKDOkP4dRpD921KM\u002fHRylP34zpD+D7qM\u002fDpmjP4q9oz+jk6Q\u002f6VGlP3Ucpj9W4qY\u002fA+mmPwLIpj8cbaY\u002f+1WmPw0Epj+OuaY\u002fKPqlPza1pT+2+aU\u002fJlumP0aBpj8hqac\u002fWbemP2soqD8v2Kc\u002fLC2nPzFzpj+LeKg\u002fXOKoP1wXqj9p+qk\u002fnC2qP0Mjqz\u002fpGqs\u002fQxaqP\u002fx0qT8xiqk\u002f1USqP\u002fRpqT9Ir6g\u002fy86oP5uoqD+XaKg\u002fESenPxy3pz8Lbqg\u002fIBKpP+yLqT9Ubqg\u002f8JanPzBlqD\u002fSLKk\u002fiEKpP8roqT+uHqk\u002fAkKoP\u002fFBpz8\u002fLqg\u002fOCCmP4bjpj\u002fXI6c\u002ffxmoP67lqD9mJKk\u002fOp6pP8DLqT9iiao\u002fSIqqP7Msqz9EZKo\u002fdAiqP4fzqj\u002f\u002fFKs\u002f+XqrP4Fyqz\u002foB6s\u002ft3iqPzkxqz9APas\u002fioSsP8K4qz9Yeaw\u002ftLysPy6urD92Vaw\u002f7zCrPzPxqT+RSqo\u002fjlmpP+Xwpz9kcqg\u002flL2oP8Ixqj9Wxak\u002fpzGqPzqzqj\u002flJ6o\u002fe9uqP5Ylqj9\u002fcqk\u002fx5+oP6wIqT9Ubqk\u002fJveqP1a1qT82Kqk\u002fwNyoP6uxqD+YC6g\u002fBu2pP5I+qz8Z16s\u002fzOOsP7BvrT\u002f8Bq0\u002f9UWtPyrzqz87B6w\u002ffcerP0lvrD8zeKw\u00...'
+[2025-10-29 12:22:17,722: INFO/ForkPoolWorker-4] Starting generate_dotbracket_plot
+[2025-10-29 12:22:17,745: INFO/ForkPoolWorker-5] Completed generate_ermsd_plot in 0.39s
+[2025-10-29 12:22:17,760: INFO/ForkPoolWorker-5] Task src.core.tasks.generate_ermsd_plot[71d7955a-e309-413f-90e1-cf54013c07e0] succeeded in 0.40832273798878305s: '{"data":[{"legendrank":1,"mode":"markers","y":{"dtype":"f8","bdata":"bRrPGkHp6z9PkATmTUXrP2BDawc6Bes\u002f7gjMrz6b6j\u002fQmQJFKTnrPyEpdl63A+s\u002fFhyqA94r6z+X9WbGdLjqP3Ft+SEDY+s\u002f06kgANUf6z\u002fRsvAStm\u002frP7qt6FtVBus\u002fpkiQaQ2q6j\u002fYD+mirV7qP8iQa8mYzOo\u002fGAbcwLm66T\u002fdLj\u002fPntfqP8PUiKAxieo\u002fnazoH9MY6z+3wYiooFLrP6U7U6wiF+s\u002fEObn\u002fYHp6j\u002fO9xrfBZzqP727hf5qpeo\u002fXMoDAcKV6j\u002fLuXFSgjjrPwHR6CyHleo\u002ffYINK6rI6j+wp\u002f2p9KTqP9fgyBroWes\u002fzCjBamya6j8xUQ\u002fVjNnqP9iIHTohnOo\u002fVlEAp+\u002fU6j8ra51QEWjrP1mOZI4Ey+k\u002figqMLBbx6T863NgzYAzqP3\u002fEwXgC3+k\u002fgGQArhvD6T+8dkWc\u002fkbpP5QSDCPtD+o\u002fFpTfjScE6z9Ge1KJEmjpPzBK44u2Lug\u002fU5y7Pci06D\u002fsi8ZS9s3oP8\u002fDw+sX2ug\u002fzoTkR5mb6D9SKYfvyiXoP3e+4HctLeg\u002ft0ZTNQbJ6D8PRDfijWnoP\u002f15XVgUeOg\u002fe3hRRptS6D\u002fWlb1uuSroP1\u002ffv+Tz2uk\u002fuVhliBfS6D+D7wKbrV3pP4b5ajfoq+k\u002fSx9\u002fYnsK6T8XubdYNrXoPxQHslTHUug\u002fagR258pn6T+9xkzpPAnpPxQPIjOwTuk\u002fMoV\u002flHu26T8hlByAmSnpP2ujvxc\u002f8Og...'
+[2025-10-29 12:22:17,762: INFO/ForkPoolWorker-5] Starting generate_arc_plot
+[2025-10-29 12:22:17,762: WARNING/ForkPoolWorker-5] ARC
+[2025-10-29 12:22:17,861: INFO/MainProcess] Task src.core.tasks.generate_landscape_plot[e1f02c60-61e5-42ea-94fc-0784b45b8796] received
+[2025-10-29 12:22:46,508: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:46,959: WARNING/ForkPoolWorker-5] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:47,275: WARNING/ForkPoolWorker-1] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:47,306: WARNING/ForkPoolWorker-3] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:47,763: WARNING/ForkPoolWorker-4] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 
+[2025-10-29 12:22:59,282: INFO/ForkPoolWorker-2] Calculated torsion angles for 77 residues
+[2025-10-29 12:22:59,282: INFO/ForkPoolWorker-2] Torsion plot import successful
+[2025-10-29 12:22:59,282: INFO/ForkPoolWorker-2] Using dual torsion plots for residue: 2
+[2025-10-29 12:22:59,282: INFO/ForkPoolWorker-2] Starting plot_torsion
+[2025-10-29 12:22:59,384: INFO/ForkPoolWorker-2] Completed plot_torsion successfully
+[2025-10-29 12:22:59,384: INFO/ForkPoolWorker-2] Generated time series and distribution plots
+[2025-10-29 12:22:59,640: INFO/ForkPoolWorker-2] Torsion plots saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/download_plot/TORSION/torsion_time_series.html, /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/download_plot/TORSION/torsion_distribution.html
+[2025-10-29 12:24:21,526: INFO/ForkPoolWorker-2] Torsion data saved to: /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/download_data/TORSION/torsion_angles.csv
+[2025-10-29 12:24:21,526: INFO/ForkPoolWorker-2] Torsion plots conversion to JSON successful
+[2025-10-29 12:24:21,527: INFO/ForkPoolWorker-2] Completed generate_torsion_plot in 124.17s
+[2025-10-29 12:24:21,617: INFO/ForkPoolWorker-2] Task src.core.tasks.generate_torsion_plot[a02ebf18-e3c9-4189-b0f8-648af5d5e389] succeeded in 124.26104912598385s: ['{"data":[{"line":{"color":"#636efa","width":2},"marker":{"color":"#636efa","size":3},"mode":"lines+markers","name":"alpha","x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAAGAAAABkAAAAaAAAAGwAAABwAAAAdAAAAHgAAAB8AAAAgAAAAIQAAACIAAAAjAAAAJAAAACUAAAAmAAAAJwAAACgAAAApAAAAKgAAACsAAAAsAAAALQAAAC4AAAAvAAAAMAAAADEAAAAyAAAAMwAAADQAAAA1AAAANgAAADcAAAA4AAAAOQAAADoAAAA7AAAAPAAAAD0AAAA+AAAAPwAAAEAAAABBAAAAQgAAAEMAAABEAAAARQAAAEYAAABHAAAASAAAAEkAAABKAAAASwAAAEwAAABNAAAATgAAAE8AAABQAAAAUQAAAFIAAABTAAAAVAAAAFUAAABWAAAAVwAAAFgAAABZAAAAWgAAAFsAAABcAAAAXQAAAF4AAABfAAAAYAAAAGEAAABiAAAAYwAAAGQAAABlAAAAZgAAAGcAAABoAAAAaQAAAGoAAABrAAAAbAAAAG0AAABuAAAAbwAAAHAAAABxAAAAcgAAAHMAAAB0AAAAdQAAAHYAAAB3AAAAeAAAAHkAAAB6AAAAewAAAHwAAAB9AAAAfgAAAH8AAACAAAAAgQAAAIIAAACDAAAAhAAAAIUAAACGAAAAhwAAAIgAAACJAAAAigAAAIsAAACMAAAAjQAAAI4AAACPAAAAkAAAAJEAAACSAAAAkwAAAJQAAACVAAAAlgAAAJcAAACYAAAAmQAAAJoAAACbAAAAnAAAAJ0AAACeAAAAnwAAAKAAAAChAAAAogAAAKMAA...', ...]
+[2025-10-29 12:24:21,620: INFO/ForkPoolWorker-2] Starting generate_2Dpairing_plot
+[2025-10-29 12:24:49,808: WARNING/ForkPoolWorker-2] # Loading /media/louis/9cd13dc6-dcf0-4fea-90e9-ddb52c29bb29/THESE/PLOT_RNA/Plot_RNA6/static/uploads/94aabeeafa60416cbfbcb2936509cd6d/traj_uploaded.xtc 

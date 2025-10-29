@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Debug Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #0a0; }
+        button { margin: 5px; padding: 8px 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Trajectory Cache Debug</h1>
+    
+    <div class="controls">
+        <button onclick="testCacheSupport()">Test Cache Support</button>
+        <button onclick="testCacheInit()">Test Cache Init</button>
+        <button onclick="testCacheStats()">Test Cache Stats</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <!-- Load the cache script -->
+    <script src="{{ url_for('static', filename='js/trajectory-cache.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/syntax-check.js') }}"></script>
+    
+    <script>
+        const logs = document.getElementById('logs');
+        
+        function addLog(message, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            logs.appendChild(div);
+            // Keep original console behavior
+            if (type === 'error') {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+        
+        function clearLogs() {
+            logs.innerHTML = '';
+        }
+        
+        async function testCacheSupport() {
+            addLog('🔍 Testing cache support...', 'log');
+            try {
+                if (window.trajectoryCache) {
+                    const supported = await window.trajectoryCache.isSupported();
+                    addLog(`✅ Cache support: ${supported}`, supported ? 'success' : 'error');
+                } else {
+                    addLog('❌ window.trajectoryCache not found', 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Error testing support: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCacheInit() {
+            addLog('🔧 Testing cache initialization...', 'log');
+            try {
+                if (window.trajectoryCache) {
+                    await window.trajectoryCache.init();
+                    addLog('✅ Cache initialized successfully', 'success');
+                } else {
+                    addLog('❌ window.trajectoryCache not found', 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Error initializing cache: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCacheStats() {
+            addLog('📊 Testing cache stats...', 'log');
+            try {
+                if (window.trajectoryCache) {
+                    const stats = await window.trajectoryCache.getCacheStats();
+                    addLog(`✅ Cache stats: ${JSON.stringify(stats, null, 2)}`, 'success');
+                } else {
+                    addLog('❌ window.trajectoryCache not found', 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Error getting stats: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run basic tests
+        setTimeout(() => {
+            addLog('🚀 Running automatic tests...', 'log');
+            testCacheSupport();
+        }, 1000);
+    </script>
+</body>
+</html>

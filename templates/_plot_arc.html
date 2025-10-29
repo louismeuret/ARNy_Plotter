@@ -1,0 +1,79 @@
+<div class="box mt-5">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <i class="drag-handle" data-lucide="grip"></i>
+        <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
+    <div class="content">
+        <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+        <p>{{ explainations.get(plot_info[0]).content }}</p>
+        {% if explainations.get(plot_info[0]).formula != "" %}
+        <div class="formula">
+            {{ explainations.get(plot_info[0]).formula | safe }}
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        var previousValue2 = 1;
+        var dataLength = {{ trajectory_length }};
+        var resids = {{ plot_info[2][1] | tojson | safe }};
+        var plotData_{{ plot_info[1] }} = {{ plot_info[2][0] | safe }};
+
+        // Initial plot with the main data
+        var config = {responsive: true};
+
+
+        Plotly.newPlot('{{ plot_info[1] }}', plotData_{{ plot_info[1] }}, layout, config).then(() => {
+      // Force a resize after plot is created to ensure it fills the container
+      setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+    });
+        window.addEventListener('resize', () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
+        $(document).on("click", ".expand-icon", () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
+        var currentPlot_{{ plot_info[1] }} = document.getElementById('{{ plot_info[1] }}');
+
+        currentPlot_{{ plot_info[1] }}.on('plotly_click', function(data) {
+            var checkViewerReady = setInterval(function() {
+                if (state.viewerReady === true) {
+                    clearInterval(checkViewerReady);
+                    if (data.points.length > 0) {
+                        let curveNumber = data.points[0].curveNumber;
+                        let resid = parseInt(resids[curveNumber]);
+
+                        if (state.highlightedResid === resid) {
+                            // If the clicked residue is already highlighted, remove the highlight
+                            hideColor();
+                            state.highlightedResid = undefined;
+                        } else {
+                            // If a different residue is selected, switch highlight
+                            if (state.highlightedResid !== undefined) {
+                              hideColor();
+                            }
+                            state.highlightedResid = resid;
+                            changeColor(resid);
+                        }
+                    }
+                }
+            }, 100);
+        });
+    </script>
+    <div
+        style="
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        "
+    >
+        <a
+            href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download {{ plot_info[0] }} Data</a
+        >
+        <a
+            href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+            class="button is-link"
+            >Download Plot</a
+        >
+    </div>
+</div>

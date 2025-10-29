@@ -1,0 +1,62 @@
+<div class="box mt-5 plot-container">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <i class="drag-handle" data-lucide="grip"></i>
+        <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}"></div>
+    <div class="content">
+        <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+        <p>{{ explainations.get(plot_info[0]).content }}</p>
+        {% if explainations.get(plot_info[0]).formula != "" %}
+        <div class="formula">
+            {{ explainations.get(plot_info[0]).formula | safe }}
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        var plotData_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
+        Plotly.newPlot('{{ plot_info[1] }}', plotData_{{ plot_info[1] }}, layout, config).then(() => {
+      // Force a resize after plot is created to ensure it fills the container
+      setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+    });
+        window.addEventListener('resize', function() {
+            Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+        });
+
+
+    $(document).ready(function () {
+        $(".expand-icon").on("click", function () {
+            Plotly.Plots.resize(document.getElementById("{{ plot_info[1] }}"));
+            var box = $(this).closest(".box");
+            var plot = box.find(".plot");
+            var plotDataContainer = box.find("#{{ plot_info[1] }}");
+
+            if (box.hasClass("expanded")) {
+                plot.css("height", "calc(80% - 40px)");
+                plotDataContainer.css("height", "calc(80% - 40px)");
+            } else {
+                plot.css("height", "");
+                plotDataContainer.css("height", "");
+            }
+
+            // Resize the Plotly plot
+            Plotly.Plots.resize(plotDataContainer[0]);
+        });
+    });
+
+    </script>
+  <div
+  style="
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  "
+>
+  <a
+    href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+    class="button is-link"
+  >Download Plot</a>
+</div>
+</div>

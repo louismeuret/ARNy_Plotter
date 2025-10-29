@@ -1,0 +1,308 @@
+2025-08-28 13:46:09,312 - ServiceManager - INFO - Service Manager initialized
+2025-08-28 13:46:35,205 - ServiceManager - INFO - Starting all services
+2025-08-28 13:46:35,205 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-08-28 13:46:35,206 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-08-28 13:46:36,709 - ServiceManager - INFO - Service 1 started with PID 47147
+2025-08-28 13:46:37,210 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-08-28 13:46:37,210 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-08-28 13:46:38,712 - ServiceManager - INFO - Service 2 started with PID 47198
+2025-08-28 13:46:39,213 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-08-28 13:46:39,213 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-08-28 13:46:39,216 - ServiceManager - ERROR - Service 3 command not found: [Errno 2] No such file or directory: 'redis-server'
+2025-08-28 13:46:39,717 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-08-28 13:46:39,717 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-08-28 13:46:41,221 - ServiceManager - ERROR - Service 4 failed to start
+2025-08-28 13:52:58,135 - ServiceManager - INFO - Service manager shutdown requested
+2025-08-28 13:52:58,135 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 47147)
+2025-08-28 13:53:00,055 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-08-28 13:53:17,198 - ServiceManager - INFO - Service Manager initialized
+2025-08-28 13:53:29,797 - ServiceManager - INFO - Starting all services
+2025-08-28 13:53:29,797 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-08-28 13:53:29,797 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-08-28 13:53:31,309 - ServiceManager - INFO - Service 1 started with PID 50894
+2025-08-28 13:53:31,810 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-08-28 13:53:31,810 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-08-28 13:53:33,313 - ServiceManager - INFO - Service 2 started with PID 50943
+2025-08-28 13:53:33,813 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-08-28 13:53:33,813 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-08-28 13:53:35,325 - ServiceManager - INFO - Service 3 started with PID 50966
+2025-08-28 13:53:35,826 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-08-28 13:53:35,826 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-08-28 13:53:37,330 - ServiceManager - INFO - Service 4 started with PID 50972
+2025-08-28 13:54:35,852 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-08-28 13:54:35,852 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-08-28 13:54:37,356 - ServiceManager - INFO - Service 2 started with PID 51384
+2025-08-28 14:00:26,490 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 51384)
+2025-08-28 14:00:27,407 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-08-28 14:00:27,407 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-08-28 14:00:27,407 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-08-28 14:00:28,911 - ServiceManager - INFO - Service 2 started with PID 53668
+2025-08-28 14:01:23,101 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 53668)
+2025-08-28 14:01:24,168 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-08-28 14:26:41,577 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 50894)
+2025-08-28 14:26:43,797 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-08-28 14:26:44,798 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-08-28 14:26:44,798 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-08-28 14:26:46,301 - ServiceManager - INFO - Service 1 started with PID 65182
+2025-08-28 14:28:06,535 - ServiceManager - INFO - Stopping all services
+2025-08-28 14:28:06,535 - ServiceManager - INFO - Stopping service 4: Celery Flower (PID: 50972)
+2025-08-28 14:28:06,950 - ServiceManager - INFO - Service 4 stopped gracefully
+2025-08-28 14:28:07,450 - ServiceManager - INFO - Stopping service 3: Redis Server (PID: 50966)
+2025-08-28 14:28:07,573 - ServiceManager - INFO - Service 3 stopped gracefully
+2025-08-28 14:28:08,574 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 65182)
+2025-08-28 14:28:10,543 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-08-28 14:28:15,778 - ServiceManager - INFO - Starting all services
+2025-08-28 14:28:15,779 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-08-28 14:28:15,779 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-08-28 14:28:17,282 - ServiceManager - INFO - Service 1 started with PID 65909
+2025-08-28 14:28:17,782 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-08-28 14:28:17,782 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-08-28 14:28:19,284 - ServiceManager - INFO - Service 2 started with PID 65931
+2025-08-28 14:28:19,785 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-08-28 14:28:19,785 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-08-28 14:28:21,289 - ServiceManager - INFO - Service 3 started with PID 65936
+2025-08-28 14:28:21,789 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-08-28 14:28:21,789 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-08-28 14:28:23,293 - ServiceManager - INFO - Service 4 started with PID 65942
+2025-09-01 10:22:13,700 - ServiceManager - INFO - Service Manager initialized
+2025-09-01 10:22:20,958 - ServiceManager - INFO - Starting all services
+2025-09-01 10:22:20,959 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-09-01 10:22:20,959 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-09-01 10:22:22,469 - ServiceManager - INFO - Service 1 started with PID 236160
+2025-09-01 10:22:22,969 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-09-01 10:22:22,969 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-09-01 10:22:24,472 - ServiceManager - INFO - Service 2 started with PID 236183
+2025-09-01 10:22:24,972 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-09-01 10:22:24,973 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-09-01 10:22:24,984 - ServiceManager - ERROR - Service 3 command not found: [Errno 2] No such file or directory: 'redis-server'
+2025-09-01 10:22:25,484 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-09-01 10:22:25,485 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-09-01 10:22:26,997 - ServiceManager - ERROR - Service 4 failed to start
+2025-09-01 10:26:00,564 - ServiceManager - INFO - Service manager shutdown requested
+2025-09-01 10:26:00,564 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 236160)
+2025-09-01 10:26:02,432 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-09-01 10:26:02,432 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 236183)
+2025-09-01 10:26:03,799 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-09-01 10:26:42,842 - ServiceManager - INFO - Service Manager initialized
+2025-09-01 10:26:45,260 - ServiceManager - INFO - Starting all services
+2025-09-01 10:26:45,260 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-09-01 10:26:45,261 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-09-01 10:26:46,764 - ServiceManager - INFO - Service 1 started with PID 238865
+2025-09-01 10:26:47,264 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-09-01 10:26:47,264 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-09-01 10:26:48,767 - ServiceManager - INFO - Service 2 started with PID 238887
+2025-09-01 10:26:49,267 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-09-01 10:26:49,268 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-09-01 10:26:49,269 - ServiceManager - ERROR - Service 3 command not found: [Errno 2] No such file or directory: 'redis-server'
+2025-09-01 10:26:49,770 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-09-01 10:26:49,770 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-09-01 10:26:51,274 - ServiceManager - ERROR - Service 4 failed to start
+2025-09-01 10:26:54,696 - ServiceManager - INFO - Service manager shutdown requested
+2025-09-01 10:26:54,696 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 238865)
+2025-09-01 10:26:56,615 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-09-01 10:26:56,615 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 238887)
+2025-09-01 10:26:57,832 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-09-01 10:27:28,752 - ServiceManager - INFO - Service Manager initialized
+2025-09-01 10:27:31,824 - ServiceManager - INFO - Starting all services
+2025-09-01 10:27:31,825 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-09-01 10:27:31,825 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-09-01 10:27:33,329 - ServiceManager - INFO - Service 1 started with PID 239038
+2025-09-01 10:27:33,829 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-09-01 10:27:33,829 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-09-01 10:27:35,331 - ServiceManager - INFO - Service 2 started with PID 239062
+2025-09-01 10:27:35,832 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-09-01 10:27:35,832 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-09-01 10:27:37,343 - ServiceManager - INFO - Service 3 started with PID 239088
+2025-09-01 10:27:37,843 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-09-01 10:27:37,844 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-09-01 10:27:39,347 - ServiceManager - ERROR - Service 4 failed to start
+2025-10-21 14:27:23,983 - ServiceManager - INFO - Service Manager initialized
+2025-10-21 14:27:27,010 - ServiceManager - INFO - Starting all services
+2025-10-21 14:27:27,010 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-21 14:27:27,010 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-21 14:27:28,522 - ServiceManager - INFO - Service 1 started with PID 29887
+2025-10-21 14:27:29,023 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-21 14:27:29,023 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-21 14:27:30,525 - ServiceManager - INFO - Service 2 started with PID 29904
+2025-10-21 14:27:31,026 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-21 14:27:31,026 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-21 14:27:32,529 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-21 14:27:33,030 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-21 14:27:33,030 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-21 14:27:34,540 - ServiceManager - INFO - Service 4 started with PID 29939
+2025-10-21 15:54:30,734 - ServiceManager - INFO - Service manager shutdown requested
+2025-10-21 15:54:30,735 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 29904)
+2025-10-21 15:54:35,735 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-21 15:54:35,735 - ServiceManager - INFO - Stopping service 4: Celery Flower (PID: 29939)
+2025-10-21 15:54:40,712 - ServiceManager - INFO - Service 4 stopped gracefully
+2025-10-21 15:54:42,082 - ServiceManager - INFO - Service Manager initialized
+2025-10-21 15:54:44,492 - ServiceManager - INFO - Starting all services
+2025-10-21 15:54:44,492 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-21 15:54:44,492 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-21 15:54:45,993 - ServiceManager - INFO - Service 1 started with PID 57832
+2025-10-21 15:54:46,494 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-21 15:54:46,494 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-21 15:54:47,996 - ServiceManager - INFO - Service 2 started with PID 57855
+2025-10-21 15:54:48,496 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-21 15:54:48,496 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-21 15:54:49,998 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-21 15:54:50,498 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-21 15:54:50,498 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-21 15:54:52,000 - ServiceManager - INFO - Service 4 started with PID 57882
+2025-10-21 16:09:07,722 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 57855)
+2025-10-21 16:09:12,723 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-21 16:09:13,723 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-21 16:09:13,723 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-21 16:09:15,226 - ServiceManager - INFO - Service 2 started with PID 64965
+2025-10-21 16:09:15,728 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 57832)
+2025-10-21 16:09:17,198 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-21 16:09:18,198 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-21 16:09:18,198 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-21 16:09:19,700 - ServiceManager - INFO - Service 1 started with PID 64991
+2025-10-21 16:23:23,300 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 64991)
+2025-10-21 16:23:25,170 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-21 16:23:26,171 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-21 16:23:26,171 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-21 16:23:27,674 - ServiceManager - INFO - Service 1 started with PID 70388
+2025-10-21 16:23:28,178 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 64965)
+2025-10-21 16:23:33,178 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-21 16:23:34,179 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-21 16:23:34,179 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-21 16:23:35,681 - ServiceManager - INFO - Service 2 started with PID 70424
+2025-10-21 19:20:10,911 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 70388)
+2025-10-21 19:20:12,881 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-21 19:20:13,881 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-21 19:20:13,881 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-21 19:20:15,391 - ServiceManager - INFO - Service 1 started with PID 133894
+2025-10-21 19:20:15,893 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 70424)
+2025-10-21 19:20:20,894 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-21 19:20:21,894 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-21 19:20:21,894 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-21 19:20:23,407 - ServiceManager - INFO - Service 2 started with PID 133930
+2025-10-22 15:32:58,743 - ServiceManager - INFO - Service Manager initialized
+2025-10-22 15:33:01,779 - ServiceManager - INFO - Starting all services
+2025-10-22 15:33:01,779 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-22 15:33:01,779 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-22 15:33:03,291 - ServiceManager - ERROR - Service 1 failed to start
+2025-10-22 15:33:03,791 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-22 15:33:03,792 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-22 15:33:05,304 - ServiceManager - INFO - Service 2 started with PID 17743
+2025-10-22 15:33:05,804 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-22 15:33:05,804 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-22 15:33:07,307 - ServiceManager - INFO - Service 3 started with PID 17762
+2025-10-22 15:33:07,807 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-22 15:33:07,808 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-22 15:33:09,319 - ServiceManager - ERROR - Service 4 failed to start
+2025-10-22 15:33:11,327 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 17743)
+2025-10-22 15:33:15,912 - ServiceManager - INFO - Service Manager initialized
+2025-10-22 15:33:18,941 - ServiceManager - INFO - Starting all services
+2025-10-22 15:33:18,941 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-22 15:33:18,941 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-22 15:33:20,453 - ServiceManager - INFO - Service 1 started with PID 17816
+2025-10-22 15:33:20,953 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-22 15:33:20,953 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-22 15:33:22,455 - ServiceManager - INFO - Service 2 started with PID 17833
+2025-10-22 15:33:22,956 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-22 15:33:22,956 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-22 15:33:24,469 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-22 15:33:24,970 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-22 15:33:24,970 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-22 15:33:26,474 - ServiceManager - INFO - Service 4 started with PID 17861
+2025-10-24 15:29:16,353 - ServiceManager - INFO - Service Manager initialized
+2025-10-24 15:29:26,076 - ServiceManager - INFO - Service Manager initialized
+2025-10-24 15:29:28,500 - ServiceManager - INFO - Starting all services
+2025-10-24 15:29:28,500 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 15:29:28,501 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 15:29:30,013 - ServiceManager - INFO - Service 1 started with PID 75471
+2025-10-24 15:29:30,513 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-24 15:29:30,513 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-24 15:29:32,016 - ServiceManager - INFO - Service 2 started with PID 75488
+2025-10-24 15:29:32,516 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-24 15:29:32,516 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-24 15:29:34,019 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-24 15:29:34,520 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-24 15:29:34,520 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-24 15:29:36,024 - ServiceManager - INFO - Service 4 started with PID 75521
+2025-10-24 15:38:52,161 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 75471)
+2025-10-24 15:38:54,231 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-24 15:38:55,231 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 15:38:55,231 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 15:38:56,733 - ServiceManager - INFO - Service 1 started with PID 78856
+2025-10-24 15:38:59,044 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 75488)
+2025-10-24 15:39:04,044 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-24 15:39:05,045 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-24 15:39:05,045 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-24 15:39:06,555 - ServiceManager - INFO - Service 2 started with PID 78897
+2025-10-24 15:41:45,958 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 78897)
+2025-10-24 15:41:46,474 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-10-24 15:41:47,474 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-24 15:41:47,475 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-24 15:41:48,978 - ServiceManager - INFO - Service 2 started with PID 79681
+2025-10-24 15:42:57,131 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 78856)
+2025-10-24 15:42:59,151 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-24 15:43:00,151 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 15:43:00,152 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 15:43:01,657 - ServiceManager - INFO - Service 1 started with PID 80087
+2025-10-24 16:03:20,990 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 79681)
+2025-10-24 16:03:22,508 - ServiceManager - INFO - Service 2 stopped gracefully
+2025-10-24 16:03:23,509 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-24 16:03:23,509 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-24 16:03:25,011 - ServiceManager - INFO - Service 2 started with PID 86929
+2025-10-24 16:03:25,514 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 80087)
+2025-10-24 16:03:27,282 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-24 16:03:28,283 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 16:03:28,283 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 16:03:29,785 - ServiceManager - INFO - Service 1 started with PID 86953
+2025-10-24 16:12:18,781 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 86953)
+2025-10-24 16:18:26,767 - ServiceManager - INFO - Service Manager initialized
+2025-10-24 16:18:29,891 - ServiceManager - INFO - Starting all services
+2025-10-24 16:18:29,891 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 16:18:29,891 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 16:18:31,410 - ServiceManager - INFO - Service 1 started with PID 953989
+2025-10-24 16:18:31,911 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-24 16:18:31,911 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-24 16:18:33,457 - ServiceManager - INFO - Service 2 started with PID 954002
+2025-10-24 16:18:33,957 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-24 16:18:33,957 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-24 16:18:35,506 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-24 16:18:36,007 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-24 16:18:36,007 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-24 16:18:37,512 - ServiceManager - INFO - Service 4 started with PID 954139
+2025-10-24 16:32:53,215 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 953989)
+2025-10-24 16:32:54,634 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-24 16:32:55,635 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-24 16:32:55,635 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-24 16:32:57,140 - ServiceManager - INFO - Service 1 started with PID 964448
+2025-10-24 16:44:05,443 - ServiceManager - INFO - Stopping all services
+2025-10-24 16:44:05,443 - ServiceManager - INFO - Stopping service 4: Celery Flower (PID: 954139)
+2025-10-24 16:44:05,909 - ServiceManager - INFO - Service 4 stopped gracefully
+2025-10-24 16:44:06,910 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 954002)
+2025-10-24 16:44:11,910 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-24 16:44:12,411 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 964448)
+2025-10-24 16:44:14,080 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-24 16:47:29,627 - ServiceManager - INFO - Service manager shutdown requested
+2025-10-24 16:54:45,949 - ServiceManager - INFO - Service Manager initialized
+2025-10-29 11:34:11,849 - ServiceManager - INFO - Service Manager initialized
+2025-10-29 11:34:14,427 - ServiceManager - INFO - Starting all services
+2025-10-29 11:34:14,427 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-29 11:34:14,427 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-29 11:34:15,951 - ServiceManager - INFO - Service 1 started with PID 291527
+2025-10-29 11:34:16,452 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-29 11:34:16,452 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-29 11:34:18,013 - ServiceManager - INFO - Service 2 started with PID 291529
+2025-10-29 11:34:18,513 - ServiceManager - INFO - Starting service 3: Redis Server
+2025-10-29 11:34:18,514 - ServiceManager - INFO - Command: redis-server --logfile logs/redis.log
+2025-10-29 11:34:20,114 - ServiceManager - ERROR - Service 3 failed to start
+2025-10-29 11:34:20,615 - ServiceManager - INFO - Starting service 4: Celery Flower
+2025-10-29 11:34:20,615 - ServiceManager - INFO - Command: celery -A src.core.tasks --broker=redis://localhost:6379/0 flower --port=5555
+2025-10-29 11:34:22,223 - ServiceManager - INFO - Service 4 started with PID 291645
+2025-10-29 12:08:56,643 - ServiceManager - INFO - Stopping service 1: Celery Worker (PID: 291527)
+2025-10-29 12:08:58,613 - ServiceManager - INFO - Service 1 stopped gracefully
+2025-10-29 12:08:59,614 - ServiceManager - INFO - Starting service 1: Celery Worker
+2025-10-29 12:08:59,614 - ServiceManager - INFO - Command: celery -A src.core.tasks worker --loglevel=INFO --concurrency=5
+2025-10-29 12:09:01,118 - ServiceManager - INFO - Service 1 started with PID 306450
+2025-10-29 12:09:01,624 - ServiceManager - INFO - Stopping service 2: Gunicorn Server (PID: 291529)
+2025-10-29 12:09:06,624 - ServiceManager - WARNING - Service 2 didn't stop gracefully, forcing kill
+2025-10-29 12:09:07,625 - ServiceManager - INFO - Starting service 2: Gunicorn Server
+2025-10-29 12:09:07,625 - ServiceManager - INFO - Command: gunicorn --bind 127.0.0.1:4242 --workers 1 --worker-class eventlet --timeout 600 --chdir src/core app:app
+2025-10-29 12:09:09,130 - ServiceManager - INFO - Service 2 started with PID 306528

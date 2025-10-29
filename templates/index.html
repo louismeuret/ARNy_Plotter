@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ARNy Plotter - RNA Analysis Platform</title>
+        <!-- Bulma CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"
+        />
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}"
+        />
+        <style>
+
+select {
+  appearance: none;
+  -webkit-appearance: none; /* Chrome, Safari */
+  -moz-appearance: none;    /* Firefox */
+  background: none;
+  background-color: white;  /* Optional: your desired background */
+  border: 1px solid #ccc;   /* Optional styling */
+  padding-right: 1rem;      /* Space for custom icon if needed */
+}
+.select.is-arrowless::after {
+    display: none !important;
+}
+
+
+select::-ms-expand {
+  display: none; /* IE 10+ */
+}
+
+select {
+  background-image: none !important; /* Essential for Firefox */
+}
+
+
+
+        </style>
+        <style>
+            
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                background-color: #f0f0f0; /* Ensure background color is set */
+                position: relative; /* Establish stacking context */
+            }
+            .container {
+                position: relative;
+                z-index: 2; /* Ensure container content is above canvas */
+            }
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0; /* Place the canvas behind other content */
+            }
+            #terminal-container {
+                width: 50%;
+                height: 300px;
+                margin: auto;
+                display: none;
+            }
+            #overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+                z-index: 2;
+                justify-content: center;
+                align-items: center;
+            }
+            #overlay .box {
+                width: 50%;
+                padding: 20px;
+                background: white;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div style="height: 20px"></div>
+        <div id="terminal-container"></div>
+        <div class="container mt-5">
+            <div class="box">
+                <h1
+                    class="title"
+                    style="
+                        font-size: 2.5em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    ARNy Plotter 🪄 
+                </h1>
+                <p
+                    class="subtitle"
+                    style="
+                        font-size: 1.2em;
+                        font-family: &quot;Georgia&quot;, serif;
+                        color: #555;
+                    "
+                >
+                    This webserver allows you to create plots of useful metrics
+                    from RNA molecular dynamics simulations and view them in
+                    real-time alongside the trajectory.
+                </p>
+                <h2
+                    class="title"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    Upload Files
+                </h2>
+                <form
+                    action="{{ url_for('upload_files') }}"
+                    method="post"
+                    enctype="multipart/form-data"
+                >
+                    <div class="field">
+                        <label class="label" for="nativePdb"
+                            >Topology File: (Input here the Native state to be used in analysis)</label
+                        >
+                        <div class="control">
+                            <input
+                                type="file"
+                                class="input"
+                                id="nativePdb"
+                                name="nativePdb"
+                                accept=".pdb,.gro,.psf,.top,.prmtop,.mol2,.xyz"
+                            />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="trajXtc"
+                            >Trajectory File: (Max 2gb, please use a format
+                            supported by MDAnalysis and MDtraj)</label
+                        >
+                        <div class="control">
+                            <input
+                                type="file"
+                                class="input"
+                                id="trajXtc"
+                                name="trajXtc"
+                                accept=".xtc,.trr,.dcd,.binpos,.netcdf,.mdcrd"
+                            />
+                        </div>
+                    </div>
+                    <div class="field" style="display: none;">
+                        <label class="label" for="trajPdb"
+                            >Topology PDB File:</label
+                        >
+                        <div class="control">
+                            <input
+                                type="file"
+                                class="input"
+                                id="trajPdb"
+                                name="trajPdb"
+                                accept=".pdb,.gro"
+                            />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="frameSettings"
+                            >Frame Settings:</label
+                        >
+                        <div class="columns">
+                            <div class="column">
+                                <input
+                                    type="number"
+                                    class="input"
+                                    placeholder="First Frame"
+                                    name="firstFrame"
+                                    id="firstFrame"
+                                />
+                            </div>
+                            <div class="column">
+                                <input
+                                    type="number"
+                                    class="input"
+                                    placeholder="Last Frame"
+                                    name="lastFrame"
+                                    id="lastFrame"
+                                />
+                            </div>
+                            <div class="column">
+                                <input
+                                    type="number"
+                                    class="input"
+                                    placeholder="Stride"
+                                    name="stride"
+                                    id="stride"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="subtitle">Select Plots:</h2>
+                    <div class="field">
+                        <div class="control">
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="rmsd"
+                                    name="rmsd"
+                                    value="RMSD"
+                                />
+                                RMSD
+                                <a href="#" onclick="window.open(constructDocumentationUrl('RMSD'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Plot a Root mean Square Deviation Scatter plot"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span> </a></label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="ermsd"
+                                    name="ermsd"
+                                    value="ERMSD"
+                                />
+                                ERMSD
+                                <a href="#" onclick="window.open(constructDocumentationUrl('ERMSD'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Plot a ERMSD Scatter plot"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a> </label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="base_pairing"
+                                    name="base_pairing"
+                                    value="BASE_PAIRING"
+                                />
+                                Base Pairing 2D Plot
+                                <a href="#" onclick="window.open(constructDocumentationUrl('2DBasePairing'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Plot a 2D representation of the base pairing"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                                </label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="torsion"
+                                    name="torsion"
+                                    value="TORSION"
+                                />
+                                TORSION
+                                <a href="#" onclick="window.open(constructDocumentationUrl('Torsion'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot torsion angles for selected residues"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                            </label>
+                            <div id="torsionOptions" style="display: none; margin-left: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">
+                                <div class="field">
+                                    <label class="label">Torsion Mode:</label>
+                                    <div class="control">
+                                        <label class="radio">
+                                            <input type="radio" name="torsionMode" value="single" checked>
+                                            Single Residue
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="torsionMode" value="multiple">
+                                            Multiple Residues
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="torsionMode" value="all">
+                                            All Residues
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div id="singleResidueOptions">
+                                    <div class="field">
+                                        <label class="label">Residue:</label>
+                                        <input
+                                            type="text"
+                                            class="input"
+                                            id="torsionResidue"
+                                            name="torsionResidue"
+                                            placeholder="Residue index (e.g., 0, 1, 2...)"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div id="multipleResidueOptions" style="display: none;">
+                                    <div class="field">
+                                        <label class="label">Select Residues:</label>
+                                        <div id="residueCheckboxes" class="content">
+                                            <p><em>Upload topology file to see available residues</em></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="field">
+                                        <label class="label">Select Torsion Angles:</label>
+                                        <div id="angleCheckboxes" class="content">
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="alpha"> Alpha
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="beta"> Beta
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="gamma"> Gamma
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="delta"> Delta
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="epsilon"> Epsilon
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="zeta"> Zeta
+                                            </label>
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="torsionAngles" value="chi"> Chi
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="sec_structure"
+                                    name="sec_structure"
+                                    value="SEC_STRUCTURE"
+                                />
+                                SEC_STRUCTURE
+                                <a href="#" onclick="window.open(constructDocumentationUrl('SecondaryStructure'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Secondary Structure"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span></a> </label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="dotbracket"
+                                    name="dotbracket"
+                                    value="DOTBRACKET"
+                                />
+                                DOTBRACKET
+                                <a href="#" onclick="window.open(constructDocumentationUrl('DotBracket'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Dot-Bracket Notation"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span> </a></label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="arc"
+                                    name="arc"
+                                    value="ARC"
+                                />
+                                ARC
+                                <a href="#" onclick="window.open(constructDocumentationUrl('Arc'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Plot a diagram in Arc, showing the frequency of contacts during the MD"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span> </a></label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="contact_maps"
+                                    name="contact_maps"
+                                    value="CONTACT_MAPS"
+                                />
+                                CONTACT_MAPS
+                                <a href="#" onclick="window.open(constructDocumentationUrl('ContactMaps'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Contact Maps"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span> </a></label
+                            ><br />
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="landscape"
+                                    name="landscape"
+                                    value="LANDSCAPE"
+                                />
+                                LANDSCAPE
+                                <a href="#" onclick="window.open(constructDocumentationUrl('Landscape'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Energy Landscape"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span></a>
+                            </label>
+                            <input
+                                type="text"
+                                class="input mt-2"
+                                id="landscape_stride"
+                                name="landscape_stride"
+                                placeholder="Precision of the Energy Landscape, (as a stride, 2 meaning one of two frames considered)"
+                                value="1"
+                            /><br />
+                            <div class="select mt-2 is-arrowless">
+                                <label for="firstDimension"
+                                    >First Dimension:</label
+                                >
+                                <select
+                                    id="firstDimension"
+                                    name="firstDimension"
+                                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
+                                >
+                                    <option value="" disabled selected>
+                                        Select First Dimension
+                                    </option>
+                                    <option value="RMSD">RMSD</option>
+                                    <option value="eRMSD">eRMSD</option>
+                                    <option value="Torsion" disabled>Torsion</option>
+                                    <option value="Fraction of Contact Formed">
+                                        Fraction of Contact Formed
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="select mt-2 is-arrowless">
+                                <label for="secondDimension"
+                                    >Second Dimension:</label
+                                >
+                                <select
+                                    id="secondDimension"
+                                    name="secondDimension"
+                                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
+                                >
+                                    <option value="" disabled selected>
+                                        Select Second Dimension
+                                    </option>
+                                    <option value="RMSD">RMSD</option>
+                                    <option value="eRMSD">eRMSD</option>
+                                    <option value="Torsion" disabled>Torsion</option>
+                                    <option value="Fraction of Contact Formed">
+                                        Fraction of Contact Formed
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control mt-6">
+                        <button
+                            type="submit"
+                            class="button is-primary"
+                            id="submit_btn"
+                        >
+                            Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div id="overlay">
+                <div class="box">
+                    <h2>Processing...</h2>
+                    <div id="progress-bar-container">
+                        <div id="nucleotide-sequence"></div>
+                        <div id="progress-markers"></div>
+                    </div>
+                    <div id="terminal"></div>
+                </div>
+            </div>
+            <link
+                href="{{ url_for('static', filename='css/progress_bar_style.css') }}"
+                rel="stylesheet"
+            />
+            <div class="box mt-5">
+                <h2 class="title">Example</h2>
+                <p class="subtitle">
+                    Click the button below to auto-fill the form with example
+                    values or view precomputed results.
+                </p>
+                <!-- <button id="exampleButton" class="button is-info">
+                    Load Example
+                </button> -->
+                <button
+                    id="gotolinkbutton"
+                    class="button is-info"
+                    onclick="window.location.href='https://plot_rna.louismeuret.com/retrieve-results?session_id=db307a7caab84ed1818650414c3759df'"
+                >
+                    Go to already precomputed results
+                </button>
+            </div>
+
+            <div class="box mt-5">
+                <h2 class="title">Retrieve Previous Results</h2>
+                <p
+                    class="subtitle"
+                    style="
+                        font-size: 1.2em;
+                        font-family: &quot;Georgia&quot;, serif;
+                        color: #555;
+                    "
+                >
+                    Input in here the session id given at the top of the results
+                    page of your previous calculation, it allow you to retrieve
+                    this page without the need to recalculate everything
+                </p>
+                <form action="{{ url_for('retrieve_results') }}" method="get">
+                    <div class="field">
+                        <label class="label" for="oldSessionId"
+                            >Old Session ID:</label
+                        >
+                        <div class="control">
+                            <input
+                                type="text"
+                                class="input"
+                                id="oldSessionId"
+                                name="session_id"
+                                placeholder="Enter old session ID"
+                            />
+                        </div>
+                    </div>
+                    <div class="control">
+                        <button type="submit" class="button is-link">
+                            Retrieve Results
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Session History Box -->
+            <div class="box mt-5" id="sessionHistoryBox" style="display: none;">
+                <h2 class="title">Recent Sessions</h2>
+                <p class="subtitle" style="font-size: 1.2em; font-family: 'Georgia', serif; color: #555;">
+                    Your last 5 analysis sessions. Click on any session to retrieve its results.
+                </p>
+                <div id="sessionHistoryList" class="columns is-multiline">
+                    <!-- Session history items will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Session History JavaScript -->
+        <script>
+            // Cookie management functions
+            function setCookie(name, value, days) {
+                const expires = new Date();
+                expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+                document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
+            }
+
+            function getCookie(name) {
+                const nameEQ = name + '=';
+                const ca = document.cookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+
+            // Session history management
+            function getSessionHistory() {
+                const historyStr = getCookie('arny_session_history');
+                if (!historyStr) return [];
+                try {
+                    return JSON.parse(historyStr);
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            function addSessionToHistory(sessionId) {
+                let history = getSessionHistory();
+                
+                // Remove if already exists
+                history = history.filter(item => item.sessionId !== sessionId);
+                
+                // Add new session with timestamp
+                history.unshift({
+                    sessionId: sessionId,
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString()
+                });
+                
+                // Keep only last 5
+                history = history.slice(0, 5);
+                
+                // Save back to cookie
+                setCookie('arny_session_history', JSON.stringify(history), 30); // 30 days
+                
+                return history;
+            }
+
+            function displaySessionHistory() {
+                const history = getSessionHistory();
+                const historyBox = document.getElementById('sessionHistoryBox');
+                const historyList = document.getElementById('sessionHistoryList');
+                
+                if (history.length === 0) {
+                    historyBox.style.display = 'none';
+                    return;
+                }
+                
+                historyBox.style.display = 'block';
+                
+                historyList.innerHTML = history.map((item, index) => `
+                    <div class="column is-half-tablet is-one-third-desktop">
+                        <div class="card">
+                            <header class="card-header">
+                                <p class="card-header-title">
+                                    <span class="icon">
+                                        <i class="fas fa-flask"></i>
+                                    </span>
+                                    Session ${index + 1}
+                                </p>
+                            </header>
+                            <div class="card-content">
+                                <div class="content">
+                                    <p><strong>Session ID:</strong></p>
+                                    <code style="word-break: break-all; font-size: 0.8em;">${item.sessionId}</code>
+                                    <br><br>
+                                    <p><strong>Date:</strong> ${item.date}</p>
+                                    <p><strong>Time:</strong> ${item.time}</p>
+                                </div>
+                            </div>
+                            <footer class="card-footer">
+                                <a href="/retrieve-results?session_id=${item.sessionId}" class="card-footer-item">
+                                    <span class="icon">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                    <span>View Results</span>
+                                </a>
+                                <a href="javascript:void(0)" onclick="copySessionId('${item.sessionId}')" class="card-footer-item">
+                                    <span class="icon">
+                                        <i class="fas fa-copy"></i>
+                                    </span>
+                                    <span>Copy ID</span>
+                                </a>
+                            </footer>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function copySessionId(sessionId) {
+                navigator.clipboard.writeText(sessionId).then(function() {
+                    // Show a temporary success message
+                    const originalText = event.target.closest('a').innerHTML;
+                    event.target.closest('a').innerHTML = '<span class="icon"><i class="fas fa-check"></i></span><span>Copied!</span>';
+                    setTimeout(() => {
+                        event.target.closest('a').innerHTML = originalText;
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = sessionId;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                });
+            }
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                displaySessionHistory();
+            });
+        </script>
+
+        <!-- Bootstrap JS (Optional) -->
+        <link
+            href=" https://cdn.jsdelivr.net/npm/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css "
+            rel="stylesheet"
+        />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"
+            integrity="sha512-u3fPA7V8qQmhBPNT5quvaXVa1mnnLSXUep5PS1qo5NRzHwG19aHmNJnj1Q8hpA/nBWZtZD4r4AX6YOt5ynLN2g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document
+                    .getElementById("exampleButton")
+                    .addEventListener("click", function () {
+                        // Option 1: Auto-fill the form with example values
+                        document.getElementById("nativePdb").value =
+                            "example_native.pdb";
+                        document.getElementById("trajXtc").value =
+                            "example_traj.xtc";
+                        document.getElementById("trajPdb").value =
+                            "example_traj.pdb";
+                        document.getElementById("firstFrame").value = "1";
+                        document.getElementById("lastFrame").value = "100";
+                        document.getElementById("stride").value = "1";
+                        document.getElementById("rmsd").checked = true;
+                        document.getElementById("ermsd").checked = true;
+                        document.getElementById("torsionResidue").value = "A";
+
+                        // Option 2: Redirect to a precomputed results page
+                        // window.location.href = "path_to_precomputed_results_page";
+                    });
+            });
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/trajectory-cache.js') }}"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+            integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+            crossorigin="anonymous"
+        ></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.min.js"></script>
+        <script>
+            
+            function constructDocumentationUrl(fragment) {
+                    const protocol = location.protocol === "https:" ? "https://" : "http://";
+                    const domain = document.domain;
+                    const port = location.port ? ":" + location.port : "";
+                    const baseUrl = `${protocol}${domain}${port}/documentation`;
+
+                    return `${baseUrl}#${fragment}`;
+                }
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("overlay").style.display = "none";
+                console.log("Loaded website");
+                const sessionId = "{{ session_id }}";
+                console.log("SESSION ID:");
+                console.log(sessionId);
+
+                // Chunked upload functionality
+                async function uploadFileInChunks(file, fileType) {
+                    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+                    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+                    console.log(`Starting chunked upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) in ${totalChunks} chunks`);
+
+                    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                        const start = chunkIndex * CHUNK_SIZE;
+                        const end = Math.min(start + CHUNK_SIZE, file.size);
+                        const chunk = file.slice(start, end);
+
+                        const formData = new FormData();
+                        formData.append('chunk', chunk);
+                        formData.append('session_id', sessionId);
+                        formData.append('file_type', fileType);
+                        formData.append('chunk_index', chunkIndex);
+                        formData.append('total_chunks', totalChunks);
+                        formData.append('original_filename', file.name);
+
+                        const response = await fetch('/upload-chunk', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(`Upload failed: ${errorData.error || 'Unknown error'}`);
+                        }
+
+                        const result = await response.json();
+
+                        if (result.progress !== undefined) {
+                            console.log(`Chunk ${chunkIndex + 1}/${totalChunks} uploaded (${result.progress.toFixed(1)}%)`);
+                        } else {
+                            console.log(`Chunk ${chunkIndex + 1}/${totalChunks} uploaded`);
+                        }
+
+                        if (result.completed) {
+                            console.log(`Upload complete: ${file.name}`);
+                        }
+                    }
+                }
+
+                async function submitFormData() {
+                    const form = document.querySelector('form');
+                    const formData = new FormData();
+
+                    // Add all form fields except the file inputs
+                    for (const element of form.elements) {
+                        if (element.name && element.type !== 'file' && element.type !== 'submit') {
+                            if (element.type === 'checkbox') {
+                                if (element.checked) {
+                                    formData.append(element.name, element.value);
+                                }
+                            } else if (element.type === 'radio') {
+                                if (element.checked) {
+                                    formData.append(element.name, element.value);
+                                }
+                            } else if (element.tagName === 'SELECT' && element.multiple) {
+                                for (const option of element.selectedOptions) {
+                                    formData.append(element.name, option.value);
+                                }
+                            } else {
+                                formData.append(element.name, element.value);
+                            }
+                        }
+                    }
+
+                    // Add chunked upload flag and filenames
+                    formData.append('chunked_upload', 'true');
+                    formData.append('nativePdb_filename', document.getElementById("nativePdb").files[0].name);
+                    formData.append('trajXtc_filename', document.getElementById("trajXtc").files[0].name);
+                    formData.append('session_id', sessionId);
+
+                    console.log('Submitting form data to /upload-files...');
+                    const response = await fetch('/upload-files', {
+                        method: 'POST',
+                        body: formData,
+                        redirect: 'follow'
+                    });
+
+                    console.log('Response status:', response.status);
+                    console.log('Response redirected:', response.redirected);
+                    console.log('Response URL:', response.url);
+
+                    if (response.ok) {
+                        if (response.redirected || response.url.includes('/view-trajectory/')) {
+                            console.log('Redirecting to:', response.url);
+                            window.location.href = response.url;
+                        } else {
+                            const text = await response.text();
+                            console.log('Response text:', text);
+                            if (text.includes('view_trajectory')) {
+                                window.location.href = response.url;
+                            } else {
+                                throw new Error('Expected redirect but got: ' + text.substring(0, 200));
+                            }
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Form submission error:', errorText);
+                        throw new Error('Form submission failed: ' + response.status + ' - ' + errorText);
+                    }
+                }
+                
+                // Clear all cached files from this website when loading index page
+                if (window.trajectoryCache) {
+                    console.log("Index: Clearing entire trajectory cache on page load...");
+                    window.trajectoryCache.clearCache().then((success) => {
+                        if (success) {
+                            console.log("Success: Index: All cached files cleared from website");
+                        } else {
+                            console.warn("Warning: Index: Failed to clear cache");
+                        }
+                    }).catch(error => {
+                        console.error("Error: Index: Error clearing cache:", error);
+                    });
+                } else {
+                    console.warn("Warning: Index: TrajectoryCache not available");
+                }
+
+                
+
+                const socket = io.connect(
+                    (location.protocol === "https:" ? "https://" : "http://") +
+                        document.domain +
+                        ":" +
+                        location.port,
+                    {
+                        query: "session_id=" + sessionId,
+                    },
+                );
+
+                /*
+                const socket = io.connect("https://rna_temp.louismeuret.com", {
+                    query: "session_id=" + sessionId,
+                });
+                */
+
+                socket.on("connect", () => {
+                    console.log("Socket connected successfully");
+                });
+
+                socket.on("connect_error", (error) => {
+                    console.error("Socket connection error:", error);
+                });
+
+                // Handle form submission with chunked upload
+                const form = document.querySelector('form');
+                const submitBtn = document.getElementById("submit_btn");
+
+                form.addEventListener("submit", async (event) => {
+                    event.preventDefault(); // Prevent default form submission
+                    console.log("STARTED CHUNKED UPLOAD AND CALCULATIONS");
+
+                    const nativePdbFile = document.getElementById("nativePdb").files[0];
+                    const trajXtcFile = document.getElementById("trajXtc").files[0];
+
+                    if (!nativePdbFile || !trajXtcFile) {
+                        alert("Please select both topology and trajectory files");
+                        return;
+                    }
+
+                    // Disable submit button during upload
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = "Uploading...";
+
+                    // Show overlay with progress
+                    document.getElementById("overlay").style.display = "flex";
+                    startCalculations(); // Initialize progress bar
+
+                    try {
+                        // Upload topology file first
+                        await uploadFileInChunks(nativePdbFile, 'topology');
+
+                        // Upload trajectory file
+                        await uploadFileInChunks(trajXtcFile, 'trajectory');
+
+                        // After successful upload, submit form data
+                        await submitFormData();
+
+                    } catch (error) {
+                        console.error("Upload error:", error);
+                        alert("Upload failed: " + error.message);
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Upload";
+                        document.getElementById("overlay").style.display = "none";
+                    }
+                });
+
+                socket.on("close_terminal", () => {
+                    setTimeout(() => {
+                        document.getElementById("overlay").style.display =
+                            "none"; // Hide the overlay
+                    }, 2000); // Hide overlay after 2 seconds
+                });
+
+                function startCalculations() {
+                    // Show the overlay when the button is clicked
+                    document.getElementById("overlay").style.display = "flex";
+                    listenForUpdates();
+                }
+
+                function initializeProgressBar() {
+                    const nucleotides = ["A", "U", "G", "C"];
+                    const progressBar = document.getElementById(
+                        "nucleotide-sequence",
+                    );
+                    const progressMarkers =
+                        document.getElementById("progress-markers");
+
+                    // Initialize the nucleotide sequence with 50 gray nucleotides
+                    for (let i = 0; i < 50; i++) {
+                        const nucleotideElement =
+                            document.createElement("span");
+                        const nucleotide =
+                            nucleotides[
+                                Math.floor(Math.random() * nucleotides.length)
+                            ];
+                        nucleotideElement.className = `nucleotide ${nucleotide}`;
+                        nucleotideElement.dataset.type = nucleotide; // Store the type for later use
+                        nucleotideElement.innerText = nucleotide;
+                        progressBar.appendChild(nucleotideElement);
+                    }
+
+                    // Initialize the progress markers for every 10 units
+                    for (let i = 1; i <= 100; i++) {
+                        const marker = document.createElement("span");
+                        if (i % 10 === 0) {
+                            marker.innerText = i + "%";
+                        } else {
+                            marker.innerText = ""; // Leave empty for spacing
+                        }
+                        progressMarkers.appendChild(marker);
+                    }
+                }
+
+                function listenForUpdates() {
+                    const nucleotideElements =
+                        document.getElementsByClassName("nucleotide");
+                    let currentProgress = 0;
+
+                    socket.on("update_progress", function (data) {
+                        console.log("GOT AN UPDATE");
+                        console.log(data.progress);
+
+                        // Calculate nucleotide progress (out of 50)
+                        const nucleotideIndex = Math.floor(
+                            (data.progress / 100) * nucleotideElements.length,
+                        );
+
+                        // Update nucleotide sequence colors
+                        if (nucleotideIndex > currentProgress) {
+                            for (
+                                let i = currentProgress;
+                                i < nucleotideIndex;
+                                i++
+                            ) {
+                                nucleotideElements[i].classList.remove(
+                                    "ribosome",
+                                );
+                                nucleotideElements[i].classList.add("visited");
+                            }
+                            if (nucleotideIndex < nucleotideElements.length) {
+                                nucleotideElements[
+                                    nucleotideIndex
+                                ].classList.add("ribosome");
+                            }
+                        }
+                        currentProgress = nucleotideIndex;
+
+                        // Update terminal log
+                        const terminal = document.getElementById("terminal");
+                        const message = document.createElement("p");
+                        message.innerText = data.message;
+                        if (
+                            terminal.lastChild &&
+                            terminal.lastChild.innerText === data.message
+                        ) {
+                            return; // Prevent duplicate messages
+                        }
+                        terminal.appendChild(message);
+                        terminal.scrollTop = terminal.scrollHeight;
+                    });
+                }
+
+                // Initialize the progress bar and set up socket updates
+                initializeProgressBar();
+                listenForUpdates();
+
+                // Initialize torsion angle functionality
+                initializeTorsionControls();
+
+                // Initialize frame settings listeners
+                initFrameSettingsListeners();
+
+                // Initial check for frame settings
+                checkFrameSettingsModified();
+
+                // Listen for upload progress events from SocketIO
+                socket.on('upload_progress', function(data) {
+                    console.log(`Upload progress: ${data.file_type} - ${data.progress.toFixed(1)}% (${data.chunk_index}/${data.total_chunks})`);
+
+                    const terminal = document.getElementById("terminal");
+                    const message = document.createElement("p");
+                    message.style.color = "#0066cc";
+                    message.innerHTML = `<strong>Uploading ${data.filename}:</strong> ${data.progress.toFixed(1)}% (${data.chunk_index}/${data.total_chunks} chunks)`;
+
+                    // Remove previous upload progress message if exists
+                    const prevMessages = terminal.querySelectorAll('p[data-upload-progress="true"]');
+                    prevMessages.forEach(msg => msg.remove());
+
+                    message.setAttribute('data-upload-progress', 'true');
+                    terminal.appendChild(message);
+                    terminal.scrollTop = terminal.scrollHeight;
+                });
+            });
+        </script>
+        
+        <script>
+            function initializeTorsionControls() {
+                const torsionCheckbox = document.getElementById('torsion');
+                const torsionOptions = document.getElementById('torsionOptions');
+                const torsionModeRadios = document.querySelectorAll('input[name="torsionMode"]');
+                const singleOptions = document.getElementById('singleResidueOptions');
+                const multipleOptions = document.getElementById('multipleResidueOptions');
+                const nativePdbInput = document.getElementById('nativePdb');
+                
+                // Show/hide torsion options when checkbox is clicked
+                torsionCheckbox.addEventListener('change', function() {
+                    torsionOptions.style.display = this.checked ? 'block' : 'none';
+                });
+                
+                // Handle torsion mode changes
+                torsionModeRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.value === 'single') {
+                            singleOptions.style.display = 'block';
+                            multipleOptions.style.display = 'none';
+                        } else if (this.value === 'multiple') {
+                            singleOptions.style.display = 'none';
+                            multipleOptions.style.display = 'block';
+                        } else if (this.value === 'all') {
+                            singleOptions.style.display = 'none';
+                            multipleOptions.style.display = 'none';
+                        }
+                    });
+                });
+                
+                // Parse topology file and start caching when uploaded
+                nativePdbInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        parseTopologyFile(this.files[0]);
+                        startFileCaching(this.files[0], 'topology');
+                    }
+                });
+                
+                // Cache trajectory file when selected
+                const trajXtcInput = document.getElementById('trajXtc');
+                trajXtcInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        startFileCaching(this.files[0], 'trajectory');
+                    }
+                });
+            }
+            
+            function parseTopologyFile(file) {
+                const sessionId = "{{ session_id }}";
+                const formData = new FormData();
+                formData.append('topologyFile', file);
+                formData.append('session_id', sessionId);
+                
+                fetch('/parse-topology', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateResidueOptions(data.residues);
+                        console.log('Topology parsed successfully:', data);
+                    } else {
+                        console.error('Error parsing topology:', data.error);
+                        updateResidueOptions([]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    updateResidueOptions([]);
+                });
+            }
+            
+            function updateResidueOptions(residues) {
+                const residueCheckboxes = document.getElementById('residueCheckboxes');
+                
+                if (residues.length === 0) {
+                    residueCheckboxes.innerHTML = '<p><em>Failed to parse topology file or no residues found</em></p>';
+                    return;
+                }
+                
+                let html = '<div style="max-height: 200px; overflow-y: auto;">';
+                
+                // Add "Select All" option
+                html += `
+                    <label class="checkbox">
+                        <input type="checkbox" id="selectAllResidues" onchange="toggleAllResidues(this)">
+                        <strong>Select All</strong>
+                    </label><br>
+                `;
+                
+                // Add individual residue options
+                residues.forEach((residue, index) => {
+                    html += `
+                        <label class="checkbox">
+                            <input type="checkbox" name="torsionResidues" value="${residue.index}">
+                            ${residue.full_name} (Index: ${residue.index})
+                        </label><br>
+                    `;
+                });
+                
+                html += '</div>';
+                residueCheckboxes.innerHTML = html;
+            }
+            
+            function toggleAllResidues(selectAllCheckbox) {
+                const residueCheckboxes = document.querySelectorAll('input[name="torsionResidues"]');
+                residueCheckboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            }
+            
+            // File caching functionality
+            let cacheStatus = {
+                topology: { cached: false, caching: false, file: null },
+                trajectory: { cached: false, caching: false, file: null }
+            };
+            
+            function startFileCaching(file, fileType) {
+                console.log(`Upload Cache: Starting to cache ${fileType} file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                
+                if (cacheStatus[fileType].caching) {
+                    console.log(`Warning: Upload Cache: Already caching ${fileType}, skipping`);
+                    return;
+                }
+                
+                cacheStatus[fileType] = { cached: false, caching: true, file: file };
+                updateCacheIndicator(fileType, 'caching');
+                
+                // Convert file to ArrayBuffer and cache it
+                const sessionId = "{{ session_id }}";
+                
+                // Use temporary filenames based on file type, will be renamed later
+                const standardFileName = fileType === 'topology' ? `temp_structure_${sessionId}` : `temp_trajectory_${sessionId}`;
+                
+                // Cache the file using our trajectory cache
+                if (window.trajectoryCache) {
+                    // Clear existing cache for this session before adding new files
+                    console.log(`Upload Cache: Clearing existing cache for session ${sessionId}...`);
+                    window.trajectoryCache.clearCache(sessionId).then(() => {
+                        console.log(`Upload Cache: Cache cleared, now caching ${fileType} file as "${standardFileName}"...`);
+                        
+                        // Convert file to ArrayBuffer as required by storeFile
+                        return file.arrayBuffer().then(arrayBuffer => {
+                            return window.trajectoryCache.storeFile(sessionId, standardFileName, arrayBuffer, file.type);
+                        });
+                    })
+                        .then(success => {
+                            if (success) {
+                                console.log(`Success: Upload Cache: Successfully cached ${fileType}: ${file.name}`);
+                                cacheStatus[fileType] = { cached: true, caching: false, file: file };
+                                updateCacheIndicator(fileType, 'cached');
+                            } else {
+                                console.warn(`Warning: Upload Cache: Failed to cache ${fileType}: ${file.name}`);
+                                cacheStatus[fileType] = { cached: false, caching: false, file: file };
+                                updateCacheIndicator(fileType, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error(`Error: Upload Cache: Error caching ${fileType}:`, error);
+                            cacheStatus[fileType] = { cached: false, caching: false, file: file };
+                            updateCacheIndicator(fileType, 'error');
+                        });
+                } else {
+                    console.warn('Warning: Upload Cache: trajectoryCache not available');
+                    cacheStatus[fileType] = { cached: false, caching: false, file: file };
+                    updateCacheIndicator(fileType, 'error');
+                }
+            }
+            
+            function updateCacheIndicator(fileType, status) {
+                const indicatorId = fileType === 'topology' ? 'topologyCacheStatus' : 'trajectoryCacheStatus';
+                let indicator = document.getElementById(indicatorId);
+                
+                if (!indicator) {
+                    // Create indicator if it doesn't exist
+                    const input = document.getElementById(fileType === 'topology' ? 'nativePdb' : 'trajXtc');
+                    indicator = document.createElement('span');
+                    indicator.id = indicatorId;
+                    indicator.style.cssText = 'margin-left: 10px; font-size: 12px; padding: 2px 6px; border-radius: 3px;';
+                    input.parentNode.appendChild(indicator);
+                }
+                
+                switch (status) {
+                    case 'caching':
+                        indicator.textContent = 'Caching...';
+                        indicator.style.background = '#fff3cd';
+                        indicator.style.color = '#856404';
+                        break;
+                    case 'cached':
+                        indicator.textContent = 'Success: Cached';
+                        indicator.style.background = '#d4edda';
+                        indicator.style.color = '#155724';
+                        break;
+                    case 'error':
+                        indicator.textContent = 'Error: Cache failed';
+                        indicator.style.background = '#f8d7da';
+                        indicator.style.color = '#721c24';
+                        break;
+                    default:
+                        indicator.textContent = '';
+                        indicator.style.background = '';
+                        indicator.style.color = '';
+                }
+            }
+            
+            function checkFrameSettingsModified() {
+                const firstFrame = document.getElementById('firstFrame').value;
+                const lastFrame = document.getElementById('lastFrame').value;
+                const stride = document.getElementById('stride').value;
+                
+                // If any frame setting is specified, cache should not be used
+                const isModified = firstFrame || lastFrame || stride;
+                
+                if (isModified) {
+                    console.log('Warning: Upload Cache: Frame settings detected, cache will be bypassed during analysis');
+                    updateFrameSettingsWarning(true);
+                } else {
+                    console.log('Success: Upload Cache: No frame settings, cache will be used during analysis');
+                    updateFrameSettingsWarning(false);
+                }
+                
+                return isModified;
+            }
+            
+            function updateFrameSettingsWarning(show) {
+                let warning = document.getElementById('frameSettingsWarning');
+                
+                if (!warning && show) {
+                    warning = document.createElement('div');
+                    warning.id = 'frameSettingsWarning';
+                    warning.style.cssText = 'margin-top: 10px; padding: 8px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404; font-size: 13px;';
+                    warning.innerHTML = 'Warning: <strong>Frame Settings Active:</strong> Cache will be bypassed for trajectory processing due to custom frame settings.';
+                    
+                    const frameSettings = document.querySelector('[for="frameSettings"]').parentNode;
+                    frameSettings.appendChild(warning);
+                } else if (warning && !show) {
+                    warning.remove();
+                }
+            }
+            
+            // Add frame settings change listeners
+            function initFrameSettingsListeners() {
+                const frameInputs = ['firstFrame', 'lastFrame', 'stride'];
+                frameInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.addEventListener('input', checkFrameSettingsModified);
+                        input.addEventListener('change', checkFrameSettingsModified);
+                    }
+                });
+            }
+        </script>
+        
+        <div style="height: 20px"></div>
+    </body>
+</html>

@@ -1,0 +1,117 @@
+<div class="box mt-5">
+    <div class="flex-container">
+      <div id="{{ plot_info[0] }}" class="plot"></div>
+      <i class="drag-handle" data-lucide="grip"></i>
+      <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}" style="width: 100%; height: 100%;"></div>
+    <div class="content">
+      <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+      <p>{{ explainations.get(plot_info[0]).content }}</p>
+      {% if explainations.get(plot_info[0]).formula != "" %}
+      <div class="formula">
+        {{ explainations.get(plot_info[0]).formula | safe }}
+      </div>
+      {% endif %}
+    </div>
+    <script>
+      var previousValue2 = 1;
+      var dataLength = {{ trajectory_length }};
+      var plotData_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
+      
+      // Initial plot with the main data
+      var config = {
+        responsive: true,
+        autosize: true
+      };
+      
+      // Create layout options to better fit the container
+      var layout = {
+        margin: { t: 10, r: 10, l: 50, b: 50 },
+        autosize: true
+      };
+      
+      // Initialize plot and ensure it's properly sized
+      Plotly.newPlot('{{ plot_info[1] }}', plotData_{{ plot_info[1] }}, layout, config).then(() => {
+        setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+      });
+
+      // Connect to websocket
+      var socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
+        query: "session_id={{ session_id }}"
+      });
+      socket.emit('join', { room: "{{ session_id }}" });
+      
+      var debounceTimeout;
+
+      // Debounce function
+      function debounce(func, delay) {
+        return function() {
+          var context = this;
+          var args = arguments;
+          clearTimeout(debounceTimeout);
+          debounceTimeout = setTimeout(function() {
+            func.apply(context, args);
+          }, delay);
+        };
+      }
+
+      // Add debounced resize event listener
+      window.addEventListener('resize', debounce(() => {
+        Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'))
+      }, 250));
+
+      // Handle expand button click
+      document.querySelector(".expand-icon").addEventListener('click', () => {
+        Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+      });
+
+      // Send slider value to server
+      function sendSliderValue(value) {
+        socket.emit("update_contact_map", {
+          value: value,
+          session_id: "{{ session_id }}",
+        }, "{{ session_id }}");
+      }
+
+      // Add event listeners for slider and input
+      document.getElementById('frame-slider').addEventListener('input', 
+        debounce(function() {
+          var sliderValue = parseInt(this.value);
+          sendSliderValue(sliderValue);
+        }, 500)
+      );
+
+      document.getElementById('frame-number').addEventListener('input',
+        debounce(function() {
+          var sliderValue = parseInt(this.value); 
+          sendSliderValue(sliderValue);
+        }, 500)
+      );
+
+      // Update plot when receiving new data from server
+      socket.on("contact_map_plot_update", function(data) {
+        const plotData = JSON.parse(data.plotData);
+  
+        // Now use the parsed data with Plotly
+        Plotly.newPlot('{{ plot_info[1] }}', plotData.data, layout, config);
+      });
+    </script>
+    <div
+      style="
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      "
+    >
+      <a
+        href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
+        class="button is-link"
+      >Download {{ plot_info[0] }} Data</a>
+      <a
+        href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
+        class="button is-link"
+      >Download Plot</a>
+    </div>
+  </div>

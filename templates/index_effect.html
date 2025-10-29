@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Points Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let points = [];
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            for (let i = 0; i < 100; i++) {
+                points.push({
+                    x: random(width),
+                    y: random(height),
+                    vx: random(-1, 1),
+                    vy: random(-1, 1)
+                });
+            }
+        }
+
+        function draw() {
+            background(0);
+
+            // Update and display points
+            points.forEach(point => {
+                point.x += point.vx;
+                point.y += point.vy;
+
+                // Bounce off walls
+                if (point.x < 0 || point.x > width) {
+                    point.vx *= -1;
+                }
+                if (point.y < 0 || point.y > height) {
+                    point.vy *= -1;
+                }
+
+                // Draw points as small circles
+                stroke(255);
+                strokeWeight(4);
+                ellipse(point.x, point.y, 4, 4);
+            });
+
+            // Attract points to cursor
+            let mouse = createVector(mouseX, mouseY);
+            points.forEach(point => {
+                let dir = p5.Vector.sub(mouse, createVector(point.x, point.y));
+                dir.setMag(0.01);
+                point.vx += dir.x;
+                point.vy += dir.y;
+            });
+        }
+    </script>
+</body>
+</html>
+

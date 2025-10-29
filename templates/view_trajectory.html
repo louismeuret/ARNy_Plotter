@@ -1,0 +1,972 @@
+{% extends 'layout.html' %} {% block content %}
+<section class="section trajectory-viewer">
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Loading Trajectory Viewer...</p>
+        </div>
+    </div>
+
+    <!-- Header Box (loaded first) -->
+    <div id="header-box" class="header-container">
+        <!-- Title Box -->
+        <div class="title-container">
+            <h1
+                class="title"
+                class="clickable-tile"
+                onclick="window.location.href = `${CONFIG.baseUrl}`"
+                ;
+            >
+                Trajectory Viewer
+            </h1>
+        </div>
+
+        <!-- Session ID Box -->
+        <div class="session-info-container">
+            <h2 class="session">
+                Session: <span id="session-id">{{ session_id }}</span>
+                <span class="session-info-tooltip" onclick="showSessionInfo()">*</span>
+            </h2>
+            <button id="share-button" class="share-button">
+                Share Session
+            </button>
+        </div>
+
+        <!-- Links Box -->
+        <div class="links-container">
+            <a href="/cgu" class="nav-link">Terms & Conditions</a>
+            <a href="/authors" class="nav-link">Authors</a>
+            <a href="/documentation" class="nav-link">Help</a>
+        </div>
+    </div>
+
+    <!-- Main Content (loaded after header) -->
+    <div
+        id="main-content-container"
+        class="main-content-container columns is-multiline"
+        style="display: none"
+    >
+        <!-- First Column: Viewer and Controls -->
+        <div class="viewer-column column is-half">
+            <div class="viewer-container">
+                <!-- Loading state for viewer -->
+                <div id="viewer-loading" class="viewport-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading 3D Viewer...</p>
+                </div>
+
+                <!-- Viewer Section -->
+                <div id="viewport" class="viewport" style="display: none"></div>
+
+                <!-- Player Controls -->
+                <div id="player-controls" class="player-controls">
+                    <input
+                        type="range"
+                        id="frame-slider"
+                        min="0"
+                        max="{{ trajectory_length - 1 }}"
+                        value="0"
+                        step="1"
+                        class="frame-slider"
+                        disabled
+                    />
+                    <input
+                        type="number"
+                        id="frame-number"
+                        min="0"
+                        max="{{ trajectory_length - 1 }}"
+                        value="0"
+                        step="1"
+                        class="frame-input"
+                        disabled
+                    />
+                    <button
+                        id="play-pause-button"
+                        class="control-button"
+                        disabled
+                    >
+                        Play
+                    </button>
+                </div>
+
+                <!-- Toggle Buttons -->
+                <div class="control-buttons">
+                    <button id="toggleSpin" class="control-button" disabled>
+                        Spin On/Off
+                    </button>
+                    <button id="toggleTheme" class="control-button" disabled>
+                        Light/Dark Background
+                    </button>
+                    <button id="toggleRunMDs" class="control-button" disabled>
+                        Start/Stop MD
+                    </button>
+                    <button
+                        id="toggleSideChains"
+                        class="control-button"
+                        disabled
+                    >
+                        Show/Hide Sidechains
+                    </button>
+                </div>
+                
+                <!-- Cache Controls (Disabled for production) -->
+                <!--
+                <div class="cache-controls-section" style="margin-top: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <h6 style="margin: 0 0 10px 0; font-size: 12px; color: #666;">Trajectory Cache</h6>
+                    <div class="cache-controls" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        <button id="cacheStatsBtn" class="cache-button" onclick="showCacheStats()" style="font-size: 11px; padding: 4px 8px; background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 3px; cursor: pointer;">
+                            Stats
+                        </button>
+                        <button id="clearCacheBtn" class="cache-button" onclick="clearTrajectoryCache()" style="font-size: 11px; padding: 4px 8px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 3px; cursor: pointer;">
+                            Clear
+                        </button>
+                        <span id="cacheStatus" style="font-size: 10px; color: #666; align-self: center;"></span>
+                    </div>
+                    <div id="uploadCacheStatus" style="margin-top: 5px; font-size: 10px; color: #666;"></div>
+                </div>
+                -->
+            </div>
+        </div>
+
+        <!-- Second Column: Plots and Images -->
+        <div class="plots-column column is-half">
+            <div id="plots-loading" class="plots-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading Analysis Plots...</p>
+            </div>
+            <div
+                id="sortable-container"
+                class="plots-scrollable-container"
+                style="display: none"
+            >
+                {% for plot_info in plot_data %}
+                    <div class="lazy-load-wrapper" data-plot-type="{{ plot_info[0] }}">
+                        {% if plot_info[0] == "TORSION" %}
+                            {% include '_plot_torsion.html' %}
+                        {% elif plot_info[0] == "BASE_PAIRING" %}
+                            {% include '_plot_2Dbasepairing.html' %}
+                        {% elif plot_info[0] == "ARC" %}
+                            {% include '_plot_arc.html' %}
+                        {% elif plot_info[0] == "LANDSCAPE_PLT" %}
+                            {% include '_plot_landscape.html' %}
+                        {% elif plot_info[0] == "RMSD" %}
+                            {% include '_plot_rmsd.html' %}
+                        {% elif plot_info[0] == "DOTBRACKET" %}
+                            {% include '_plot_dotbracket.html' %}
+                        {% elif plot_info[0] == "ERMSD" %}
+                            {% include '_plot_ermsd.html' %}
+                        {% elif plot_info[0] == "SEC_STRUCTURE" %}
+                            {% include '_plot_secondary_structure.html' %}
+                        {% elif plot_info[0] == "LANDSCAPE" %}
+                            {% include '_plot_3D_landscape.html' %}
+                        {% elif plot_info[0] == "CONTACT_MAPS" %}
+                            {% include '_plot_contacts.html' %}
+                        {% else %}
+                            {% include '_plot_default.html' %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Configuration
+    var changeColor;
+    const CONFIG = {
+        sessionId: "{{ session_id }}",
+        nativePdb: "{{ url_for('static', filename='uploads/' + session_id + '/' + native_pdb) }}",
+        nativeFormat: "{{ native_pdb.split('.')[-1] }}",
+        trajXtc: "{{ url_for('static', filename='uploads/' + session_id + '/' + traj_xtc) }}",
+        trajFormat: "{{ traj_xtc.split('.')[-1] }}",
+        maxFrame: {{ trajectory_length - 1 }},
+        baseUrl: window.location.origin
+    };
+
+    // Session History Management (same functions as in index.html)
+    function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + '=';
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function getSessionHistory() {
+        const historyStr = getCookie('arny_session_history');
+        if (!historyStr) return [];
+        try {
+            return JSON.parse(historyStr);
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function addSessionToHistory(sessionId) {
+        let history = getSessionHistory();
+        
+        // Remove if already exists
+        history = history.filter(item => item.sessionId !== sessionId);
+        
+        // Add new session with timestamp
+        history.unshift({
+            sessionId: sessionId,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString()
+        });
+        
+        // Keep only last 5
+        history = history.slice(0, 5);
+        
+        // Save back to cookie
+        setCookie('arny_session_history', JSON.stringify(history), 30); // 30 days
+        
+        return history;
+    }
+
+    // Save current session to history when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add current session to history
+        addSessionToHistory(CONFIG.sessionId);
+        console.log('Session ' + CONFIG.sessionId + ' added to history');
+    });
+
+    // State management
+    const state = {
+        viewer: null,
+        player: null,
+        isRunning: false,
+        isLight: false,
+        isSpinning: false,
+        viewerReady: false,
+        sideChainsVisible: false,
+        plotsLoaded: false
+    };
+
+    // Global frame marker management
+    const frameMarkers = {
+        plots: {}, // Store plot references with their marker state
+
+        // Register a plot that has a frame marker
+        register: function(plotId, plotData) {
+            this.plots[plotId] = {
+                plotData: plotData,
+                markerCreated: false
+            };
+        },
+
+        // Update all registered plot markers to a specific frame
+        updateAll: function(frameNumber) {
+            console.log(`Updating all frame markers to frame ${frameNumber}`);
+            console.log(`Registered plots:`, Object.keys(this.plots));
+
+            for (const plotId in this.plots) {
+                const plot = this.plots[plotId];
+                const plotDiv = document.getElementById(plotId);
+
+                if (!plotDiv || !plot.plotData || !plot.plotData.data || !plot.plotData.data[0]) {
+                    console.warn(`Skipping plot ${plotId}: missing element or data`);
+                    continue;
+                }
+
+                try {
+                    const yValue = plot.plotData.data[0].y._inputArray
+                        ? plot.plotData.data[0].y._inputArray[frameNumber]
+                        : plot.plotData.data[0].y[frameNumber];
+
+                    if (!plot.markerCreated) {
+                        // Create the frame marker
+                        console.log(`Creating frame marker for ${plotId} at frame ${frameNumber}`);
+                        const newMarkerTrace = {
+                            x: [frameNumber],
+                            y: [yValue],
+                            legendrank: 2,
+                            type: 'scattergl',
+                            mode: 'markers',
+                            marker: {
+                                color: 'red',
+                                size: 12
+                            },
+                            name: 'Frame Marker'
+                        };
+                        Plotly.addTraces(plotId, newMarkerTrace);
+                        plot.markerCreated = true;
+                        console.log(`Frame marker created for ${plotId}`);
+                    } else {
+                        // Update existing marker
+                        console.log(`Updating frame marker for ${plotId} to frame ${frameNumber}`);
+                        const update = {
+                            'x': [[frameNumber]],
+                            'y': [[yValue]]
+                        };
+                        Plotly.restyle(plotId, update, [1]); // Update trace index 1 (marker)
+                    }
+                } catch (error) {
+                    console.error(`Could not update marker for plot ${plotId}:`, error);
+                }
+            }
+        }
+    };
+
+    // DOM elements_doc
+    const elements_doc = {
+        loadingOverlay: document.getElementById("loading-overlay"),
+        headerBox: document.getElementById("header-box"),
+        mainContentContainer: document.getElementById("main-content-container"),
+        sessionId: document.getElementById("session-id"),
+        shareButton: document.getElementById("share-button"),
+        viewport: document.getElementById("viewport"),
+        viewerLoading: document.getElementById("viewer-loading"),
+        plotsLoading: document.getElementById("plots-loading"),
+        sortableContainer: document.getElementById("sortable-container"),
+        frameSlider: document.getElementById("frame-slider"),
+        frameNumber: document.getElementById("frame-number"),
+        playPauseButton: document.getElementById("play-pause-button"),
+        toggleSpin: document.getElementById("toggleSpin"),
+        toggleTheme: document.getElementById("toggleTheme"),
+        toggleRunMDs: document.getElementById("toggleRunMDs"),
+        toggleSideChains: document.getElementById("toggleSideChains")
+    };
+
+    // Initialize the application with progressive loading
+    document.addEventListener("DOMContentLoaded", function() {
+        // First show the header immediately
+        elements_doc.headerBox.style.display = 'flex';
+
+        // Then show main content container
+        elements_doc.mainContentContainer.style.display = 'flex';
+
+        // Start loading the viewer
+        startViewer();
+
+        // Load plots after a short delay to prioritize the viewer
+        loadPlots();
+        new Sortable(document.getElementById("sortable-container"), {
+                    animation: 150,
+                    ghostClass: "sortable-ghost",
+                    handle: ".drag-handle",
+                    onEnd: function (evt) {
+                        // Save the new order here by sending an AJAX request to your server
+                    },
+                });
+
+                $(document).on("click", ".expand-icon", function () {
+                    var $box = $(this).closest(".box");
+                    if ($box.hasClass("expanded")) {
+                        $box.removeClass("expanded");
+                    } else {
+                        $(".box").removeClass("expanded");
+                        $box.addClass("expanded");
+                    }
+                });
+    });
+
+    // Initialize the molecular viewer with caching
+    async function initViewer() {
+        try {
+            console.log('Viewer: Starting MolStar initialization...');
+            
+            await LouisMolStarWrapper.init("viewport");
+            LouisMolStarWrapper.setBackground(0xffffff);
+            console.log('Success: Viewer: MolStar initialized successfully');
+
+            // Load trajectory with caching
+            const result = await loadTrajectoryWithCache();
+            return result;
+        } catch (error) {
+            console.error('Error: Viewer: Error in initViewer:', error);
+            throw error;
+        }
+    }
+
+    // Copy temporary cached files to correct names if they exist
+    async function copyTemporaryCacheFiles() {
+        try {
+            const cache = window.trajectoryCache;
+            const sessionId = CONFIG.sessionId;
+            
+            // Extract actual filenames from CONFIG URLs
+            const nativeFileName = CONFIG.nativePdb.split('/').pop();
+            const trajFileName = CONFIG.trajXtc.split('/').pop();
+            
+            console.log(`Cache: Looking for temporary files to copy to "${nativeFileName}" and "${trajFileName}"`);
+            
+            // Check for temporary structure file
+            const tempStructureName = `temp_structure_${sessionId}`;
+            const tempStructureData = await cache.getFile(sessionId, tempStructureName);
+            if (tempStructureData) {
+                console.log(`Cache: Found temporary structure file, copying to "${nativeFileName}"`);
+                await cache.storeFile(sessionId, nativeFileName, tempStructureData);
+                await cache.deleteFile(sessionId, tempStructureName);
+                console.log(`Cache: Successfully copied structure file`);
+            }
+            
+            // Check for temporary trajectory file
+            const tempTrajectoryName = `temp_trajectory_${sessionId}`;
+            const tempTrajectoryData = await cache.getFile(sessionId, tempTrajectoryName);
+            if (tempTrajectoryData) {
+                console.log(`Cache: Found temporary trajectory file, copying to "${trajFileName}"`);
+                await cache.storeFile(sessionId, trajFileName, tempTrajectoryData);
+                await cache.deleteFile(sessionId, tempTrajectoryName);
+                console.log(`Cache: Successfully copied trajectory file`);
+            }
+            
+            if (!tempStructureData && !tempTrajectoryData) {
+                console.log('Cache: No temporary files found to copy');
+            }
+            
+        } catch (error) {
+            console.warn('Cache: Error copying temporary cache files:', error);
+        }
+    }
+
+    // Enhanced trajectory loading with IndexedDB caching
+    async function loadTrajectoryWithCache() {
+        console.log('Cache: Starting cached trajectory loading...');
+        
+        // Check if frame settings were modified (bypass cache if so)
+        const frameSettingsModified = checkIfFrameSettingsModified();
+        if (frameSettingsModified) {
+            console.log('Warning: Cache: Frame settings detected, bypassing cache and using server files');
+            return await loadTrajectoryFromServer();
+        }
+        
+        // Add protection against browser extension messaging conflicts
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+            console.log('Cache: Browser extension detected, adding message handler protection');
+        }
+        
+        // Copy temporary cached files to correct names if they exist
+        await copyTemporaryCacheFiles();
+        
+        console.log('Cache: Configuration:', {
+            sessionId: CONFIG.sessionId,
+            nativePdb: CONFIG.nativePdb,
+            trajXtc: CONFIG.trajXtc,
+            nativeFormat: CONFIG.nativeFormat,
+            trajFormat: CONFIG.trajFormat
+        });
+
+        try {
+            const cache = window.trajectoryCache;
+            const sessionId = CONFIG.sessionId;
+            
+            // Extract filenames from URLs
+            const trajFileName = CONFIG.trajXtc.split('/').pop();
+            const nativeFileName = CONFIG.nativePdb.split('/').pop();
+            
+            console.log('Cache: Processing files:', { trajFileName, nativeFileName });
+
+            // Helper function to process cache results and create Blob URLs
+            function processFileResult(data, fileName, fromCache = true) {
+                if (!data) {
+                    return {
+                        url: null,
+                        fromCache: false,
+                        fallback: true,
+                        size: 0
+                    };
+                }
+
+                // If data is ArrayBuffer from cache, convert to Blob URL
+                if (data instanceof ArrayBuffer) {
+                    const contentType = fileName.endsWith('.pdb') ? 'text/plain' : 'application/octet-stream';
+                    const blob = new Blob([data], { type: contentType });
+                    const url = URL.createObjectURL(blob);
+                    
+                    return {
+                        url: url,
+                        fromCache: fromCache,
+                        fallback: false,
+                        size: data.byteLength
+                    };
+                }
+                
+                // If data is already processed (from downloadAndCache), return as-is
+                return data;
+            }
+
+            // Load structure file (topology) - prioritize cache from upload
+            console.log('Cache: Loading structure file...');
+            let structureData = await cache.getFile(sessionId, nativeFileName);
+            let structureResult;
+            
+            if (!structureData) {
+                console.log('Cache: Structure not found in upload cache, downloading from server...');
+                structureResult = await cache.downloadAndCache(CONFIG.nativePdb, sessionId, nativeFileName);
+                // downloadAndCache should return processed data, but let's ensure it has the right format
+                if (structureResult instanceof ArrayBuffer) {
+                    structureResult = processFileResult(structureResult, nativeFileName, false);
+                } else if (!structureResult || !structureResult.url) {
+                    // Fallback to server URL
+                    structureResult = {
+                        url: CONFIG.nativePdb,
+                        fromCache: false,
+                        fallback: true,
+                        size: 0
+                    };
+                }
+            } else {
+                console.log('Cache: Using structure from upload cache!');
+                structureResult = processFileResult(structureData, nativeFileName, true);
+            }
+            
+            // Load trajectory file (coordinates) - prioritize cache from upload  
+            console.log('Cache: Loading trajectory file...');
+            let trajectoryData = await cache.getFile(sessionId, trajFileName);
+            let trajectoryResult;
+            
+            if (!trajectoryData) {
+                console.log('Cache: Trajectory not found in upload cache, downloading from server...');
+                trajectoryResult = await cache.downloadAndCache(CONFIG.trajXtc, sessionId, trajFileName);
+                // downloadAndCache should return processed data, but let's ensure it has the right format
+                if (trajectoryResult instanceof ArrayBuffer) {
+                    trajectoryResult = processFileResult(trajectoryResult, trajFileName, false);
+                } else if (!trajectoryResult || !trajectoryResult.url) {
+                    // Fallback to server URL
+                    trajectoryResult = {
+                        url: CONFIG.trajXtc,
+                        fromCache: false,
+                        fallback: true,
+                        size: 0
+                    };
+                }
+            } else {
+                console.log('Cache: Using trajectory from upload cache!');
+                trajectoryResult = processFileResult(trajectoryData, trajFileName, true);
+            }
+
+            // Log loading results
+            const loadingResults = {
+                structure: {
+                    fromCache: structureResult.fromCache,
+                    fallback: structureResult.fallback,
+                    sizeMB: structureResult.size ? (structureResult.size / 1024 / 1024).toFixed(2) : 'unknown'
+                },
+                trajectory: {
+                    fromCache: trajectoryResult.fromCache,
+                    fallback: trajectoryResult.fallback,
+                    sizeMB: trajectoryResult.size ? (trajectoryResult.size / 1024 / 1024).toFixed(2) : 'unknown'
+                }
+            };
+            console.log('Stats: Cache: Loading results:', loadingResults);
+            
+            // Update upload cache status UI
+            updateUploadCacheStatus(loadingResults);
+
+            // Load with MolStar
+            console.log('MolStar: Loading trajectory with processed URLs...');
+            const loadResult = await LouisMolStarWrapper.loadTrajectory({
+                model: {
+                    kind: "model-url",
+                    url: structureResult.url,
+                    format: CONFIG.nativeFormat
+                },
+                coordinates: {
+                    kind: "coordinates-url",
+                    url: trajectoryResult.url,
+                    format: CONFIG.trajFormat,
+                    isBinary: true
+                },
+                preset: "default"
+            });
+
+            console.log('Success: MolStar: Trajectory loaded successfully');
+            
+            // Clean up blob URLs if they were created (not for fallback URLs)
+            if (!structureResult.fallback && structureResult.url.startsWith('blob:')) {
+                console.log('Cache: Scheduling structure blob URL cleanup');
+                setTimeout(() => URL.revokeObjectURL(structureResult.url), 5000);
+            }
+            if (!trajectoryResult.fallback && trajectoryResult.url.startsWith('blob:')) {
+                console.log('Cache: Scheduling trajectory blob URL cleanup');
+                setTimeout(() => URL.revokeObjectURL(trajectoryResult.url), 5000);
+            }
+
+            return loadResult;
+
+        } catch (error) {
+            console.error('Error: Cache: Error in cached trajectory loading:', error);
+            console.log('Cache: Falling back to server loading...');
+            return await loadTrajectoryFromServer();
+        }
+    }
+
+    // Load trajectory directly from server (bypassing cache)
+    async function loadTrajectoryFromServer() {
+        console.log('Server: Loading trajectory directly from server...');
+        try {
+            return await LouisMolStarWrapper.loadTrajectory({
+                model: {
+                    kind: "model-url",
+                    url: CONFIG.nativePdb,
+                    format: CONFIG.nativeFormat
+                },
+                coordinates: {
+                    kind: "coordinates-url",
+                    url: CONFIG.trajXtc,
+                    format: CONFIG.trajFormat,
+                    isBinary: true
+                },
+                preset: "default"
+            });
+        } catch (error) {
+            console.error('Error: Server: Direct server loading failed:', error);
+            throw error;
+        }
+    }
+
+    // Check if frame settings were modified during upload
+    function checkIfFrameSettingsModified() {
+        // This information should come from the session data
+        // For now, we'll check the URL or session data
+        
+        // If frame_range is not "all", then frame settings were modified
+        const frameRange = "{{ frame_range if frame_range else 'all' }}";
+        const isModified = frameRange !== "all";
+        
+        console.log(`Cache: Frame settings check - Range: "${frameRange}", Modified: ${isModified}`);
+        
+        return isModified;
+    }
+
+    // Update upload cache status display
+    function updateUploadCacheStatus(loadingResults) {
+        const statusElement = document.getElementById('uploadCacheStatus');
+        if (!statusElement) return;
+        
+        let statusText = '';
+        let statusColor = '#666';
+        
+        if (loadingResults.structure.fromCache && loadingResults.trajectory.fromCache) {
+            statusText = `Using files from upload cache (${loadingResults.structure.sizeMB}MB + ${loadingResults.trajectory.sizeMB}MB)`;
+            statusColor = '#4ecdc4';
+        } else if (loadingResults.structure.fromCache || loadingResults.trajectory.fromCache) {
+            const cachedFile = loadingResults.structure.fromCache ? 'structure' : 'trajectory';
+            const downloadedFile = loadingResults.structure.fromCache ? 'trajectory' : 'structure';
+            statusText = `Partial cache: ${cachedFile} from upload, ${downloadedFile} downloaded`;
+            statusColor = '#ffc107';
+        } else {
+            statusText = `Files downloaded from server (cache miss)`;
+            statusColor = '#ff6b6b';
+        }
+        
+        statusElement.textContent = statusText;
+        statusElement.style.color = statusColor;
+        
+        console.log('Stats: UI: Upload cache status updated:', statusText);
+    }
+
+    // Function to start the viewer initialization
+    function startViewer() {
+        initViewer().then(() => {
+            // Viewer is ready, show controls
+            state.viewerReady = true;
+            elements_doc.viewport.style.display = 'block';
+            elements_doc.viewerLoading.style.display = 'none';
+
+            // Enable controls
+            enableControls();
+            //changeColor(3);
+
+            console.log("Trajectory loaded successfully");
+
+            // Loading overlay will be hidden by loadPlots() function
+        })
+        .catch(error => {
+            console.error("Error loading trajectory:", error);
+            elements_doc.viewerLoading.innerHTML = '<p class="error-message">Failed to load 3D viewer. Please refresh the page.</p>';
+        });
+    }
+
+    // Load plots
+    function loadPlots() {
+            elements_doc.sortableContainer.style.display = 'block';
+            elements_doc.plotsLoading.style.display = 'none';
+            state.plotsLoaded = true;
+
+            // Hide loading overlay once plots are loaded (regardless of viewer status)
+            elements_doc.loadingOverlay.style.display = 'none';
+
+            initPlotInteractivity();
+    }
+
+    // Enable all controls once viewer is ready
+    function enableControls() {
+        elements_doc.frameSlider.disabled = false;
+        elements_doc.frameNumber.disabled = false;
+        elements_doc.playPauseButton.disabled = false;
+        elements_doc.toggleSpin.disabled = false;
+        elements_doc.toggleTheme.disabled = false;
+        elements_doc.toggleRunMDs.disabled = false;
+        elements_doc.toggleSideChains.disabled = false;
+    }
+
+    // Setup all event listeners
+    function setupEventListeners() {
+        // Frame controls
+        elements_doc.frameSlider.addEventListener("input", handleFrameChange);
+        elements_doc.frameNumber.addEventListener("input", handleFrameChange);
+
+        // Control buttons
+        elements_doc.playPauseButton.addEventListener("click", togglePlayPause);
+        elements_doc.toggleSpin.addEventListener("click", toggleSpin);
+        elements_doc.toggleTheme.addEventListener("click", toggleTheme);
+        elements_doc.toggleSideChains.addEventListener("click", toggleSideChains);
+        elements_doc.toggleRunMDs.addEventListener("click", toggleRunMDs);
+
+        // Share button
+        elements_doc.shareButton.addEventListener("click", shareSession);
+    }
+
+    // Initialize plot interactivity
+    function initPlotInteractivity() {
+        // Add any plot-specific interactivity here
+        // For example, click handlers for plot expansion, etc.
+    }
+
+    // Handle frame changes
+    function handleFrameChange() {
+        if (!state.viewerReady) return;
+
+        const frame = parseInt(this.value);
+        elements_doc.frameSlider.value = frame;
+        elements_doc.frameNumber.value = frame;
+        LouisMolStarWrapper.interactivity.changeFrame(frame);
+
+        // Update all frame markers across all plots
+        frameMarkers.updateAll(frame);
+    }
+
+    // Toggle play/pause
+    function togglePlayPause() {
+        if (!state.viewerReady) return;
+
+        if (!state.isRunning) {
+            state.player = LouisMolStarWrapper.plugin.managers.animation.play();
+            elements_doc.playPauseButton.textContent = "Pause";
+        } else {
+            LouisMolStarWrapper.plugin.managers.animation.pause();
+            elements_doc.playPauseButton.textContent = "Play";
+        }
+        state.isRunning = !state.isRunning;
+    }
+
+    // Toggle spin
+    function toggleSpin() {
+        LouisMolStarWrapper.toggleSpin();
+        state.isSpinning = !state.isSpinning;
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        const currentBg = state.isLight ? 0x000000 : 0xffffff;
+        LouisMolStarWrapper.setBackground(currentBg);
+        document.body.dataset.theme = currentBg === 0xffffff ? "light" : "dark";
+        state.isLight = !state.isLight;
+    }
+
+    // Toggle side chains
+    function toggleSideChains() {
+        if (state.sideChainsVisible) {
+            LouisMolStarWrapper.applyRepresentation("cartoon");
+        } else {
+            LouisMolStarWrapper.applyRepresentation("ball-and-stick");
+        }
+        state.sideChainsVisible = !state.sideChainsVisible;
+    }
+    function changeColor(number) {
+        LouisMolStarWrapper.interactivity.highlightOn(number, 0xFF00FF);
+    }
+    function hideColor() {
+        LouisMolStarWrapper.interactivity.highlightOff();
+    }
+    // Toggle MD run
+    function toggleRunMDs() {
+        if (!state.isRunning) {
+            state.player = LouisMolStarWrapper.plugin.managers.animation.play();
+        } else {
+            LouisMolStarWrapper.plugin.managers.animation.pause();
+        }
+        state.isRunning = !state.isRunning;
+    }
+    // Share session
+    function shareSession() {
+        const shareLink = `${CONFIG.baseUrl}/retrieve-results?session_id=${CONFIG.sessionId}`;
+        navigator.clipboard.writeText(shareLink).then(
+            () => {
+                alert("Share link copied to clipboard: " + shareLink);
+            },
+            (err) => {
+                console.error("Could not copy text: ", err);
+            },
+        );
+    }
+
+    // Setup scroll behavior
+    function setupScrollBehavior() {
+        const mainContentContainer = document.querySelector(
+            ".main-content-container",
+        );
+        const plotsColumn = document.querySelector(".plots-column");
+        const plotsContainer = document.getElementById("sortable-container");
+
+        function adjustScrolling() {
+            // Only keep body overflow hidden on desktop screens
+            if (window.innerWidth > 1023) {
+                document.body.style.overflow = "hidden";
+                // Ensure plots column can scroll internally on desktop
+                plotsColumn.style.overflowY = "auto";
+                plotsColumn.style.height = "100%";
+            } else {
+                // Enable scrolling on mobile/tablet
+                document.body.style.overflow = "auto";
+                plotsColumn.style.overflowY = "visible";
+                plotsColumn.style.height = "auto";
+            }
+
+            // Ensure plots container can expand fully
+            plotsContainer.style.height = "100%";
+            plotsContainer.style.overflowY = "auto";
+        }
+
+        // Initial adjustment
+        adjustScrolling();
+
+        // Adjust on window resize
+        window.addEventListener("resize", adjustScrolling);
+
+        // Header opacity on scroll
+        window.addEventListener("scroll", () => {
+            const scrollPosition = window.scrollY;
+            const headerBox = document.getElementById("header-box");
+            headerBox.style.opacity = scrollPosition > 50 ? "0" : "1";
+        });
+    }
+
+    // Cache management functions (Disabled for production)
+    /*
+    async function showCacheStats() {
+        try {
+            console.log('Stats: UI: Requesting cache statistics...');
+            const stats = await window.trajectoryCache.getCacheStats();
+            
+            if (!stats.supported) {
+                alert('Error: Cache not supported in this browser\n\nIndexedDB or required APIs are not available.');
+                return;
+            }
+            
+            let message = `Stats: Trajectory Cache Statistics\n\n`;
+            message += `Files cached: ${stats.count}\n`;
+            message += `Total size: ${stats.totalSizeMB}MB\n`;
+            message += `Cache utilization: ${stats.utilizationPercent}%\n`;
+            message += `Structure files: ${stats.structureCount}\n`;
+            message += `Trajectory files: ${stats.trajectoryCount}\n\n`;
+            
+            if (stats.entries && stats.entries.length > 0) {
+                message += `Cached files:\n`;
+                stats.entries.forEach(entry => {
+                    message += `- ${entry.fileName} (${entry.sizeMB}MB, ${entry.age}min ago)\n`;
+                });
+            }
+            
+            alert(message);
+            console.log('Stats: Cache Stats:', stats);
+            
+        } catch (error) {
+            console.error('Error: UI: Error getting cache stats:', error);
+            alert('Error: Error getting cache statistics\n\nCheck console for details.');
+        }
+    }
+
+    async function clearTrajectoryCache() {
+        try {
+            const confirmed = confirm('Clear Trajectory Cache?\n\nThis will remove all cached trajectory and structure files.\nYou will need to re-download them on next visit.\n\nContinue?');
+            
+            if (!confirmed) {
+                console.log('UI: Cache clear cancelled by user');
+                return;
+            }
+            
+            console.log('UI: Clearing trajectory cache...');
+            const success = await window.trajectoryCache.clearCache();
+            
+            if (success) {
+                alert('Success: Cache cleared successfully!\n\nAll trajectory files have been removed from browser storage.');
+                updateCacheStatus();
+            } else {
+                alert('Error: Failed to clear cache\n\nCheck console for details.');
+            }
+            
+        } catch (error) {
+            console.error('Error: UI: Error clearing cache:', error);
+            alert('Error: Error clearing cache\n\nCheck console for details.');
+        }
+    }
+    */
+
+    /*
+    async function updateCacheStatus() {
+        try {
+            const stats = await window.trajectoryCache.getCacheStats();
+            const statusElement = document.getElementById('cacheStatus');
+            
+            if (!stats.supported) {
+                statusElement.textContent = 'Not supported';
+                statusElement.style.color = '#999';
+                return;
+            }
+            
+            if (stats.count === 0) {
+                statusElement.textContent = 'Empty';
+                statusElement.style.color = '#999';
+            } else {
+                statusElement.textContent = `${stats.count} files, ${stats.totalSizeMB}MB`;
+                statusElement.style.color = stats.utilizationPercent > 80 ? '#ff6b6b' : '#4ecdc4';
+            }
+            
+        } catch (error) {
+            console.error('Error: UI: Error updating cache status:', error);
+            const statusElement = document.getElementById('cacheStatus');
+            statusElement.textContent = 'Error: Status check failed';
+            statusElement.style.color = '#ff6b6b';
+        }
+    }
+    */
+
+    // Function to show session info tooltip
+    function showSessionInfo() {
+        alert("Session Information\n\nThe session ID uniquely identifies your trajectory visualization session. You can share this link with others to allow them to view your session.");
+    }
+
+    // Setup event listeners after everything is loaded  
+    window.addEventListener("load", function () {
+        console.log('UI: Page loaded, setting up event listeners...');
+        setupEventListeners();
+        setupScrollBehavior();
+        
+        // Initialize cache status (Disabled for production)
+        // console.log('UI: Initializing cache status display...');
+        // setTimeout(updateCacheStatus, 1000); // Delay to ensure cache is initialized
+        
+        // Log cache readiness
+        if (window.trajectoryCache) {
+            console.log('Success: UI: TrajectoryCache instance available');
+        } else {
+            console.error('Error: UI: TrajectoryCache instance not found');
+        }
+    });
+</script>
+{% endblock %}

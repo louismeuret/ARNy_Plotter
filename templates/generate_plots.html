@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1 class="mt-5">Select Plots and Structures</h1>
+<form method="POST" action="{{ url_for('generate_plots') }}">
+    <div class="form-group">
+        <label for="structure1">Structure 1</label>
+        <select class="form-control" id="structure1" name="structure1">
+            <!-- Populate dropdown options dynamically if needed -->
+            <option value="structure1_1">Structure 1 - Option 1</option>
+            <option value="structure1_2">Structure 1 - Option 2</option>
+            <!-- Add more options as needed -->
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="structure2">Structure 2</label>
+        <select class="form-control" id="structure2" name="structure2">
+            <!-- Populate dropdown options dynamically if needed -->
+            <option value="structure2_1">Structure 2 - Option 1</option>
+            <option value="structure2_2">Structure 2 - Option 2</option>
+            <!-- Add more options as needed -->
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Select Plots:</label><br>
+        {% for plot_id, plot_name in plot_options.items() %}
+            <input type="checkbox" id="{{ plot_id }}" name="{{ plot_id }}" value="{{ plot_id }}">
+            <label for="{{ plot_id }}">{{ plot_name }}</label><br>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Generate Plots</button>
+</form>
+
+{% if plots_generated %}
+<div class="mt-4">
+    <a href="{{ url_for('download_results') }}" class="btn btn-success">Download Results</a>
+</div>
+{% endif %}
+{% endblock %}

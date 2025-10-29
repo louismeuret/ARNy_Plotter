@@ -1,0 +1,87 @@
+#progress-bar-container {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 120px;
+    position: relative;
+    margin-top: 20px;
+}
+
+#nucleotide-sequence {
+    display: grid;
+    grid-template-columns: repeat(
+        50,
+        1fr
+    ); /* Match the number of nucleotides */
+    align-items: center;
+    justify-items: center;
+    height: 40px;
+    font-family: monospace;
+    font-size: 0.9em; /* Smaller font size */
+    font-weight: bold;
+    gap: 2px;
+}
+
+.nucleotide {
+    width: 100%;
+    text-align: center;
+    padding: 3px 0; /* Reduce padding */
+    background-color: #d3d3d3; /* Gray by default */
+    border-radius: 4px;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.nucleotide.A.visited {
+    background-color: #f87171;
+} /* Red */
+.nucleotide.U.visited {
+    background-color: #60a5fa;
+} /* Blue */
+.nucleotide.G.visited {
+    background-color: #34d399;
+} /* Green */
+.nucleotide.C.visited {
+    background-color: #fbbf24;
+} /* Yellow */
+
+.ribosome {
+    box-shadow: 0 0 5px 2px #3b82f6;
+    animation: ribosomeAnimation 0.5s infinite;
+}
+
+@keyframes ribosomeAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+#progress-markers {
+    display: grid;
+    grid-template-columns: repeat(100, 1fr); /* Match nucleotide grid */
+    font-family: monospace;
+    color: #333;
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 5px;
+}
+
+#terminal {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #000;
+    font-family: monospace;
+    font-size: 0.9em;
+    border: 1px solid #ddd;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: left;
+}

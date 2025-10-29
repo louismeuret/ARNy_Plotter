@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1 class="mt-5">Results</h1>
+<div class="list-group">
+    {% for file in files %}
+    <a href="#" class="list-group-item list-group-item-action">{{ file }}</a>
+    {% endfor %}
+</div>
+{% endblock %}
+

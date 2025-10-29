@@ -1,0 +1,200 @@
+<div class="box mt-5 plot-container" style="position: relative;">
+  <div class="flex-container">
+    <div id="{{ plot_info[0] }}" class="plot"></div>
+    <i class="drag-handle" data-lucide="grip"></i>
+    <i class="expand-icon" data-lucide="expand"></i>
+  </div>
+  
+  <!-- Help icon positioned in top-right corner -->
+  <div class="help-icon" onclick="openHelpImage()">
+    <i data-lucide="help-circle"></i>
+  </div>
+  
+  <div id="{{ plot_info[1] }}" style="width: 100%; height: 1000px; border: 1px solid #e0e0e0; border-radius: 5px; background: white; margin-bottom: 15px;"></div>
+  <div class="content">
+    <h2>{{ explainations.get(plot_info[0]).title if explainations and explainations.get(plot_info[0]) else 'Torsion Angles Analysis' }}</h2>
+    <p>{{ explainations.get(plot_info[0]).content if explainations and explainations.get(plot_info[0]) else 'Analysis of backbone torsion angles over the trajectory.' }}</p>
+    {% if explainations and explainations.get(plot_info[0]) and explainations.get(plot_info[0]).formula != "" %}
+    <div class="formula">
+      {{ explainations.get(plot_info[0]).formula | safe }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Hidden overlay for the help image -->
+  <div id="helpImageOverlay" class="help-overlay" onclick="closeHelpImage()">
+    <span class="close-btn">&times;</span>
+    <img src="{{ url_for('static', filename='images/nucl.png') }}" alt="Torsion Angles Reference" class="help-image">
+  </div>
+
+  <!-- Toggle buttons for Time Series/Distribution -->
+  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
+    <button id="btnTimeSeries" class="button is-link is-active" onclick="switchTorsionMode('timeSeries')">Time Series</button>
+    <button id="btnDistribution" class="button is-link" onclick="switchTorsionMode('distribution')">Distribution</button>
+  </div>
+
+  <script>
+    try {
+      console.log('Torsion: Initializing torsion plot...');
+      var dataLength = {{ trajectory_length }};
+      var plotDataTimeSeries_{{ plot_info[1] }} = {{ plot_info[2][0] | safe }};
+      var plotDataDistribution_{{ plot_info[1] }} = {{ plot_info[2][1] | safe }};
+      var currentMode = 'timeSeries'; // Track the current display mode
+      
+      var plotElement = document.getElementById('{{ plot_info[1] }}');
+      
+      // Use the directly assigned plot data variables
+      var plotDataTimeSeries = plotDataTimeSeries_{{ plot_info[1] }};
+      var plotDataDistribution = plotDataDistribution_{{ plot_info[1] }};
+      
+      console.log('Torsion: Plot data structure:', {
+        hasTimeSeries: !!plotDataTimeSeries,
+        hasDistribution: !!plotDataDistribution,
+        timeSeriesData: plotDataTimeSeries ? Object.keys(plotDataTimeSeries) : 'None',
+        distributionData: plotDataDistribution ? Object.keys(plotDataDistribution) : 'None'
+      });
+      
+      var layout = {
+        margin: { t: 40, r: 20, l: 60, b: 60 },
+        autosize: true,
+        title: {
+          text: 'Torsion Angles',
+          font: { size: 16 }
+        },
+        xaxis: {
+          title: 'Frame Number',
+          showgrid: true,
+          zeroline: false
+        },
+        yaxis: {
+          title: 'Angle (degrees)',
+          showgrid: true,
+          zeroline: true,
+          zerolinecolor: '#666',
+          range: [-180, 180]
+        },
+        showlegend: true,
+        legend: {
+          orientation: 'h',
+          y: -0.2
+        },
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white'
+      };
+      
+      var config = {
+        responsive: true,
+        autosize: true
+      };
+      
+      // Initialize plot with time series data by default
+      Plotly.newPlot('{{ plot_info[1] }}', plotDataTimeSeries).then(() => {
+        console.log('Torsion: Initial plot created successfully');
+        setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+      }).catch(function(error) {
+        console.error('Torsion: Error creating initial plot:', error);
+      });
+
+      // Function to switch between time series and distribution modes
+      function switchTorsionMode(mode) {
+        const plotDiv = document.getElementById('{{ plot_info[1] }}');
+        
+        if (mode === 'timeSeries') {
+          Plotly.react(plotDiv, plotDataTimeSeries);
+          document.getElementById('btnTimeSeries').classList.add('is-active');
+          document.getElementById('btnDistribution').classList.remove('is-active');
+          currentMode = 'timeSeries';
+          console.log('Torsion: Switched to time series view');
+        } else {
+          Plotly.react(plotDiv, plotDataDistribution);
+          document.getElementById('btnDistribution').classList.add('is-active');
+          document.getElementById('btnTimeSeries').classList.remove('is-active');
+          currentMode = 'distribution';
+          console.log('Torsion: Switched to distribution view');
+        }
+      }
+      
+      // Make function globally available
+      window.switchTorsionMode = switchTorsionMode;
+      
+      function debounce(func, wait) {
+        let timeout;
+        return function() {
+          const context = this, args = arguments;
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+      }
+      
+      window.addEventListener('resize', debounce(() => {
+        Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+      }, 250));
+      
+      document.querySelector(".expand-icon").addEventListener('click', () => {
+        setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+      });
+
+      // Help image functions
+      function openHelpImage() {
+        document.getElementById("helpImageOverlay").style.display = "flex";
+      }
+      function closeHelpImage() {
+        document.getElementById("helpImageOverlay").style.display = "none";
+      }
+      window.openHelpImage = openHelpImage;
+      window.closeHelpImage = closeHelpImage;
+      
+    } catch (error) {
+      console.error('Torsion: Script error:', error);
+    }
+  </script>
+
+  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+    <a href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download {{ plot_info[0] }} Data</a>
+    <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
+  </div>
+</div>
+
+<style>
+.help-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    color: #666;
+    background: white;
+    border-radius: 50%;
+    padding: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: color 0.2s, transform 0.2s;
+    z-index: 20;
+  }
+  .help-icon:hover {
+    color: #000;
+    transform: scale(1.1);
+  }
+  .help-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+  }
+  .help-overlay .help-image {
+    max-width: 80%;
+    max-height: 80%;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #000;
+  }
+  .help-overlay .close-btn {
+    position: absolute;
+    top: 20px; right: 30px;
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+

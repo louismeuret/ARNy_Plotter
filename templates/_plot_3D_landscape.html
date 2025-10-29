@@ -1,0 +1,114 @@
+<div class="box mt-5">
+  <div class="flex-container">
+  <div id="{{ plot_info[0] }}" class="plot"></div>
+  <i class="drag-handle" data-lucide="grip"></i>
+  <i class="expand-icon" data-lucide="expand"></i>
+  </div>
+  <div id="{{ plot_info[1] }}" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
+  <div class="content">
+  <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+  <p>{{ explainations.get(plot_info[0]).content }}</p>
+  {% if explainations.get(plot_info[0]).formula != "" %}
+  <div class="formula">
+  {{ explainations.get(plot_info[0]).formula | safe }}
+  </div>
+  {% endif %}
+  </div>
+  <script>
+ var previousValue2 = 1;
+ var dataLength = {{ trajectory_length }};
+ var plotData3D_{{ plot_info[1] }} = {{ plot_info[2][0] | safe }};
+ var plotData2D_{{ plot_info[1] }} = {{ plot_info[2][1] | safe }};
+ var currentMode = '3D'; // Track the current display mode
+ 
+ // Initial plot with the main data
+ var socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
+   query: "session_id={{ session_id }}"
+ });
+ socket.emit('join', { room: "{{ session_id }}" });
+ 
+ // Initialize plot with 3D data by default
+ Plotly.newPlot('{{ plot_info[1] }}', plotData3D_{{ plot_info[1] }}).then(() => {
+   // Force a resize after plot is created to ensure it fills the container
+   setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+ });
+ 
+ // Function to switch between 2D and 3D modes
+ function switchLandscapeMode(mode) {
+   const plotDiv = document.getElementById('{{ plot_info[1] }}');
+   
+   if (mode === '3D') {
+     Plotly.react(plotDiv, plotData3D_{{ plot_info[1] }});
+     document.getElementById('btn3D').classList.add('is-active');
+     document.getElementById('btn2D').classList.remove('is-active');
+     currentMode = '3D';
+   } else {
+     Plotly.react(plotDiv, plotData2D_{{ plot_info[1] }});
+     document.getElementById('btn2D').classList.add('is-active');
+     document.getElementById('btn3D').classList.remove('is-active');
+     currentMode = '2D';
+   }
+ }
+ 
+ var currentPlot_{{ plot_info[1] }} = document.getElementById('{{ plot_info[1] }}');
+ currentPlot_{{ plot_info[1] }}.on('plotly_click', function(data) {
+   console.log('Clicked point data on landscape:', data);
+   console.log(data.points[0].x)
+   console.log(data.points[0].y)
+   socket.emit("update_frame_displayed", {
+     value: [data.points[0].x, data.points[0].y],
+     session_id: "{{ session_id }}"
+   }, "{{ session_id }}");
+ });
+ 
+ socket.on("update_frame_landscape_click", function(data) {
+   const frame = JSON.parse(data.frame);
+   console.log('Frame:', frame);
+   LouisMolStarWrapper.interactivity.changeFrame(frame);
+   // Update frame slider and input values
+   document.getElementById('frame-slider').value = frame;
+   document.getElementById('frame-number').value = frame;
+
+   // Update all frame markers across all plots using the global manager
+   if (typeof frameMarkers !== 'undefined') {
+     frameMarkers.updateAll(frame);
+   }
+
+   // Update contact map
+   socket.emit("update_contact_map", {
+     value: frame,
+     session_id: "{{ session_id }}"
+   }, "{{ session_id }}");
+ });
+ 
+ // Debounce function to prevent excessive resize calls
+ function debounce(func, wait) {
+   let timeout;
+   return function() {
+     const context = this, args = arguments;
+     clearTimeout(timeout);
+     timeout = setTimeout(() => func.apply(context, args), wait);
+   };
+ }
+ 
+ // Add debounced resize event listener
+ window.addEventListener('resize', debounce(() => {
+   Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'))
+ }, 250));
+ 
+ // Handle expand button click
+ document.querySelector(".expand-icon").addEventListener('click', () => {
+   Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+ });
+ </script>
+ 
+  <!-- Toggle buttons for 2D/3D landscape -->
+  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
+    <button id="btn3D" class="button is-link is-active" onclick="switchLandscapeMode('3D')">3D Landscape</button>
+    <button id="btn2D" class="button is-link" onclick="switchLandscapeMode('2D')">2D Landscape</button>
+  </div>
+ 
+  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+    <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
+  </div>
+ </div>

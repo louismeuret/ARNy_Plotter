@@ -1,0 +1,121 @@
+<div class="box mt-5">
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
+        <i class="drag-handle" data-lucide="grip"></i>
+        <i class="expand-icon" data-lucide="expand"></i>
+    </div>
+    <div id="{{ plot_info[1] }}">
+        <div class="loader" id="loader" style="display: none"></div>
+        <!-- Loading circle initially hidden -->
+        <img
+            id="dynamic-image"
+            src="{{ url_for('static', filename='uploads/' + session_id + '/contact_map_plotly.png') }}"
+            alt="Generated Image"
+            style="display: none"
+        />
+        <!-- Initially hidden until script checks -->
+    </div>
+    <div class="content">
+        <script>
+            window.addEventListener("resize", function () {
+                Plotly.Plots.resize(
+                    document.getElementById("{{ plot_info[1] }}"),
+                );
+            });
+            var session_id = "{{ session_id }}";
+            var traj_xtc = "{{ traj_xtc }}";
+            var native = "{{ native_pdb }}";
+
+            $(document).ready(function () {
+                var socket = io.connect(
+                    "http://" + document.domain + ":" + location.port,
+                );
+                var debounceTimeout;
+
+                // Check if the initial image exists
+                function checkInitialImage() {
+                    var img = new Image();
+                    img.onload = function () {
+                        $("#dynamic-image").attr("src", img.src).show();
+                    };
+                    img.onerror = function () {
+                        $("#loader").show();
+                        $("#frame-slider").show();
+                    };
+                    img.src = $("#dynamic-image").attr("src");
+                }
+
+                checkInitialImage(); // Check for the initial image on page load
+
+                // Debounce function
+                function debounce(func, delay) {
+                    return function () {
+                        var context = this;
+                        var args = arguments;
+                        clearTimeout(debounceTimeout);
+                        debounceTimeout = setTimeout(function () {
+                            func.apply(context, args);
+                        }, delay);
+                    };
+                }
+
+                // Send slider value to server
+                function sendSliderValue(value) {
+                    $("#loader").show(); // Show loader when sending new value
+                    $("#dynamic-image").hide(); // Hide image while loading
+                    socket.emit("slider_value", {
+                        value: value,
+                        session_id: session_id,
+                        traj: traj_xtc,
+                        native_state: native,
+                    });
+                }
+
+                // Attach debounce function to slider input
+                document.getElementById("frame-slider").addEventListener(
+                    "input",
+                    debounce(function () {
+                        var sliderValue = this.value;
+                        sendSliderValue(sliderValue);
+                    }, 500),
+                );
+
+                // Update image URL when received from server
+                socket.on("image_update", function (data) {
+                    var imageUrl =
+                        "{{ url_for('static', filename='') }}" +
+                        "uploads/" +
+                        session_id +
+                        "/" +
+                        data.image_url +
+                        "?" +
+                        new Date().getTime();
+                    $("#dynamic-image").attr("src", imageUrl);
+                    $("#dynamic-image").show(); // Show image
+                    $("#loader").hide(); // Hide loader
+                });
+            });
+        </script>
+    </div>
+</div>
+
+<style>
+    .loader {
+        border: 8px solid #f3f3f3; /* Light grey */
+        border-top: 8px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>

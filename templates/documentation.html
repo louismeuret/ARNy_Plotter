@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ARNy Plotter Documentation</title>
+        <!-- Bulma CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css"
+        />
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}"
+        />
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                background-color: #f0f0f0; /* Ensure background color is set */
+                position: relative; /* Establish stacking context */
+            }
+            .container {
+                position: relative;
+                z-index: 1; /* Ensure container content is above canvas */
+            }
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0; /* Place the canvas behind other content */
+            }
+            #terminal-container {
+                width: 50%;
+                height: 300px;
+                margin: auto;
+                display: none;
+            }
+            #overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+                z-index: 2;
+                justify-content: center;
+                align-items: center;
+            }
+            #overlay .box {
+                width: 50%;
+                padding: 20px;
+                background: white;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+            .source-box {
+                background-color: #e0e0e0; /* Different background color for sources */
+            }
+            /* Lazy loading styles */
+            .lazy-image {
+                opacity: 0;
+                transition: opacity 0.3s ease-in;
+            }
+            
+            .lazy-image.loaded {
+                opacity: 1;
+            }
+
+            .image-placeholder {
+                background: #eee;
+                height: 300px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            
+            body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            }
+            
+            .header {
+            margin-bottom: 30px;
+            position: relative;
+            border-left: 5px solid #4a6cf7;
+            padding-left: 20px;
+            }
+            
+            .title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+            }
+            
+            .subtitle {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 30px;
+            }
+            
+            .steps-container {
+            margin-bottom: 40px;
+            }
+            
+            .step {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4a6cf7;
+            transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.05);
+            }
+            
+            .step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: #4a6cf7;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 12px;
+            }
+            
+            .step-title {
+            display: inline-block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            }
+            
+            ul, ol {
+            margin-left: 50px;
+            margin-top: 10px;
+            }
+            
+            li {
+            margin-bottom: 8px;
+            }
+            
+            li:last-child {
+            margin-bottom: 0;
+            }
+            
+            .additional-options {
+            background-color: #ebf4ff;
+            border-radius: 8px;
+            padding: 24px;
+            }
+            
+            .additional-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c5282;
+            margin-bottom: 15px;
+            }
+            
+            .additional-options ul {
+            list-style-type: none;
+            margin-left: 10px;
+            }
+            
+            .additional-options li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            }
+            
+            .additional-options li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4a6cf7;
+            font-weight: bold;
+            }
+            
+            .note {
+            margin-top: 30px;
+            padding: 15px 20px;
+            background-color: #fffbeb;
+            border-left: 4px solid #f6ad55;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="height: 20px"></div>
+        <div id="terminal-container"></div>
+        <div class="container mt-5">
+            <div class="box">
+                <h1
+                    class="title"
+                    style="
+                        font-size: 2.5em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    Plot Generation Documentation
+                </h1>
+                <p class="subtitle">
+                    This page provides documentation for the various plot
+                    generation options available in the Plot RNA web
+                    application. Each plot type is described along with its
+                    purpose and usage, and technology stack used for
+                    Right now, as you may have seen, still a lot of things are broken:
+                    <ul>
+                        <li>All the stride controls are not perfectly working and can cause the server to crash, and the plots are not all modified to handle the jump of some frames</li>
+                        <li>In the viewtrajectory panel, some plots on the right are too small and badly placed (work in progress). All the controls under the molstar trajectory are not working since a migration from nglview</li>
+                        <li>Trajectories are currently not limited in size, however Molstar viewer doesn't support more than 2GB. Processing is done behind a Cloudflare tunnel which also limits file sizes</li>
+                        <li>Not all trajectory file formats have been tested - in theory if they are supported by MDAnalysis and MDTraj, they should work</li>
+                        <li>Downloading of files generated by the plots is not functional - this needs to be monitored and fixed</li>
+                        <li>Page reloads trigger recalculation of data. Instead, use the "Share session" button at the top to get a "retrieve results" link that will fetch saved data</li>
+                        <li>Additional plots are in development, including visualization of pucker positions and torsions</li>
+                    </ul>
+                </p>
+            </div>
+            <div class="box">
+                <div class="header">
+                    <h1 class="title">How to Start</h1>
+                  </div>
+              
+                  <div class="steps-container">
+                    <div class="step">
+                      <span class="step-number">1</span>
+                      <span class="step-title">Upload Your Input Files</span>
+                      <ul>
+                        <li>A topology file, that couple as a native PDB structure file and is used in all related calculations</li>
+                        <li>A trajectory file (multiple formats supported, primarily tested using XTC, but TRR, DCD are shown to work)</li>
+                      </ul>
+                    </div>
+              
+                    <div class="step">
+                      <span class="step-number">2</span>
+                      <span class="step-title">Configure Trajectory Processing (Optional)</span>
+                      <ul>
+                        <li>Set frame stride to skip frames</li>
+                        <li>Specify start/end frames to trim trajectory</li>
+                        <li>Leave empty to use full trajectory</li>
+                      </ul>
+                    </div>
+              
+                    <div class="step">
+                      <span class="step-number">3</span>
+                      <span class="step-title">Select Desired Plots</span>
+                      <p>Choose which plots you want to generate from the available options described below<, all the plots are described in the suite of this page/p>
+                    </div>
+              
+                    <div class="step">
+                      <span class="step-number">4</span>
+                      <span class="step-title">Start Calculations</span>
+                      <p>Click the "Upload" button to begin processing your data, at this moment, the website is going to send the form to the server: it can take some time, depending of the upload speed, the number of users, and the plots selected </p>
+                    </div>
+                  </div>
+              
+                  <div class="additional-options">
+                    <h3 class="additional-title">Additional Options</h3>
+                    <ul>
+                      <li>Click "Go to already computed results" to view an example, note that it's not going to recompute the data, hence the faster loading time.</li>
+                      <li>Enter a previous session ID in "Retrieve Previous Results" to access past calculations</li>
+                    </ul>
+                  </div>
+              
+                  <div class="note">
+                    Once calculations begin, you'll see progress updates and will be automatically redirected to the results page when complete.
+                  </div>
+            </div>
+            <div class="box">
+                <div class="header">
+                    <h1 class="title">The Analysis Page</h1>
+                    <p class="subtitle">Where everything you always wanted is..</p>
+                  </div>
+                  <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/doc.png') }}"
+                        alt="Full Webpage"
+                    />
+                </figure>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Top Bar</span>
+                    <ul>
+                      <li>Where all the controls about the webserver itself are, not related to the content</li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Session ID</span>
+                    <ul>
+                      <li>The session ID is the unique identifier of the trajectory data you have sent, it's also the only way for the moment to get back the data you've computed
+                   </li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Share Session</span>
+                    <ul>
+                      <li>If you want to share your exciting results with someone else, just click on this button: a link is created, and it will allow the others persons to access your data without the need to recompute everything.
+                    </li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Help</span>
+                    <ul>
+                      <li>If you are lost, need some informations, click on Help !, the link redirect to this page where you can, hopefully, find all you need.
+                    </li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Viewer Pane</span>
+                    <ul>
+                      <li>In this Box, you can interact with the trajectory: change the displayed frame using the slider, the input box, or by clicking play. By toggling one of the 4 button under the slider, you can Spin the molecule, change the color of the background, display the sidechains
+                        Note that they are a lot of modifications that you also can do in the molstar viewer, where you can screenshot, change the frame, change what is displayed.
+                    </li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Plots Plane</span>
+                    <ul>
+                      <li>Here is a scrollable plane where you can navigate between the differents plots you've created, each one has it's own box, composed by the plot first, then a title, a description, a formula if available and the possibility to download the data generated by the server.
+                    </li>
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">7</span>
+                    <span class="step-title">A Plot</span>
+                    <ul>
+                      <li>All the plot are currently generated using Plotly, if it's possible, some makers Highlight the current frame. Too much data and they cause the website to crash, by eating all your ram: if it's the case, try to add a stride, or select sections of your trajectories.
+                    </li>
+
+                    </ul>
+                  </div>
+                  <div class="step">
+                    <span class="step-number">8</span>
+                    <span class="step-title">Download Data</span>
+                    <ul>
+                      <li>When it's possible, buttons to download the data are appearing: you can click them to download in one case the data behind the plot, in general in csv format, or the plot itself, in html format usually.
+                    </li>
+                    </ul>
+                  </div>
+
+
+
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="ContactMaps"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    1. Contact Maps Plot
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/contact_map.png') }}"
+                        alt="Visualisation of the contact map Plot"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Generates a contact map plot for a given trajectory and
+                    native PDB file. Visualizes the contacts between residues in
+                    the RNA structure over the trajectory. Each cell
+                    correspond to index of atoms in the topology file, after
+                    parsing of MDAnalysis Visualisation is made using
+                    Plotly, different pairing are computed using Barnaba Annotation, and displayed at the right position
+                    When you change the displayed frame by the viewer, a call is sent to the server that will recompute the contact map, and update the current view, it takes between few hundred milliseconds for simple systems to multiple seconds for big systems
+
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="RMSD"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    2. RMSD Plot
+                </h2>
+                <figure class="image">
+                        <div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/rmsd.png') }}"
+                        alt="RMSD Plot"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Generates a plot of Root Mean Square Deviation (RMSD) for a
+                    given trajectory compared to a native structure. Measures
+                    the structural deviation of the trajectory from the native
+                    state. RMSD is computed on all the atoms, using barnaba
+                    function.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="ERMSD"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    3. ERMSD Plot
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/ermsd.png') }}"
+                        alt="eRMSD Plot"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Generates a plot of eRMSD for a given trajectory compared to
+                    a native structure. Measures the structural deviation of the
+                    trajectory from the native state, taking into account escore,
+                    derived from the position of base pairs
+                    <a href="#source-1">Bottaro et al., 2014</a>.
+                </p>
+            </div>
+            <div class="box", style="display:none;">
+                <h2
+                    class="title"
+                    id="TorsionAngles"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    4. Torsion Angles Plot
+                </h2>
+                <p class="subtitle">
+                    Generates a plot of torsion angles against time or against
+                    another torsion angle, for a given trajectory. Visualizes
+                    the angles over the trajectory. You need to input a valid
+                    name in the form of "CHAIN_POSITION_" for it to works. If
+                    nothing is entered but angle is selected, it will procede to
+                    the computation of Eta against Theta Angle.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="SecondaryStructure"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    5. Secondary Structure Plot
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/secondary.png') }}"
+                        alt="Visualisation of the secondary structure by Forna"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Visualize the secondary structure of the displayed frame,
+                    the secondary structure is computed via Barnaba, and the
+                    visualisation is done using Forna.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="Arc"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    6. Arc Plot
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/arc.png') }}"
+                        alt="Arc Plot representing the bonds between nucleotides by arcs"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Generates an Arc plot illustrating base pairing interactions
+                    within the RNA structure. Each nucleotide is connected to
+                    another if a base pair is formed during the trajectory. The
+                    color represents the frequency of each contact throughout
+                    the trajectory.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="DotBracket"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    8. Dot-Bracket Plot
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/dotbracket.png') }}"
+                        alt="Dotbracket plot, where we show the dotbracket evolution along the frames"
+                    />
+                </figure>
+                <p class="subtitle">
+                    For this plot, we're computing the Dotbracket information
+                    (representing in a format of string the secondary
+                    structure), and we're ploting along time the position of
+                    each dotbracket structure: it gives some insight on how the
+                    structure are transitioning from one to another.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="2DBasePairing"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    9. 2D Base Pairing
+                </h2>
+                <figure class="image">
+<div class="image-placeholder">Loading...</div>
+                    <img
+                        class="lazy-image"
+                        data-src="{{ url_for('static', filename='images/base_pair.png') }}"
+                        alt="Visualisation of where the bases are located related to each others during the MD"
+                    />
+                </figure>
+                <p class="subtitle">
+                    Visualizes the positions of nucleobases along the
+                    trajectory, with color indicating the frequency of their
+                    positions. All base position data are aggregated into this
+                    plot, meaning precision decreases as the number of
+                    nucleotides increases. However, it still provides valuable
+                    insights into the forcefield's behavior. Data is obtained
+                    using Barnaba and visualized with Plotly.
+                </p>
+            </div>
+            <div class="box">
+                <h2
+                    class="title"
+                    id="Landscape"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    10. Landscape Plot
+                </h2>
+                <div style="display: flex; justify-content: space-between;">
+                    <figure style="flex: 1; margin-right: 10px;">
+                        <img
+                        class="lazy-image"
+                            data-src="{{ url_for('static', filename='images/landscape1.png') }}"
+                            alt="Visualisation of the 3D Energy Landscape using Plotly"
+                            style="width: 100%;"
+                        />
+                    </figure>
+                    <figure style="flex: 1; margin-left: 10px;">
+                        <img
+                        class="lazy-image"
+                            data-src="{{ url_for('static', filename='images/landscape2.png') }}"
+                            alt="Visualisation of the 2D energy landscape"
+                            style="width: 100%;"
+                        />
+                    </figure>
+                </div>
+                <p class="subtitle">
+                    Generates a 2D/3D landscape plot for a given trajectory.
+                    Visualizes the energy landscape of the trajectory based on
+                    two inputs decided by the user, between RMSD, eRMSD, Torsion and Fraction of native contacts. The depth is calculated by the number of
+                    structures found in the same positions, and passed to a log function before display
+                    A real calculation using Free Energy is ongoing.
+                    Note that you can click on the plots to view to what structure a well correspond to, it will automatically change the frame to the closest structure.
+                </p>
+            </div>
+
+
+
+            <div class="box source-box">
+                <h2
+                    class="title"
+                    style="
+                        font-size: 2em;
+                        font-family: &quot;Arial&quot;, sans-serif;
+                        color: #333;
+                    "
+                >
+                    Sources
+                </h2>
+                <p class="subtitle" id="source-1">
+                    Bottaro S, Di Palma F, Bussi G. The role of nucleobase
+                    interactions in RNA structure and dynamics. Nucleic Acids
+                    Res. 2014 Dec 1;42(21):13306-14. doi: 10.1093/nar/gku972.
+                    Epub 2014 Oct 29. PMID: 25355509; PMCID: PMC4245972.
+                </p>
+                <p class="subtitle" id="source-1">
+                    Michaud-Agrawal, N., Denning, E.J., Woolf, T.B. and Beckstein, O. (2011), MDAnalysis: A toolkit for the analysis of molecular dynamics simulations. J. Comput. Chem., 32: 2319-2327. https://doi.org/10.1002/jcc.21787  
+                </p>
+                <p class="subtitle" id="source-1">
+                    Kerpedjiev P, Hammer S, Hofacker IL. Forna (force-directed RNA): Simple and effective online RNA secondary structure diagrams. Bioinformatics. 2015 Oct 15;31(20):3377-9. doi: 10.1093/bioinformatics/btv372. Epub 2015 Jun 22. PMID: 26099263; PMCID: PMC4595900. 
+                </p>
+                <p class="subtitle" id="source-1">
+                    McGibbon RT, Beauchamp KA, Harrigan MP, Klein C, Swails JM, Hernández CX, Schwantes CR, Wang LP, Lane TJ, Pande VS. MDTraj: A Modern Open Library for the Analysis of Molecular Dynamics Trajectories. Biophys J. 2015 Oct 20;109(8):1528-32. doi: 10.1016/j.bpj.2015.08.015. PMID: 26488642; PMCID: PMC4623899.   
+                </p>
+                <p class="subtitle" id="source-1">
+                    Plotly: 1.
+                    Inc. PT. Collaborative data science [Internet]. Montreal, QC: Plotly Technologies Inc.; 2015.
+                </p>
+                </p>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS (Optional) -->
+        <link
+            href=" https://cdn.jsdelivr.net/npm/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css "
+            rel="stylesheet"
+        />
+        <script
+            data-src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"
+            integrity="sha512-u3fPA7V8qQmhBPNT5quvaXVa1mnnLSXUep5PS1qo5NRzHwG6Ls7i6U/mkkaduKaBhlAXv9k"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+
+        <script data-src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+        <script data-src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
+        <script data-src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script
+            data-src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            data-src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            data-src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+            integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+            crossorigin="anonymous"
+        ></script>
+        <div style="height: 20px"></div>
+        <script>
+            // Lazy loading implementation
+            document.addEventListener("DOMContentLoaded", function() {
+                let lazyImages = [].slice.call(document.querySelectorAll("img.lazy-image"));
+                
+                if ("IntersectionObserver" in window) {
+                    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                let lazyImage = entry.target;
+                                lazyImage.src = lazyImage.dataset.src;
+                                lazyImage.classList.add("loaded");
+                                lazyImage.previousElementSibling?.remove(); // Remove placeholder
+                                lazyImageObserver.unobserve(lazyImage);
+                            }
+                        });
+                    });
+
+                    lazyImages.forEach(function(lazyImage) {
+                        lazyImageObserver.observe(lazyImage);
+                    });
+                } else {
+                    // Fallback for browsers that don't support IntersectionObserver
+                    lazyImages.forEach(function(lazyImage) {
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImage.classList.add("loaded");
+                        lazyImage.previousElementSibling?.remove();
+                    });
+                }
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Scroll to the section if the URL has a fragment
+            window.addEventListener('load', function() {
+                if (window.location.hash) {
+                    const element = document.querySelector(window.location.hash);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

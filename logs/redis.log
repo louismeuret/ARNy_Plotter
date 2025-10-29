@@ -1,0 +1,224 @@
+
+=== Service started at 2025-08-28 13:46:39.213524 ===
+
+=== Service started at 2025-08-28 13:53:33.813794 ===
+50966:C 28 Aug 2025 13:53:33.829 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+50966:C 28 Aug 2025 13:53:33.830 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=50966, just started
+50966:C 28 Aug 2025 13:53:33.830 # Configuration loaded
+50966:M 28 Aug 2025 13:53:33.830 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+50966:M 28 Aug 2025 13:53:33.831 * Running mode=standalone, port=6379.
+50966:M 28 Aug 2025 13:53:33.831 # Server initialized
+50966:M 28 Aug 2025 13:53:33.831 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+50966:M 28 Aug 2025 13:53:33.831 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+50966:M 28 Aug 2025 13:53:33.831 * Ready to accept connections
+
+=== Service stopped at 2025-08-28 14:28:07.451274 ===
+
+50966:signal-handler (1756384087) Received SIGTERM scheduling shutdown...
+50966:M 28 Aug 2025 14:28:07.549 # User requested shutdown...
+50966:M 28 Aug 2025 14:28:07.549 # Redis is now ready to exit, bye bye...
+
+=== Service started at 2025-08-28 14:28:19.785896 ===
+65936:C 28 Aug 2025 14:28:19.791 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+65936:C 28 Aug 2025 14:28:19.791 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=65936, just started
+65936:C 28 Aug 2025 14:28:19.791 # Configuration loaded
+65936:M 28 Aug 2025 14:28:19.792 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+65936:M 28 Aug 2025 14:28:19.793 * Running mode=standalone, port=6379.
+65936:M 28 Aug 2025 14:28:19.793 # Server initialized
+65936:M 28 Aug 2025 14:28:19.793 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+65936:M 28 Aug 2025 14:28:19.793 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+65936:M 28 Aug 2025 14:28:19.793 * Ready to accept connections
+
+=== Service started at 2025-09-01 10:22:24.973178 ===
+
+=== Service started at 2025-09-01 10:26:49.268235 ===
+
+=== Service started at 2025-09-01 10:27:35.832588 ===
+239088:C 01 Sep 2025 10:27:35.862 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+239088:C 01 Sep 2025 10:27:35.862 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+239088:C 01 Sep 2025 10:27:35.862 * Redis version=7.4.0, bits=64, commit=abcd3ea3, modified=0, pid=239088, just started
+239088:C 01 Sep 2025 10:27:35.862 * Configuration loaded
+239088:M 01 Sep 2025 10:27:35.863 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+239088:M 01 Sep 2025 10:27:35.863 * monotonic clock: POSIX clock_gettime
+239088:M 01 Sep 2025 10:27:35.865 * Running mode=standalone, port=6379.
+239088:M 01 Sep 2025 10:27:35.865 * Server initialized
+239088:M 01 Sep 2025 10:27:35.866 * Ready to accept connections tcp
+239088:M 01 Sep 2025 10:32:36.027 * 100 changes in 300 seconds. Saving...
+239088:M 01 Sep 2025 10:32:36.028 * Background saving started by pid 240441
+240441:C 01 Sep 2025 10:32:36.043 * DB saved on disk
+240441:C 01 Sep 2025 10:32:36.044 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 01 Sep 2025 10:32:36.128 * Background saving terminated with success
+239088:M 01 Sep 2025 10:47:39.368 * 100 changes in 300 seconds. Saving...
+239088:M 01 Sep 2025 10:47:39.369 * Background saving started by pid 245786
+245786:C 01 Sep 2025 10:47:39.386 * DB saved on disk
+245786:C 01 Sep 2025 10:47:39.387 * Fork CoW for RDB: current 1 MB, peak 1 MB, average 0 MB
+239088:M 01 Sep 2025 10:47:39.471 * Background saving terminated with success
+239088:M 01 Sep 2025 11:47:40.074 * 1 changes in 3600 seconds. Saving...
+239088:M 01 Sep 2025 11:47:40.074 * Background saving started by pid 263342
+263342:C 01 Sep 2025 11:47:40.089 * DB saved on disk
+263342:C 01 Sep 2025 11:47:40.090 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 01 Sep 2025 11:47:40.174 * Background saving terminated with success
+239088:M 01 Sep 2025 12:30:47.000 * 100 changes in 300 seconds. Saving...
+239088:M 01 Sep 2025 12:30:47.000 * Background saving started by pid 277686
+277686:C 01 Sep 2025 12:30:47.016 * DB saved on disk
+277686:C 01 Sep 2025 12:30:47.017 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 01 Sep 2025 12:30:47.101 * Background saving terminated with success
+239088:M 01 Sep 2025 14:25:28.528 * 1 changes in 3600 seconds. Saving...
+239088:M 01 Sep 2025 14:25:28.529 * Background saving started by pid 291969
+291969:C 01 Sep 2025 14:25:28.573 * DB saved on disk
+291969:C 01 Sep 2025 14:25:28.573 * Fork CoW for RDB: current 1 MB, peak 1 MB, average 1 MB
+239088:M 01 Sep 2025 14:25:28.629 * Background saving terminated with success
+239088:M 01 Sep 2025 15:25:29.041 * 1 changes in 3600 seconds. Saving...
+239088:M 01 Sep 2025 15:25:29.041 * Background saving started by pid 316557
+316557:C 01 Sep 2025 15:25:29.048 * DB saved on disk
+316557:C 01 Sep 2025 15:25:29.049 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 01 Sep 2025 15:25:29.141 * Background saving terminated with success
+239088:M 01 Sep 2025 16:25:30.094 * 1 changes in 3600 seconds. Saving...
+239088:M 01 Sep 2025 16:25:30.102 * Background saving started by pid 336503
+336503:C 01 Sep 2025 16:25:30.111 * DB saved on disk
+336503:C 01 Sep 2025 16:25:30.112 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 01 Sep 2025 16:25:30.203 * Background saving terminated with success
+239088:M 02 Sep 2025 09:01:54.692 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 09:01:54.734 * Background saving started by pid 340327
+340327:C 02 Sep 2025 09:01:54.785 * DB saved on disk
+340327:C 02 Sep 2025 09:01:54.808 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 09:01:54.844 * Background saving terminated with success
+239088:M 02 Sep 2025 11:22:03.536 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 11:22:03.541 * Background saving started by pid 349787
+349787:C 02 Sep 2025 11:22:03.560 * DB saved on disk
+349787:C 02 Sep 2025 11:22:03.561 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 11:22:03.643 * Background saving terminated with success
+239088:M 02 Sep 2025 12:22:04.084 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 12:22:04.085 * Background saving started by pid 412837
+412837:C 02 Sep 2025 12:22:04.094 * DB saved on disk
+412837:C 02 Sep 2025 12:22:04.094 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 12:22:04.186 * Background saving terminated with success
+239088:M 02 Sep 2025 13:22:05.080 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 13:22:05.089 * Background saving started by pid 450258
+450258:C 02 Sep 2025 13:22:05.097 * DB saved on disk
+450258:C 02 Sep 2025 13:22:05.098 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 13:22:05.189 * Background saving terminated with success
+239088:M 02 Sep 2025 14:22:06.012 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 14:22:06.021 * Background saving started by pid 470448
+470448:C 02 Sep 2025 14:22:06.030 * DB saved on disk
+470448:C 02 Sep 2025 14:22:06.031 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 14:22:06.122 * Background saving terminated with success
+239088:M 02 Sep 2025 15:22:07.094 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 15:22:07.094 * Background saving started by pid 492165
+492165:C 02 Sep 2025 15:22:07.109 * DB saved on disk
+492165:C 02 Sep 2025 15:22:07.110 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 15:22:07.195 * Background saving terminated with success
+239088:M 02 Sep 2025 19:16:53.533 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 19:16:53.535 * Background saving started by pid 505860
+505860:C 02 Sep 2025 19:16:53.548 * DB saved on disk
+505860:C 02 Sep 2025 19:16:53.549 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 19:16:53.636 * Background saving terminated with success
+239088:M 02 Sep 2025 20:16:54.041 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 20:16:54.050 * Background saving started by pid 526221
+526221:C 02 Sep 2025 20:16:54.059 * DB saved on disk
+526221:C 02 Sep 2025 20:16:54.060 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 20:16:54.151 * Background saving terminated with success
+239088:M 02 Sep 2025 21:32:06.526 * 1 changes in 3600 seconds. Saving...
+239088:M 02 Sep 2025 21:32:06.526 * Background saving started by pid 528421
+528421:C 02 Sep 2025 21:32:06.546 * DB saved on disk
+528421:C 02 Sep 2025 21:32:06.548 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 02 Sep 2025 21:32:06.627 * Background saving terminated with success
+239088:M 03 Sep 2025 08:59:37.526 * 1 changes in 3600 seconds. Saving...
+239088:M 03 Sep 2025 08:59:37.551 * Background saving started by pid 548569
+548569:C 03 Sep 2025 08:59:37.572 * DB saved on disk
+548569:C 03 Sep 2025 08:59:37.572 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 03 Sep 2025 08:59:37.652 * Background saving terminated with success
+239088:M 03 Sep 2025 12:14:49.549 * 1 changes in 3600 seconds. Saving...
+239088:M 03 Sep 2025 12:14:49.550 * Background saving started by pid 553132
+553132:C 03 Sep 2025 12:14:49.605 * DB saved on disk
+553132:C 03 Sep 2025 12:14:49.606 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+239088:M 03 Sep 2025 12:14:49.651 * Background saving terminated with success
+
+=== Service started at 2025-10-21 14:27:31.026459 ===
+29930:C 21 Oct 2025 14:27:31.032 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+29930:C 21 Oct 2025 14:27:31.032 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=29930, just started
+29930:C 21 Oct 2025 14:27:31.032 # Configuration loaded
+29930:M 21 Oct 2025 14:27:31.032 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+29930:M 21 Oct 2025 14:27:31.033 * Running mode=standalone, port=6379.
+29930:M 21 Oct 2025 14:27:31.033 # Server initialized
+29930:M 21 Oct 2025 14:27:31.033 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+29930:M 21 Oct 2025 14:27:31.033 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+29930:M 21 Oct 2025 14:27:31.033 # Can't handle RDB format version 12
+29930:M 21 Oct 2025 14:27:31.033 # Fatal error loading the DB: Invalid argument. Exiting.
+
+=== Service started at 2025-10-21 15:54:48.496842 ===
+57876:C 21 Oct 2025 15:54:48.499 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+57876:C 21 Oct 2025 15:54:48.499 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=57876, just started
+57876:C 21 Oct 2025 15:54:48.499 # Configuration loaded
+57876:M 21 Oct 2025 15:54:48.499 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+57876:M 21 Oct 2025 15:54:48.499 * Running mode=standalone, port=6379.
+57876:M 21 Oct 2025 15:54:48.499 # Server initialized
+57876:M 21 Oct 2025 15:54:48.499 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+57876:M 21 Oct 2025 15:54:48.499 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+57876:M 21 Oct 2025 15:54:48.499 # Can't handle RDB format version 12
+57876:M 21 Oct 2025 15:54:48.499 # Fatal error loading the DB: Invalid argument. Exiting.
+
+=== Service started at 2025-10-22 15:33:05.804798 ===
+17762:C 22 Oct 2025 15:33:05.813 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+17762:C 22 Oct 2025 15:33:05.813 # Redis version=7.0.0, bits=64, commit=45cee640, modified=1, pid=17762, just started
+17762:C 22 Oct 2025 15:33:05.813 # Configuration loaded
+17762:M 22 Oct 2025 15:33:05.813 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+17762:M 22 Oct 2025 15:33:05.813 * monotonic clock: POSIX clock_gettime
+17762:M 22 Oct 2025 15:33:05.814 * Running mode=standalone, port=6379.
+17762:M 22 Oct 2025 15:33:05.814 # Server initialized
+17762:M 22 Oct 2025 15:33:05.814 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+17762:M 22 Oct 2025 15:33:05.815 * The AOF directory appendonlydir doesn't exist
+17762:M 22 Oct 2025 15:33:05.815 * Ready to accept connections
+
+=== Service started at 2025-10-22 15:33:22.965072 ===
+17857:C 22 Oct 2025 15:33:22.972 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+17857:C 22 Oct 2025 15:33:22.972 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=17857, just started
+17857:C 22 Oct 2025 15:33:22.972 # Configuration loaded
+17857:M 22 Oct 2025 15:33:22.972 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+17857:M 22 Oct 2025 15:33:22.973 # Could not create server TCP listening socket *:6379: bind: Address already in use
+17762:M 22 Oct 2025 15:38:06.023 * 100 changes in 300 seconds. Saving...
+17762:M 22 Oct 2025 15:38:06.024 * Background saving started by pid 19200
+19200:C 22 Oct 2025 15:38:06.046 * DB saved on disk
+19200:C 22 Oct 2025 15:38:06.046 * Fork CoW for RDB: current 1 MB, peak 1 MB, average 0 MB
+17762:M 22 Oct 2025 15:38:06.126 * Background saving terminated with success
+17762:M 22 Oct 2025 16:38:07.085 * 1 changes in 3600 seconds. Saving...
+17762:M 22 Oct 2025 16:38:07.085 * Background saving started by pid 34219
+34219:C 22 Oct 2025 16:38:07.099 * DB saved on disk
+34219:C 22 Oct 2025 16:38:07.099 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+17762:M 22 Oct 2025 16:38:07.186 * Background saving terminated with success
+17762:M 22 Oct 2025 17:38:08.004 * 1 changes in 3600 seconds. Saving...
+17762:M 22 Oct 2025 17:38:08.005 * Background saving started by pid 49137
+49137:C 22 Oct 2025 17:38:08.018 * DB saved on disk
+49137:C 22 Oct 2025 17:38:08.019 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+17762:M 22 Oct 2025 17:38:08.106 * Background saving terminated with success
+17762:M 22 Oct 2025 18:49:46.670 * 1 changes in 3600 seconds. Saving...
+17762:M 22 Oct 2025 18:49:46.674 * Background saving started by pid 53460
+53460:C 22 Oct 2025 18:49:46.689 * DB saved on disk
+53460:C 22 Oct 2025 18:49:46.689 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+17762:M 22 Oct 2025 18:49:46.774 * Background saving terminated with success
+
+=== Service started at 2025-10-24 15:29:32.516722 ===
+75514:C 24 Oct 2025 15:29:32.522 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+75514:C 24 Oct 2025 15:29:32.522 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=75514, just started
+75514:C 24 Oct 2025 15:29:32.522 # Configuration loaded
+75514:M 24 Oct 2025 15:29:32.522 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+75514:M 24 Oct 2025 15:29:32.523 * Running mode=standalone, port=6379.
+75514:M 24 Oct 2025 15:29:32.523 # Server initialized
+75514:M 24 Oct 2025 15:29:32.523 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+75514:M 24 Oct 2025 15:29:32.523 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+75514:M 24 Oct 2025 15:29:32.523 # Can't handle RDB format version 10
+75514:M 24 Oct 2025 15:29:32.523 # Fatal error loading the DB: Invalid argument. Exiting.
+
+=== Service started at 2025-10-24 16:18:33.958184 ===
+954110:C 24 Oct 2025 16:18:34.049 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+954110:C 24 Oct 2025 16:18:34.049 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=954110, just started
+954110:C 24 Oct 2025 16:18:34.049 # Configuration loaded
+954110:M 24 Oct 2025 16:18:34.049 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+954110:M 24 Oct 2025 16:18:34.050 # Could not create server TCP listening socket *:6379: bind: Address already in use
+
+=== Service started at 2025-10-29 11:34:18.514305 ===
+291626:C 29 Oct 2025 11:34:18.712 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+291626:C 29 Oct 2025 11:34:18.712 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=291626, just started
+291626:C 29 Oct 2025 11:34:18.712 # Configuration loaded
+291626:M 29 Oct 2025 11:34:18.713 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+291626:M 29 Oct 2025 11:34:18.713 # Could not create server TCP listening socket *:6379: bind: Address already in use
