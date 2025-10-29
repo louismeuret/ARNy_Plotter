@@ -182,7 +182,7 @@ class SharedTrajectoryManager:
         self._lock = threading.Lock()
     
     def preload_and_cache_trajectory(self, native_pdb_path: str, traj_xtc_path: str, session_id: str) -> str:
-        """Load trajectory once and cache essential data for tasks"""
+        """Load trajectory once and cache MDTraj objects for efficient Barnaba sharing"""
         cache_key = f"{session_id}_trajectory"
         
         with self._lock:
@@ -191,9 +191,16 @@ class SharedTrajectoryManager:
                 return cache_key
         
         try:
-            logger.info("Loading and caching trajectory data for all tasks...")
+            logger.info("🚀 Loading and caching MDTraj objects for Barnaba optimization...")
             
-            # Load Universe objects
+            # Load MDTraj objects (what Barnaba uses internally)
+            import mdtraj as md
+            reference_traj = md.load(native_pdb_path)
+            target_traj = md.load(traj_xtc_path, top=native_pdb_path)
+            
+            logger.info(f"Loaded MDTraj: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
+            
+            # Also load MDAnalysis for compatibility
             u = mda.Universe(native_pdb_path, traj_xtc_path)
             ref = mda.Universe(native_pdb_path)
             
@@ -201,28 +208,43 @@ class SharedTrajectoryManager:
             trajectory_data = {
                 'topology_path': native_pdb_path,
                 'trajectory_path': traj_xtc_path,
-                'n_frames': len(u.trajectory),
-                'n_atoms': u.atoms.n_atoms,
-                'n_residues': u.residues.n_residues,
+                'n_frames': target_traj.n_frames,
+                'n_atoms': target_traj.n_atoms,
+                'n_residues': target_traj.n_residues,
                 'residue_names': [res.resname for res in u.residues],
                 'residue_ids': [res.resid for res in u.residues],
                 'box_dimensions': u.dimensions if hasattr(u, 'dimensions') else None,
-                'dt': u.trajectory.dt if hasattr(u.trajectory, 'dt') else 1.0,
+                'dt': target_traj.timestep if hasattr(target_traj, 'timestep') else 1.0,
             }
             
             # Save to session directory for task access
             session_dir = os.path.join("static", "uploads", session_id)
             os.makedirs(session_dir, exist_ok=True)
             
+            # Save trajectory data
             cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
             with open(cache_path, 'wb') as f:
                 pickle.dump(trajectory_data, f)
+            
+            # Save MDTraj objects for Barnaba optimization
+            mdtraj_ref_path = os.path.join(session_dir, "mdtraj_reference.pkl")
+            mdtraj_traj_path = os.path.join(session_dir, "mdtraj_trajectory.pkl")
+            
+            with open(mdtraj_ref_path, 'wb') as f:
+                pickle.dump(reference_traj, f)
+                
+            with open(mdtraj_traj_path, 'wb') as f:
+                pickle.dump(target_traj, f)
+            
+            logger.info("💾 MDTraj objects saved for Barnaba task sharing")
             
             # Store in memory cache
             with self._lock:
                 self._cache[cache_key] = {
                     'data': trajectory_data,
                     'cache_path': cache_path,
+                    'mdtraj_ref_path': mdtraj_ref_path,
+                    'mdtraj_traj_path': mdtraj_traj_path,
                     'loaded_at': time.time()
                 }
             
@@ -1088,7 +1110,8 @@ def view_trajectory(session_id, native_pdb, traj_xtc):
     cache_key = shared_trajectory_manager.preload_and_cache_trajectory(native_pdb_path, traj_xtc_path, session_id)
     logger.info(f"Trajectory cached with key: {cache_key}")
     logger.info("🚀 PERFORMANCE OPTIMIZATION: Trajectory loaded once and cached for all tasks")
-    socketio.emit('update_progress', {"progress": 44, "message": "Trajectory cached - tasks will now share loaded data for optimal performance"}, to=session_id)
+    logger.info("💾 MDTraj objects cached - Barnaba computations will skip file loading entirely")
+    socketio.emit('update_progress', {"progress": 44, "message": "MDTraj trajectory objects cached - Barnaba will use pre-loaded data for maximum performance"}, to=session_id)
 
     # Build execution tree and identify shared computations
     planner = CalculationPlanner(session_id)

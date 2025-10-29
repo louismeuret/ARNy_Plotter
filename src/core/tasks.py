@@ -95,6 +95,30 @@ def get_universe_from_cache_or_load(session_id, topology_file=None, trajectory_f
             return mda.Universe(topology_file, trajectory_file), None
         else:
             raise ValueError("No cached data available and no file paths provided")
+
+def load_cached_mdtraj_objects(session_id):
+    """Load cached MDTraj objects for efficient Barnaba computations"""
+    import mdtraj as md
+    
+    session_dir = os.path.join("static", "uploads", session_id)
+    mdtraj_ref_path = os.path.join(session_dir, "mdtraj_reference.pkl")
+    mdtraj_traj_path = os.path.join(session_dir, "mdtraj_trajectory.pkl")
+    
+    if os.path.exists(mdtraj_ref_path) and os.path.exists(mdtraj_traj_path):
+        try:
+            with open(mdtraj_ref_path, 'rb') as f:
+                reference_traj = pickle.load(f)
+            with open(mdtraj_traj_path, 'rb') as f:
+                target_traj = pickle.load(f)
+            
+            logger.info(f"🚀 Loaded cached MDTraj objects: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
+            return reference_traj, target_traj
+        except Exception as e:
+            logger.warning(f"Failed to load cached MDTraj objects: {e}")
+            return None, None
+    else:
+        logger.info("No cached MDTraj objects found")
+        return None, None
     
 def log_task(func):
     """Simple task logging decorator"""
@@ -119,7 +143,7 @@ def log_task(func):
 @app.task(bind=True, max_retries=3)
 @log_task
 def compute_rmsd(self, *args):
-    """Compute RMSD metric"""
+    """Compute RMSD metric using cached MDTraj objects"""
     # Handle chain arguments
     if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
         _, topology_file, trajectory_file, session_id = args
@@ -130,7 +154,17 @@ def compute_rmsd(self, *args):
         raise ImportError("Barnaba not available")
     
     import barnaba as bb
-    rmsd_result = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
+    
+    # Try to use cached MDTraj objects for massive performance improvement
+    reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+    
+    if reference_traj is not None and target_traj is not None:
+        logger.info("🚀 Using cached MDTraj objects for RMSD computation")
+        rmsd_result = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
+    else:
+        # Fallback to file loading
+        logger.info("⚠️  Using fallback file loading for RMSD")
+        rmsd_result = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
     
     # Save to session directory
     session_dir = os.path.join("static", "uploads", session_id)
@@ -146,7 +180,7 @@ def compute_rmsd(self, *args):
 @app.task(bind=True, max_retries=3)
 @log_task
 def compute_ermsd(self, *args):
-    """Compute eRMSD metric"""
+    """Compute eRMSD metric using cached MDTraj objects"""
     # Handle chain arguments
     if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
         _, topology_file, trajectory_file, session_id = args
@@ -157,7 +191,17 @@ def compute_ermsd(self, *args):
         raise ImportError("Barnaba not available")
     
     import barnaba as bb
-    ermsd_result = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
+    
+    # Try to use cached MDTraj objects for massive performance improvement
+    reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+    
+    if reference_traj is not None and target_traj is not None:
+        logger.info("🚀 Using cached MDTraj objects for eRMSD computation")
+        ermsd_result = bb.ermsd_traj(reference_traj, target_traj)
+    else:
+        # Fallback to file loading
+        logger.info("⚠️  Using fallback file loading for eRMSD")
+        ermsd_result = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
     
     # Save to session directory
     session_dir = os.path.join("static", "uploads", session_id)
@@ -173,7 +217,7 @@ def compute_ermsd(self, *args):
 @app.task(bind=True, max_retries=3)
 @log_task
 def compute_annotate(self, *args):
-    """Compute annotate metric"""
+    """Compute annotate metric using cached MDTraj objects"""
     # Handle chain arguments
     if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
         _, topology_file, trajectory_file, session_id = args
@@ -184,7 +228,17 @@ def compute_annotate(self, *args):
         raise ImportError("Barnaba not available")
     
     import barnaba as bb
-    annotate_result = bb.annotate(trajectory_file, topology=topology_file)
+    
+    # Try to use cached MDTraj objects for massive performance improvement
+    reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+    
+    if target_traj is not None:
+        logger.info("🚀 Using cached MDTraj objects for annotate computation")
+        annotate_result = bb.annotate_traj(target_traj)
+    else:
+        # Fallback to file loading
+        logger.info("⚠️  Using fallback file loading for annotate")
+        annotate_result = bb.annotate(trajectory_file, topology=topology_file)
     
     # Save to session directory
     session_dir = os.path.join("static", "uploads", session_id)
@@ -223,7 +277,16 @@ def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_di
             if not BARNABA_AVAILABLE:
                 raise ImportError("Barnaba not available and no pre-computed data")
             import barnaba as bb
-            rmsd = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
+            
+            # Try to use cached MDTraj objects first
+            reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+            
+            if reference_traj is not None and target_traj is not None:
+                logger.info("🚀 Using cached MDTraj objects for RMSD plot fallback")
+                rmsd = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
+            else:
+                logger.info("⚠️  Using file loading for RMSD plot fallback")
+                rmsd = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
 
         # Create plot using create_plots functions
         #try:
@@ -331,7 +394,16 @@ def generate_torsion_plot(self, topology_file, trajectory_file, files_path, plot
             raise ImportError("Barnaba not available")
             
         import barnaba as bb
-        angles, res = bb.backbone_angles(trajectory_file, topology=topology_file)
+        
+        # Try to use cached MDTraj objects for performance improvement
+        reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+        
+        if target_traj is not None:
+            logger.info("🚀 Using cached MDTraj objects for torsion computation")
+            angles, res = bb.backbone_angles_traj(target_traj)
+        else:
+            logger.info("⚠️  Using fallback file loading for torsion")
+            angles, res = bb.backbone_angles(trajectory_file, topology=topology_file)
         logger.info(f"Calculated torsion angles for {len(res)} residues")
         
         try:
@@ -686,10 +758,22 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
                 raise ImportError("Barnaba not available and no pre-computed data")
             
             import barnaba as bb
-            if rmsd_data is None:
-                rmsd_data = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
-            if ermsd_data is None:
-                ermsd_data = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
+            
+            # Try to use cached MDTraj objects for landscape fallback computations
+            reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+            
+            if reference_traj is not None and target_traj is not None:
+                logger.info("🚀 Using cached MDTraj objects for landscape fallback computations")
+                if rmsd_data is None:
+                    rmsd_data = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
+                if ermsd_data is None:
+                    ermsd_data = bb.ermsd_traj(reference_traj, target_traj)
+            else:
+                logger.info("⚠️  Using file loading for landscape fallback computations")
+                if rmsd_data is None:
+                    rmsd_data = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
+                if ermsd_data is None:
+                    ermsd_data = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
         
         # Extract landscape parameters
         stride = int(landscape_params[0])
