@@ -6,7 +6,9 @@ import os
 import signal
 import sys
 import logging
-from datetime import datetime
+import shutil
+import json
+from datetime import datetime, timedelta
 from enum import Enum
 
 class ServiceStatus(Enum):
@@ -56,6 +58,7 @@ class ServiceManager:
         }
         self.running = True
         self.last_message = ""
+        self.upload_path = "static/uploads"
         
         # Setup logging
         logging.basicConfig(
@@ -251,7 +254,8 @@ class ServiceManager:
         print("  [1-4] + s : Start service    [1-4] + t : Stop service")
         print("  [1-4] + r : Restart service  [1-4] + l : View log tail")
         print("  a : Start all               x : Stop all")
-        print("  q : Quit                    h : Help")
+        print("  f : File manager            q : Quit")
+        print("  h : Help")
         print()
         print("Press command: ", end="", flush=True)
         
@@ -268,6 +272,7 @@ class ServiceManager:
         print("  [1-4] + l : Show last 20 lines of service log")
         print("  a         : Start all services")
         print("  x         : Stop all services")
+        print("  f         : File manager (upload sessions)")
         print("  q         : Quit service manager")
         print("  h         : Show this help")
         print()
@@ -297,6 +302,298 @@ class ServiceManager:
         print("Press Enter to return to main screen...")
         input()
 
+    def get_upload_sessions(self):
+        """Get list of upload sessions with metadata"""
+        sessions = []
+        if not os.path.exists(self.upload_path):
+            return sessions
+        
+        for session_id in os.listdir(self.upload_path):
+            session_path = os.path.join(self.upload_path, session_id)
+            if os.path.isdir(session_path):
+                try:
+                    # Get directory size
+                    size = sum(os.path.getsize(os.path.join(dirpath, filename))
+                              for dirpath, dirnames, filenames in os.walk(session_path)
+                              for filename in filenames)
+                    
+                    # Get creation time
+                    creation_time = datetime.fromtimestamp(os.path.getctime(session_path))
+                    
+                    # Try to get session metadata
+                    session_data_path = os.path.join(session_path, "session_data.json")
+                    plots = []
+                    files = {}
+                    if os.path.exists(session_data_path):
+                        try:
+                            with open(session_data_path, 'r') as f:
+                                data = json.load(f)
+                                plots = data.get('selected_plots', [])
+                                files = data.get('files', {})
+                        except:
+                            pass
+                    
+                    sessions.append({
+                        'id': session_id,
+                        'path': session_path,
+                        'size': size,
+                        'size_mb': size / (1024 * 1024),
+                        'created': creation_time,
+                        'age_days': (datetime.now() - creation_time).days,
+                        'plots': plots,
+                        'files': files
+                    })
+                except Exception as e:
+                    self.logger.warning(f"Error processing session {session_id}: {e}")
+        
+        return sorted(sessions, key=lambda x: x['created'], reverse=True)
+
+    def show_upload_sessions(self):
+        """Display upload sessions with management options"""
+        self.clear_screen()
+        print("=" * 85)
+        print("                              UPLOAD SESSION MANAGER")
+        print("=" * 85)
+        
+        sessions = self.get_upload_sessions()
+        if not sessions:
+            print("No upload sessions found.")
+            print("Press Enter to return...")
+            input()
+            return
+        
+        total_size_mb = sum(s['size_mb'] for s in sessions)
+        print(f"Total sessions: {len(sessions)} | Total size: {total_size_mb:.1f} MB")
+        print()
+        
+        print(f"{'#':<3} {'Session ID':<36} {'Age':<8} {'Size':<10} {'Plots':<15} {'Files'}")
+        print("-" * 85)
+        
+        for i, session in enumerate(sessions[:20]):  # Show first 20
+            plots_str = f"{len(session['plots'])} plots" if session['plots'] else "No plots"
+            files_str = ", ".join([f"{k}: {v}" for k, v in session['files'].items()][:2])
+            if len(files_str) > 25:
+                files_str = files_str[:22] + "..."
+            
+            print(f"{i+1:<3} {session['id']:<36} {session['age_days']}d {session['size_mb']:<8.1f}MB {plots_str:<15} {files_str}")
+        
+        if len(sessions) > 20:
+            print(f"... and {len(sessions) - 20} more sessions")
+        
+        print()
+        print("Commands:")
+        print("  [1-20] + d : Delete session     [1-20] + i : Show session info")
+        print("  old <days> : Delete sessions older than N days")
+        print("  size <mb>  : Delete sessions larger than N MB")
+        print("  all        : Delete ALL sessions (DANGEROUS!)")
+        print("  q          : Return to main menu")
+        print()
+        
+        while True:
+            cmd = input("Enter command: ").strip().lower()
+            
+            if cmd == 'q':
+                break
+            elif cmd == 'all':
+                if self.confirm_delete_all():
+                    self.delete_all_sessions()
+                    break
+            elif cmd.startswith('old '):
+                try:
+                    days = int(cmd.split()[1])
+                    self.delete_old_sessions(days)
+                    break
+                except:
+                    print("Invalid format. Use: old <days>")
+            elif cmd.startswith('size '):
+                try:
+                    mb = float(cmd.split()[1])
+                    self.delete_large_sessions(mb)
+                    break
+                except:
+                    print("Invalid format. Use: size <mb>")
+            elif len(cmd) >= 2 and cmd[-1] in ['d', 'i'] and cmd[:-1].isdigit():
+                idx = int(cmd[:-1]) - 1
+                action = cmd[-1]
+                if 0 <= idx < min(len(sessions), 20):
+                    if action == 'd':
+                        self.delete_session(sessions[idx])
+                        break
+                    elif action == 'i':
+                        self.show_session_info(sessions[idx])
+                        break
+                else:
+                    print(f"Invalid session number. Use 1-{min(len(sessions), 20)}")
+            else:
+                print("Invalid command")
+
+    def show_session_info(self, session):
+        """Show detailed information about a session"""
+        self.clear_screen()
+        print(f"Session Information: {session['id']}")
+        print("=" * 60)
+        print(f"Created: {session['created'].strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Age: {session['age_days']} days")
+        print(f"Size: {session['size_mb']:.2f} MB")
+        print(f"Path: {session['path']}")
+        print()
+        
+        if session['files']:
+            print("Files:")
+            for key, value in session['files'].items():
+                print(f"  {key}: {value}")
+            print()
+        
+        if session['plots']:
+            print(f"Selected Plots ({len(session['plots'])}):")
+            for plot in session['plots']:
+                print(f"  - {plot}")
+            print()
+        
+        # Show directory contents
+        try:
+            contents = []
+            for root, dirs, files in os.walk(session['path']):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(file_path, session['path'])
+                    size = os.path.getsize(file_path)
+                    contents.append((rel_path, size))
+            
+            if contents:
+                print(f"Directory Contents ({len(contents)} files):")
+                contents.sort(key=lambda x: x[1], reverse=True)
+                for rel_path, size in contents[:10]:  # Show top 10 largest files
+                    print(f"  {rel_path:<40} {size/1024:.1f} KB")
+                if len(contents) > 10:
+                    print(f"  ... and {len(contents) - 10} more files")
+        except Exception as e:
+            print(f"Error reading directory: {e}")
+        
+        print()
+        print("Press Enter to return...")
+        input()
+
+    def delete_session(self, session):
+        """Delete a specific session"""
+        print(f"\nDelete session {session['id']}?")
+        print(f"Size: {session['size_mb']:.1f} MB, Age: {session['age_days']} days")
+        confirm = input("Type 'yes' to confirm: ").strip().lower()
+        
+        if confirm == 'yes':
+            try:
+                shutil.rmtree(session['path'])
+                self.last_message = f"Deleted session {session['id'][:8]}... ({session['size_mb']:.1f} MB)"
+                self.logger.info(f"Deleted session {session['id']}")
+                print("Session deleted successfully!")
+            except Exception as e:
+                self.last_message = f"Error deleting session: {e}"
+                self.logger.error(f"Error deleting session {session['id']}: {e}")
+                print(f"Error deleting session: {e}")
+        else:
+            print("Deletion cancelled.")
+        
+        time.sleep(1)
+
+    def delete_old_sessions(self, days):
+        """Delete sessions older than specified days"""
+        sessions = self.get_upload_sessions()
+        old_sessions = [s for s in sessions if s['age_days'] >= days]
+        
+        if not old_sessions:
+            print(f"No sessions found older than {days} days.")
+            time.sleep(1)
+            return
+        
+        total_size = sum(s['size_mb'] for s in old_sessions)
+        print(f"\nFound {len(old_sessions)} sessions older than {days} days")
+        print(f"Total size to delete: {total_size:.1f} MB")
+        
+        confirm = input("Type 'yes' to delete all: ").strip().lower()
+        if confirm == 'yes':
+            deleted_count = 0
+            for session in old_sessions:
+                try:
+                    shutil.rmtree(session['path'])
+                    deleted_count += 1
+                except Exception as e:
+                    self.logger.error(f"Error deleting session {session['id']}: {e}")
+            
+            self.last_message = f"Deleted {deleted_count} old sessions ({total_size:.1f} MB)"
+            self.logger.info(f"Deleted {deleted_count} sessions older than {days} days")
+            print(f"Deleted {deleted_count} sessions successfully!")
+        else:
+            print("Deletion cancelled.")
+        
+        time.sleep(2)
+
+    def delete_large_sessions(self, mb_threshold):
+        """Delete sessions larger than specified MB"""
+        sessions = self.get_upload_sessions()
+        large_sessions = [s for s in sessions if s['size_mb'] >= mb_threshold]
+        
+        if not large_sessions:
+            print(f"No sessions found larger than {mb_threshold} MB.")
+            time.sleep(1)
+            return
+        
+        total_size = sum(s['size_mb'] for s in large_sessions)
+        print(f"\nFound {len(large_sessions)} sessions larger than {mb_threshold} MB")
+        print(f"Total size to delete: {total_size:.1f} MB")
+        
+        confirm = input("Type 'yes' to delete all: ").strip().lower()
+        if confirm == 'yes':
+            deleted_count = 0
+            for session in large_sessions:
+                try:
+                    shutil.rmtree(session['path'])
+                    deleted_count += 1
+                except Exception as e:
+                    self.logger.error(f"Error deleting session {session['id']}: {e}")
+            
+            self.last_message = f"Deleted {deleted_count} large sessions ({total_size:.1f} MB)"
+            self.logger.info(f"Deleted {deleted_count} sessions larger than {mb_threshold} MB")
+            print(f"Deleted {deleted_count} sessions successfully!")
+        else:
+            print("Deletion cancelled.")
+        
+        time.sleep(2)
+
+    def confirm_delete_all(self):
+        """Confirm deletion of all sessions"""
+        sessions = self.get_upload_sessions()
+        total_size = sum(s['size_mb'] for s in sessions)
+        
+        print(f"\n⚠️  WARNING: This will delete ALL {len(sessions)} sessions!")
+        print(f"Total size: {total_size:.1f} MB")
+        print("This action cannot be undone!")
+        
+        confirm1 = input("Type 'DELETE ALL' to confirm: ").strip()
+        if confirm1 != 'DELETE ALL':
+            print("Deletion cancelled.")
+            return False
+        
+        confirm2 = input("Are you absolutely sure? Type 'yes': ").strip().lower()
+        return confirm2 == 'yes'
+
+    def delete_all_sessions(self):
+        """Delete all upload sessions"""
+        sessions = self.get_upload_sessions()
+        total_size = sum(s['size_mb'] for s in sessions)
+        deleted_count = 0
+        
+        for session in sessions:
+            try:
+                shutil.rmtree(session['path'])
+                deleted_count += 1
+            except Exception as e:
+                self.logger.error(f"Error deleting session {session['id']}: {e}")
+        
+        self.last_message = f"Deleted ALL {deleted_count} sessions ({total_size:.1f} MB)"
+        self.logger.info(f"Deleted all {deleted_count} upload sessions")
+        print(f"Deleted {deleted_count} sessions successfully!")
+        time.sleep(2)
+
     def handle_command(self, cmd):
         cmd = cmd.strip().lower()
         
@@ -318,6 +615,8 @@ class ServiceManager:
             for service_id in reversed(sorted(self.services.keys())):
                 self.stop_service(service_id)
                 time.sleep(0.5)  # Brief delay between stops
+        elif cmd == 'f':
+            self.show_upload_sessions()
         elif len(cmd) == 2 and cmd[0] in self.services:
             service_id = cmd[0]
             action = cmd[1]
