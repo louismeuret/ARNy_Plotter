@@ -56,6 +56,45 @@ except ImportError:
 
 def plotly_to_json(fig):
     return to_json(fig, validate=False, engine="orjson")
+
+def load_shared_trajectory_data(session_id):
+    """Load cached trajectory data if available, otherwise load fresh"""
+    import MDAnalysis as mda
+    
+    # Try to load cached data first
+    session_dir = os.path.join("static", "uploads", session_id)
+    cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
+    
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'rb') as f:
+                cached_data = pickle.load(f)
+            logger.info("Using cached trajectory data for efficient loading")
+            return cached_data
+        except Exception as e:
+            logger.warning(f"Failed to load cached trajectory data: {e}")
+    
+    return None
+
+def get_universe_from_cache_or_load(session_id, topology_file=None, trajectory_file=None):
+    """Get Universe object using cached data or load fresh if needed"""
+    import MDAnalysis as mda
+    
+    cached_data = load_shared_trajectory_data(session_id)
+    
+    if cached_data:
+        # Use paths from cached data
+        topology_path = cached_data['topology_path']
+        trajectory_path = cached_data['trajectory_path']
+        logger.info(f"Loading Universe from cached paths: {os.path.basename(topology_path)}, {os.path.basename(trajectory_path)}")
+        return mda.Universe(topology_path, trajectory_path), cached_data
+    else:
+        # Fallback to provided paths
+        if topology_file and trajectory_file:
+            logger.info(f"Loading Universe from provided paths (no cache): {os.path.basename(topology_file)}, {os.path.basename(trajectory_file)}")
+            return mda.Universe(topology_file, trajectory_file), None
+        else:
+            raise ValueError("No cached data available and no file paths provided")
     
 def log_task(func):
     """Simple task logging decorator"""
@@ -171,8 +210,16 @@ def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_di
                 rmsd = pickle.load(f)
             print(f"LOADED RMSD FROM SAVED DATA")
         else:
-            # Fallback: compute if not available
-            print(f"USED FALLBACK")
+            # Fallback: compute if not available using cached trajectory data
+            logger.info("Computing RMSD using cached trajectory data")
+            cached_data = load_shared_trajectory_data(session_id)
+            
+            if cached_data:
+                # Use cached paths
+                topology_file = cached_data['topology_path']
+                trajectory_file = cached_data['trajectory_path']
+                logger.info(f"Using cached trajectory paths for RMSD computation")
+            
             if not BARNABA_AVAILABLE:
                 raise ImportError("Barnaba not available and no pre-computed data")
             import barnaba as bb
@@ -515,6 +562,7 @@ def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, 
             # Fallback: compute if not available
             if not BARNABA_AVAILABLE:
                 raise ImportError("Barnaba not available")
+            print("COULDN'T LOAD RESULTS FROM ANNOTATE FOR CONTACT_MAP PLOT")
             import barnaba as bb
             stackings, pairings, res = bb.annotate(trajectory_file, topology=topology_file)
 

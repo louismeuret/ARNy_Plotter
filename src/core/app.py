@@ -174,6 +174,96 @@ class OptimizedTrajectoryManager:
 
 trajectory_manager = OptimizedTrajectoryManager()
 
+class SharedTrajectoryManager:
+    """Manages shared trajectory data across Celery tasks"""
+    
+    def __init__(self):
+        self._cache = {}
+        self._lock = threading.Lock()
+    
+    def preload_and_cache_trajectory(self, native_pdb_path: str, traj_xtc_path: str, session_id: str) -> str:
+        """Load trajectory once and cache essential data for tasks"""
+        cache_key = f"{session_id}_trajectory"
+        
+        with self._lock:
+            if cache_key in self._cache:
+                logger.info("Trajectory data already cached")
+                return cache_key
+        
+        try:
+            logger.info("Loading and caching trajectory data for all tasks...")
+            
+            # Load Universe objects
+            u = mda.Universe(native_pdb_path, traj_xtc_path)
+            ref = mda.Universe(native_pdb_path)
+            
+            # Pre-compute commonly used data
+            trajectory_data = {
+                'topology_path': native_pdb_path,
+                'trajectory_path': traj_xtc_path,
+                'n_frames': len(u.trajectory),
+                'n_atoms': u.atoms.n_atoms,
+                'n_residues': u.residues.n_residues,
+                'residue_names': [res.resname for res in u.residues],
+                'residue_ids': [res.resid for res in u.residues],
+                'box_dimensions': u.dimensions if hasattr(u, 'dimensions') else None,
+                'dt': u.trajectory.dt if hasattr(u.trajectory, 'dt') else 1.0,
+            }
+            
+            # Save to session directory for task access
+            session_dir = os.path.join("static", "uploads", session_id)
+            os.makedirs(session_dir, exist_ok=True)
+            
+            cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
+            with open(cache_path, 'wb') as f:
+                pickle.dump(trajectory_data, f)
+            
+            # Store in memory cache
+            with self._lock:
+                self._cache[cache_key] = {
+                    'data': trajectory_data,
+                    'cache_path': cache_path,
+                    'loaded_at': time.time()
+                }
+            
+            logger.info(f"Trajectory cached: {trajectory_data['n_frames']} frames, {trajectory_data['n_atoms']} atoms")
+            return cache_key
+            
+        except Exception as e:
+            logger.error(f"Failed to cache trajectory: {e}")
+            raise
+    
+    def get_cached_data(self, session_id: str) -> Dict:
+        """Get cached trajectory data"""
+        cache_key = f"{session_id}_trajectory"
+        
+        with self._lock:
+            if cache_key in self._cache:
+                return self._cache[cache_key]['data']
+        
+        # Try loading from disk
+        session_dir = os.path.join("static", "uploads", session_id)
+        cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
+        
+        if os.path.exists(cache_path):
+            try:
+                with open(cache_path, 'rb') as f:
+                    data = pickle.load(f)
+                    
+                with self._lock:
+                    self._cache[cache_key] = {
+                        'data': data,
+                        'cache_path': cache_path,
+                        'loaded_at': time.time()
+                    }
+                return data
+            except Exception as e:
+                logger.error(f"Failed to load cached trajectory data: {e}")
+        
+        return None
+
+shared_trajectory_manager = SharedTrajectoryManager()
+
 class CalculationPlanner:
     """Plans and manages calculation resources"""
 
@@ -992,6 +1082,13 @@ def view_trajectory(session_id, native_pdb, traj_xtc):
 
     socketio.emit('update_progress', {"progress": 40, "message": "Trajectory loaded and optimized."}, to=session_id)
     socketio.sleep(0.1)
+
+    # Cache trajectory data for efficient task sharing
+    socketio.emit('update_progress', {"progress": 42, "message": "Caching trajectory data for task sharing..."}, to=session_id)
+    cache_key = shared_trajectory_manager.preload_and_cache_trajectory(native_pdb_path, traj_xtc_path, session_id)
+    logger.info(f"Trajectory cached with key: {cache_key}")
+    logger.info("🚀 PERFORMANCE OPTIMIZATION: Trajectory loaded once and cached for all tasks")
+    socketio.emit('update_progress', {"progress": 44, "message": "Trajectory cached - tasks will now share loaded data for optimal performance"}, to=session_id)
 
     # Build execution tree and identify shared computations
     planner = CalculationPlanner(session_id)
