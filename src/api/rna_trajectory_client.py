@@ -129,7 +129,7 @@ class RNATrajectoryAnalysis:
         # URL for the trajectory view
         view_url = urljoin(
             self.base_url, 
-            f"/view-trajectory/{self.session_id}/{self.native_pdb}/{self.traj_xtc}"
+            f"/view-trajectory/{self.session_id}"
         )
         
         # URL for retrieving results

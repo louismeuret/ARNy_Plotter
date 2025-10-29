@@ -830,9 +830,7 @@ def upload_files():
 
     redirect_url = url_for(
         "view_trajectory",
-        session_id=session_id,
-        native_pdb=native_pdb_name,
-        traj_xtc=traj_xtc_name,
+        session_id=session_id
     )
     logger.info(f"Redirecting to: {redirect_url}")
 
@@ -942,8 +940,8 @@ def download_plot(plot_id, session_id):
     # Send the zip file as a response
     return send_file(memory_file, download_name=download_filename, as_attachment=True)
 
-@app.route('/view-trajectory/<session_id>/<native_pdb>/<traj_xtc>')
-def view_trajectory(session_id, native_pdb, traj_xtc):
+@app.route('/view-trajectory/<session_id>')
+def view_trajectory(session_id):
     start_time = time.time()
 
     # Check if results already exist (from a previous run)
@@ -1000,6 +998,17 @@ def view_trajectory(session_id, native_pdb, traj_xtc):
 
     socketio.emit('update_progress', {"progress": 10, "message": "Paths set up and explanations loaded."}, to=session_id)
     socketio.sleep(0.1)  # Ensure the message is sent
+
+    # Load session data to get file names
+    try:
+        with open(os.path.join(directory_path, "session_data.json"), "r") as file:
+            session_data_json = json.load(file)
+        
+        native_pdb = session_data_json['files']['nativePdb']
+        traj_xtc = session_data_json['files']['trajXtc']
+    except (FileNotFoundError, KeyError) as e:
+        socketio.emit('update_progress', {"progress": 100, "message": f"Error: Session data not found - {e}"}, to=session_id)
+        return
 
     # Validate paths and session data
     native_pdb_path = os.path.join(directory_path, native_pdb)
