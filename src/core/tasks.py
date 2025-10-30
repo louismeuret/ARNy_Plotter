@@ -1216,7 +1216,7 @@ def update_landscape_frame(self, generate_data_path, coordinates):
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_radius_of_gyration_plot(self, session_id):
+def generate_radius_of_gyration_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
     """Generate interactive plot for radius of gyration analysis"""
     try:
         logger.info(f"Starting radius of gyration plot generation for session {session_id}")
@@ -1234,68 +1234,39 @@ def generate_radius_of_gyration_plot(self, session_id):
         rg_total = data['rg_values']  # Total Rg values
         rg_components = data['rg_components']  # Components as [[x,y,z], [x,y,z], ...]
         
-        # Extract individual component arrays
+        # Extract individual component arrays for CSV
         rg_x = [comp[0] for comp in rg_components]
         rg_y = [comp[1] for comp in rg_components]
         rg_z = [comp[2] for comp in rg_components]
         
-        # Create interactive plot
-        import plotly.graph_objects as go
+        # Create plot using create_plots function
+        logger.info(f"RADIUS_OF_GYRATION: Calling plot_radius_of_gyration with {len(frames)} frames")
+        fig = plot_radius_of_gyration(frames, rg_total, rg_components)
+        logger.info(f"RADIUS_OF_GYRATION: Plot figure created, type: {type(fig)}")
         
-        fig = go.Figure()
+        # Save data to CSV
+        import pandas as pd
+        rg_df = pd.DataFrame({
+            'Frame': frames,
+            'Total_Rg': rg_total,
+            'Rg_X': rg_x,
+            'Rg_Y': rg_y,
+            'Rg_Z': rg_z
+        })
+        csv_path = os.path.join(files_path, "radius_of_gyration_values.csv")
+        rg_df.to_csv(csv_path, index=False)
         
-        # Add total radius of gyration
-        fig.add_trace(go.Scattergl(
-            x=frames,
-            y=rg_total,
-            mode='lines',
-            name='Total Rg',
-            line=dict(color='blue', width=2),
-            hovertemplate='Frame: %{x}<br>Total Rg: %{y:.2f} Å<extra></extra>'
-        ))
-        
-        # Add components
-        fig.add_trace(go.Scattergl(
-            x=frames,
-            y=rg_x,
-            mode='lines',
-            name='Rg X',
-            line=dict(color='red', width=1, dash='dash'),
-            hovertemplate='Frame: %{x}<br>Rg X: %{y:.2f} Å<extra></extra>'
-        ))
-        
-        fig.add_trace(go.Scattergl(
-            x=frames,
-            y=rg_y,
-            mode='lines',
-            name='Rg Y',
-            line=dict(color='green', width=1, dash='dash'),
-            hovertemplate='Frame: %{x}<br>Rg Y: %{y:.2f} Å<extra></extra>'
-        ))
-        
-        fig.add_trace(go.Scattergl(
-            x=frames,
-            y=rg_z,
-            mode='lines',
-            name='Rg Z',
-            line=dict(color='orange', width=1, dash='dash'),
-            hovertemplate='Frame: %{x}<br>Rg Z: %{y:.2f} Å<extra></extra>'
-        ))
-        
-        # Update layout
-        fig.update_layout(
-            title="Radius of Gyration vs Frame",
-            xaxis_title="Frame",
-            yaxis_title="Radius of Gyration (Å)",
-            hovermode='x unified',
-            showlegend=True,
-            template='plotly_white'
-        )
+        # Save plot to HTML
+        html_path = os.path.join(plot_dir, "radius_of_gyration_plot.html")
+        fig.write_html(html_path)
         
         # Convert to JSON
         plot_json = plotly_to_json(fig)
+        logger.info(f"RADIUS_OF_GYRATION: JSON conversion complete, returning data for session {session_id}")
         
         logger.info(f"Radius of gyration plot generated successfully for session {session_id}")
+        logger.info(f"Data saved to: {csv_path}")
+        logger.info(f"Plot saved to: {html_path}")
         return plot_json
         
     except Exception as exc:
@@ -1305,7 +1276,7 @@ def generate_radius_of_gyration_plot(self, session_id):
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_end_to_end_distance_plot(self, session_id):
+def generate_end_to_end_distance_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
     """Generate interactive plot for end-to-end distance analysis"""
     try:
         logger.info(f"Starting end-to-end distance plot generation for session {session_id}")
@@ -1327,35 +1298,31 @@ def generate_end_to_end_distance_plot(self, session_id):
         frames = data['frames']
         distances = data['distances']
         
-        # Create interactive plot
-        import plotly.graph_objects as go
+        # Create plot using create_plots function
+        logger.info(f"END_TO_END_DISTANCE: Calling plot_end_to_end_distance with {len(frames)} frames")
+        fig = plot_end_to_end_distance(frames, distances)
+        logger.info(f"END_TO_END_DISTANCE: Plot figure created, type: {type(fig)}")
         
-        fig = go.Figure()
+        # Save data to CSV
+        import pandas as pd
+        e2e_df = pd.DataFrame({
+            'Frame': frames,
+            'End_to_End_Distance': distances
+        })
+        csv_path = os.path.join(files_path, "end_to_end_distance_values.csv")
+        e2e_df.to_csv(csv_path, index=False)
         
-        # Add distance trace
-        fig.add_trace(go.Scattergl(
-            x=frames,
-            y=distances,
-            mode='lines+markers',
-            name="5' to 3' Distance",
-            line=dict(color='purple', width=2),
-            marker=dict(size=3),
-            hovertemplate='Frame: %{x}<br>Distance: %{y:.2f} Å<extra></extra>'
-        ))
-        
-        # Update layout
-        fig.update_layout(
-            title="End-to-End Distance (5' to 3') vs Frame",
-            xaxis_title="Frame",
-            yaxis_title="Distance (Å)",
-            hovermode='x unified',
-            showlegend=True,
-            template='plotly_white'
-        )
+        # Save plot to HTML
+        html_path = os.path.join(plot_dir, "end_to_end_distance_plot.html")
+        fig.write_html(html_path)
         
         # Convert to JSON
-        plot_json = plotly_to_json(fig)        
+        plot_json = plotly_to_json(fig)
+        logger.info(f"END_TO_END_DISTANCE: JSON conversion complete, returning data for session {session_id}")
+        
         logger.info(f"End-to-end distance plot generated successfully for session {session_id}")
+        logger.info(f"Data saved to: {csv_path}")
+        logger.info(f"Plot saved to: {html_path}")
         return plot_json
         
     except Exception as exc:
@@ -1365,7 +1332,7 @@ def generate_end_to_end_distance_plot(self, session_id):
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_dimensionality_reduction_plot(self, session_id, method='pca'):
+def generate_dimensionality_reduction_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, method='pca'):
     """Generate interactive plot for dimensionality reduction analysis"""
     try:
         logger.info(f"Starting {method.upper()} plot generation for session {session_id}")
@@ -1400,52 +1367,35 @@ def generate_dimensionality_reduction_plot(self, session_id, method='pca'):
         import numpy as np
         method_data = np.array(method_data)
         
-        # Create interactive plot
-        import plotly.graph_objects as go
-        import numpy as np
+        # Create plot using create_plots function
+        logger.info(f"{method.upper()}: Calling plot_dimensionality_reduction with {len(frames)} frames, method={method}")
+        fig = plot_dimensionality_reduction(frames, method_data, method)
+        logger.info(f"{method.upper()}: Plot figure created, type: {type(fig)}")
         
-        fig = go.Figure()
-        
-        # Add scatter plot with color gradient for frames
-        fig.add_trace(go.Scattergl(
-            x=method_data[:, 0],
-            y=method_data[:, 1],
-            mode='markers',
-            marker=dict(
-                size=6,
-                color=frames,
-                colorscale='Viridis',
-                colorbar=dict(title="Frame")
-            ),
-            text=[f"Frame: {frame}" for frame in frames],
-            hovertemplate='%{text}<br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>' if method == 'pca' else f'%{{text}}<br>{method.upper()}1: %{{x:.2f}}<br>{method.upper()}2: %{{y:.2f}}<extra></extra>',
-            name=f'{method.upper()} Projection'
-        ))
-        
-        # Update layout
-        method_title = {
-            'pca': 'Principal Component Analysis',
-            'umap': 'UMAP',
-            'tsne': 't-SNE'
-        }
-        
+        # Axis labels for CSV saving
         axis_labels = {
             'pca': ('PC1', 'PC2'),
             'umap': ('UMAP1', 'UMAP2'),
             'tsne': ('t-SNE1', 't-SNE2')
         }
         
-        fig.update_layout(
-            title=f"{method_title.get(method, method.upper())} - Conformational Landscape",
-            xaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[0],
-            yaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[1],
-            hovermode='closest',
-            showlegend=True,
-            template='plotly_white'
-        )
+        # Save data to CSV
+        import pandas as pd
+        method_df = pd.DataFrame({
+            'Frame': frames,
+            f'{axis_labels.get(method, (f"{method.upper()}1", f"{method.upper()}2"))[0]}': method_data[:, 0],
+            f'{axis_labels.get(method, (f"{method.upper()}1", f"{method.upper()}2"))[1]}': method_data[:, 1]
+        })
+        csv_path = os.path.join(files_path, f"{method}_coordinates.csv")
+        method_df.to_csv(csv_path, index=False)
+        
+        # Save plot to HTML
+        html_path = os.path.join(plot_dir, f"{method}_plot.html")
+        fig.write_html(html_path)
         
         # Convert to JSON
-        plot_json = plotly_to_json(fig)        
+        plot_json = plotly_to_json(fig)
+        logger.info(f"{method.upper()}: JSON conversion complete, returning data for session {session_id}")
         logger.info(f"{method.upper()} plot generated successfully for session {session_id}")
         return plot_json
         

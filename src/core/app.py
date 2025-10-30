@@ -297,6 +297,11 @@ class CalculationPlanner:
         """Simple dependency mapping - which plots need which metrics computed first"""
         return {
             'LANDSCAPE': ['RMSD', 'ERMSD'],  # Landscape needs both RMSD and ERMSD
+            'RADIUS_OF_GYRATION': ['METRICS_PHASE'],  # RG plot needs metrics phase complete
+            'END_TO_END_DISTANCE': ['METRICS_PHASE'],  # E2E plot needs metrics phase complete  
+            'PCA': ['METRICS_PHASE'],  # PCA plot needs metrics phase complete
+            'UMAP': ['METRICS_PHASE'],  # UMAP plot needs metrics phase complete
+            'TSNE': ['METRICS_PHASE'],  # t-SNE plot needs metrics phase complete
             # Add other dependencies as needed
         }
 
@@ -359,6 +364,10 @@ class CalculationPlanner:
         for metric in required_metrics:
             if metric in selected_plots:
                 metrics_to_compute.append(metric)
+            elif metric == 'METRICS_PHASE':
+                # Special case: plots that depend on metrics computation phase
+                # These will be handled in phase 3 (dependent plots)
+                pass
         
         execution_tree = {
             'phase_1_metrics': metrics_to_compute,
@@ -787,6 +796,11 @@ def upload_files():
         "ESCORE",
         "LANDSCAPE",
         "BASE_PAIRING",
+        "RADIUS_OF_GYRATION",
+        "END_TO_END_DISTANCE",
+        "PCA",
+        "UMAP",
+        "TSNE",
     ]:  # Adjust based on your available plots
         app.logger.info(plot)
         print(str(plot.lower()))
@@ -1157,6 +1171,12 @@ def view_trajectory(session_id):
         metrics_needed.append("ermsd")
     if "ANNOTATE" in selected_plots:
         metrics_needed.append("annotate")
+    if "RADIUS_OF_GYRATION" in selected_plots:
+        metrics_needed.append("radius_of_gyration")
+    if "END_TO_END_DISTANCE" in selected_plots:
+        metrics_needed.append("end_to_end_distance")
+    if any(plot in selected_plots for plot in ["PCA", "UMAP", "TSNE"]):
+        metrics_needed.append("dimensionality_reduction")
     
     if metrics_needed:
         socketio.emit('update_progress', {"progress": 50, "message": "Computing metrics..."}, to=session_id)
@@ -1171,6 +1191,12 @@ def view_trajectory(session_id):
             metrics_jobs.append(compute_ermsd.s(native_pdb_path, traj_xtc_path, session_id))
         if "annotate" in metrics_needed:
             metrics_jobs.append(compute_annotate.s(native_pdb_path, traj_xtc_path, session_id))
+        if "radius_of_gyration" in metrics_needed:
+            metrics_jobs.append(compute_radius_of_gyration.s(native_pdb_path, traj_xtc_path, session_id))
+        if "end_to_end_distance" in metrics_needed:
+            metrics_jobs.append(compute_end_to_end_distance.s(native_pdb_path, traj_xtc_path, session_id))
+        if "dimensionality_reduction" in metrics_needed:
+            metrics_jobs.append(compute_dimensionality_reduction.s(native_pdb_path, traj_xtc_path, session_id))
         
         # Execute metrics computation chain
         if metrics_jobs:
@@ -1235,7 +1261,7 @@ def view_trajectory(session_id):
             plot_style = "motif"
         elif plot == "JCOUPLING":
             job_sig = generate_jcoupling_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
-            plot_style = "scatter"
+            plot_style = "s"
         elif plot == "ESCORE":
             job_sig = generate_escore_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
             plot_style = "scatter"
@@ -1250,6 +1276,21 @@ def view_trajectory(session_id):
         elif plot == "BASE_PAIRING":
             job_sig = generate_2Dpairing_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
             plot_style = "2Dpairing"
+        elif plot == "RADIUS_OF_GYRATION":
+            job_sig = generate_radius_of_gyration_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            plot_style = "scatter_rog"
+        elif plot == "END_TO_END_DISTANCE":
+            job_sig = generate_end_to_end_distance_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            plot_style = "scatter_e2e"
+        elif plot == "PCA":
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'pca')
+            plot_style = "scatter_PCA"
+        elif plot == "UMAP":
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'umap')
+            plot_style = "scatter_UMAP"
+        elif plot == "TSNE":
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'tsne')
+            plot_style = "scatter_TSNE"
         else:
             logger.warning(f"Unknown plot type: {plot}")
             return None
@@ -1319,17 +1360,66 @@ def view_trajectory(session_id):
             phase3_result = phase3_group.apply_async()
             logger.info("Started dependent plots computation")
     
-    # Wait for all remaining phases to complete
+    # Wait for all remaining phases to complete with error handling
     logger.info("Waiting for all plot jobs to complete...")
     socketio.emit('update_progress', {"progress": 70, "message": "Waiting for all plot jobs to complete..."}, to=session_id)
     
-    if phase2_result:
-        phase2_result.get()
-        logger.info("Independent plots completed")
+    phase2_results = None
+    phase3_results = None
     
+    # Handle Phase 2 (Independent plots) with error handling
+    if phase2_result:
+        try:
+            phase2_results = phase2_result.get()
+            logger.info("Independent plots completed successfully")
+        except Exception as e:
+            logger.error(f"Some independent plots failed: {str(e)}")
+            socketio.emit('update_progress', {"progress": 75, "message": "Some independent plots failed, continuing..."}, to=session_id)
+            # Try to get partial results
+            try:
+                phase2_results = []
+                for i, task_result in enumerate(phase2_result.results if hasattr(phase2_result, 'results') else []):
+                    try:
+                        if task_result.ready():
+                            if task_result.successful():
+                                phase2_results.append(task_result.get())
+                            else:
+                                logger.error(f"Independent plot {i} failed: {task_result.result}")
+                                phase2_results.append(None)  # Placeholder for failed task
+                        else:
+                            phase2_results.append(None)
+                    except Exception as task_err:
+                        logger.error(f"Error getting result for independent plot {i}: {task_err}")
+                        phase2_results.append(None)
+            except Exception:
+                phase2_results = None
+    
+    # Handle Phase 3 (Dependent plots) with error handling  
     if 'phase3_result' in locals():
-        phase3_result.get()
-        logger.info("Dependent plots completed")
+        try:
+            phase3_results = phase3_result.get()
+            logger.info("Dependent plots completed successfully")
+        except Exception as e:
+            logger.error(f"Some dependent plots failed: {str(e)}")
+            socketio.emit('update_progress', {"progress": 80, "message": "Some dependent plots failed, continuing..."}, to=session_id)
+            # Try to get partial results
+            try:
+                phase3_results = []
+                for i, task_result in enumerate(phase3_result.results if hasattr(phase3_result, 'results') else []):
+                    try:
+                        if task_result.ready():
+                            if task_result.successful():
+                                phase3_results.append(task_result.get())
+                            else:
+                                logger.error(f"Dependent plot {i} failed: {task_result.result}")
+                                phase3_results.append(None)  # Placeholder for failed task
+                        else:
+                            phase3_results.append(None)
+                    except Exception as task_err:
+                        logger.error(f"Error getting result for dependent plot {i}: {task_err}")
+                        phase3_results.append(None)
+            except Exception:
+                phase3_results = None
 
     # Process results - since we waited for all groups to complete, we can collect results
     completed_plot_data = []
@@ -1350,24 +1440,28 @@ def view_trajectory(session_id):
                         break
         
         # Get results from phase 2 (independent)
-        if 'phase2_result' in locals() and execution_tree['phase_2_independent']:
-            phase2_results = phase2_result.get()
+        if phase2_results is not None and execution_tree['phase_2_independent']:
             for i, plot in enumerate(execution_tree['phase_2_independent']):
-                for plot_entry in plot_data:
-                    if plot_entry[0] == plot:
-                        completed_plot_data.append([plot, plot_entry[1], phase2_results[i]])
-                        logger.info(f"Collected result for {plot} (Phase 2)")
-                        break
+                if i < len(phase2_results) and phase2_results[i] is not None:
+                    for plot_entry in plot_data:
+                        if plot_entry[0] == plot:
+                            completed_plot_data.append([plot, plot_entry[1], phase2_results[i]])
+                            logger.info(f"Collected result for {plot} (Phase 2)")
+                            break
+                else:
+                    logger.warning(f"Skipping failed plot {plot} (Phase 2)")
         
         # Get results from phase 3 (dependent)
-        if 'phase3_result' in locals() and execution_tree['phase_3_dependent']:
-            phase3_results = phase3_result.get()
+        if phase3_results is not None and execution_tree['phase_3_dependent']:
             for i, plot in enumerate(execution_tree['phase_3_dependent']):
-                for plot_entry in plot_data:
-                    if plot_entry[0] == plot:
-                        completed_plot_data.append([plot, plot_entry[1], phase3_results[i]])
-                        logger.info(f"Collected result for {plot} (Phase 3)")
-                        break
+                if i < len(phase3_results) and phase3_results[i] is not None:
+                    for plot_entry in plot_data:
+                        if plot_entry[0] == plot:
+                            completed_plot_data.append([plot, plot_entry[1], phase3_results[i]])
+                            logger.info(f"Collected result for {plot} (Phase 3)")
+                            break
+                else:
+                    logger.warning(f"Skipping failed plot {plot} (Phase 3)")
                         
         logger.info(f"Successfully collected {len(completed_plot_data)} plot results")
         
@@ -1381,7 +1475,16 @@ def view_trajectory(session_id):
     with open(pickle_file_path, "wb") as f:
         pickle.dump(completed_plot_data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    socketio.emit('update_progress', {"progress": 100, "message": "Trajectory analysis complete."}, to=session_id)
+    # Final progress message
+    total_requested = len(selected_plots)
+    total_completed = len(completed_plot_data)
+    
+    if total_completed == total_requested:
+        final_message = "Trajectory analysis complete - all plots generated successfully."
+    else:
+        final_message = f"Trajectory analysis complete - {total_completed}/{total_requested} plots generated successfully."
+    
+    socketio.emit('update_progress', {"progress": 100, "message": final_message}, to=session_id)
 
     return render_template(
             "view_trajectory.html",

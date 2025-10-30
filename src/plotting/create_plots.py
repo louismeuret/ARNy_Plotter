@@ -1008,3 +1008,143 @@ def create_contact_maps(traj_file, top_file, index, session):
     contact_map, signature = generate_contact_maps.get_contact_map_and_signature(path_save_nth_frame)
     generate_contact_maps.write_contact_map(path_save_contact_maps, contact_map, signature)
     generate_contact_maps.read_contact_map(path_save_contact_maps, path_save_figure)
+
+
+@handle_plot_errors
+def plot_radius_of_gyration(frames: List[int], rg_total: List[float], rg_components: List[List[float]]) -> go.Figure:
+    """Create interactive radius of gyration plot"""
+    
+    # Extract individual component arrays
+    rg_x = [comp[0] for comp in rg_components]
+    rg_y = [comp[1] for comp in rg_components]
+    rg_z = [comp[2] for comp in rg_components]
+    
+    fig = go.Figure()
+    
+    # Add total radius of gyration
+    fig.add_trace(go.Scattergl(
+        x=frames,
+        y=rg_total,
+        mode='lines',
+        name='Total Rg',
+        line=dict(color='blue', width=2),
+        hovertemplate='Frame: %{x}<br>Total Rg: %{y:.2f} Å<extra></extra>'
+    ))
+    
+    # Add components
+    fig.add_trace(go.Scattergl(
+        x=frames,
+        y=rg_x,
+        mode='lines',
+        name='Rg X',
+        line=dict(color='red', width=1, dash='dash'),
+        hovertemplate='Frame: %{x}<br>Rg X: %{y:.2f} Å<extra></extra>'
+    ))
+    
+    fig.add_trace(go.Scattergl(
+        x=frames,
+        y=rg_y,
+        mode='lines',
+        name='Rg Y',
+        line=dict(color='green', width=1, dash='dash'),
+        hovertemplate='Frame: %{x}<br>Rg Y: %{y:.2f} Å<extra></extra>'
+    ))
+    
+    fig.add_trace(go.Scattergl(
+        x=frames,
+        y=rg_z,
+        mode='lines',
+        name='Rg Z',
+        line=dict(color='orange', width=1, dash='dash'),
+        hovertemplate='Frame: %{x}<br>Rg Z: %{y:.2f} Å<extra></extra>'
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f"Radius of Gyration vs Frame ({len(frames)} frames)",
+        xaxis_title="Frame",
+        yaxis_title="Radius of Gyration (Å)",
+        hovermode='x unified',
+        showlegend=True,
+        template='plotly_white'
+    )
+    
+    return fig
+
+
+@handle_plot_errors
+def plot_end_to_end_distance(frames: List[int], distances: List[float]) -> go.Figure:
+    """Create interactive end-to-end distance plot"""
+    
+    fig = go.Figure()
+    
+    # Add end-to-end distance trace
+    fig.add_trace(go.Scattergl(
+        x=frames,
+        y=distances,
+        mode='lines+markers',
+        name='End-to-End Distance',
+        line=dict(color='purple', width=2),
+        marker=dict(size=4),
+        hovertemplate='Frame: %{x}<br>Distance: %{y:.2f} Å<extra></extra>'
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f"End-to-End Distance (5' to 3') vs Frame ({len(frames)} frames)",
+        xaxis_title="Frame",
+        yaxis_title="End-to-End Distance (Å)",
+        hovermode='x unified',
+        showlegend=True,
+        template='plotly_white'
+    )
+    
+    return fig
+
+
+@handle_plot_errors
+def plot_dimensionality_reduction(frames: List[int], method_data: np.ndarray, method: str = 'pca') -> go.Figure:
+    """Create interactive dimensionality reduction plot"""
+    
+    fig = go.Figure()
+    
+    # Method-specific configurations
+    method_title = {
+        'pca': 'Principal Component Analysis',
+        'umap': 'UMAP',
+        'tsne': 't-SNE'
+    }
+    
+    axis_labels = {
+        'pca': ('PC1', 'PC2'),
+        'umap': ('UMAP1', 'UMAP2'),
+        'tsne': ('t-SNE1', 't-SNE2')
+    }
+    
+    # Add scatter plot with color gradient for frames
+    fig.add_trace(go.Scattergl(
+        x=method_data[:, 0],
+        y=method_data[:, 1],
+        mode='markers',
+        marker=dict(
+            size=6,
+            color=frames,
+            colorscale='Viridis',
+            colorbar=dict(title="Frame")
+        ),
+        text=[f"Frame: {frame}" for frame in frames],
+        hovertemplate='%{text}<br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>' if method == 'pca' else f'%{{text}}<br>{method.upper()}1: %{{x:.2f}}<br>{method.upper()}2: %{{y:.2f}}<extra></extra>',
+        name=f'{method.upper()} Projection'
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f"{method_title.get(method, method.upper())} - Conformational Landscape ({len(frames)} frames)",
+        xaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[0],
+        yaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[1],
+        hovermode='closest',
+        showlegend=True,
+        template='plotly_white'
+    )
+    
+    return fig
