@@ -251,6 +251,297 @@ def compute_annotate(self, *args):
     logger.info(f"Annotate computed and saved to {annotate_path}")
     return {"metric": "annotate", "status": "success", "path": annotate_path}
 
+@app.task(bind=True, max_retries=3)
+@log_task
+def compute_radius_of_gyration(self, *args):
+    """Compute Radius of Gyration using MDAnalysis"""
+    # Handle chain arguments
+    if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
+        _, topology_file, trajectory_file, session_id = args
+    else:  # topology_file, trajectory_file, session_id
+        topology_file, trajectory_file, session_id = args
+        
+    try:
+        import MDAnalysis as mda
+        from MDAnalysis.analysis.base import AnalysisBase
+        import numpy as np
+    except ImportError as e:
+        raise ImportError(f"MDAnalysis not available: {e}")
+    
+    class RadiusOfGyration(AnalysisBase):
+        """Calculate radius of gyration for RNA"""
+        
+        def __init__(self, universe, selection="nucleic", **kwargs):
+            super().__init__(universe.trajectory, **kwargs)
+            self.selection = universe.select_atoms(selection)
+            self.results.rg = []
+            self.results.rg_components = []  # x, y, z components
+        
+        def _single_frame(self):
+            # Calculate radius of gyration
+            positions = self.selection.positions
+            masses = self.selection.masses
+            
+            # Center of mass
+            com = np.average(positions, axis=0, weights=masses)
+            
+            # Distances from COM
+            distances = positions - com
+            
+            # Radius of gyration
+            rg_squared = np.average(np.sum(distances**2, axis=1), weights=masses)
+            rg = np.sqrt(rg_squared)
+            
+            # Components (principal axes)
+            rg_x = np.sqrt(np.average(distances[:, 0]**2, weights=masses))
+            rg_y = np.sqrt(np.average(distances[:, 1]**2, weights=masses))
+            rg_z = np.sqrt(np.average(distances[:, 2]**2, weights=masses))
+            
+            self.results.rg.append(rg)
+            self.results.rg_components.append([rg_x, rg_y, rg_z])
+    
+    # Load trajectory with MDAnalysis
+    u = mda.Universe(topology_file, trajectory_file)
+    
+    # Calculate radius of gyration
+    logger.info("Computing radius of gyration...")
+    rg_analysis = RadiusOfGyration(u, selection="nucleic")
+    rg_analysis.run()
+    
+    rg_values = np.array(rg_analysis.results.rg)
+    rg_components = np.array(rg_analysis.results.rg_components)
+    
+    # Prepare result data
+    result_data = {
+        'rg_values': rg_values.tolist(),
+        'rg_components': rg_components.tolist(),
+        'mean_rg': float(np.mean(rg_values)),
+        'std_rg': float(np.std(rg_values)),
+        'frames': list(range(len(rg_values))),
+        'times': [i * 0.1 for i in range(len(rg_values))]  # Adjust timestep as needed
+    }
+    
+    # Save to session directory
+    session_dir = os.path.join("static", "uploads", session_id)
+    os.makedirs(session_dir, exist_ok=True)
+    
+    rg_path = os.path.join(session_dir, "radius_of_gyration_data.pkl")
+    with open(rg_path, 'wb') as f:
+        pickle.dump(result_data, f)
+    
+    logger.info(f"Radius of gyration computed and saved to {rg_path}")
+    logger.info(f"Rg range: {np.min(rg_values):.2f} - {np.max(rg_values):.2f} Å")
+    return {"metric": "radius_of_gyration", "status": "success", "path": rg_path}
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def compute_end_to_end_distance(self, *args):
+    """Compute End-to-End Distance (5' to 3' distance) using MDAnalysis"""
+    # Handle chain arguments
+    if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
+        _, topology_file, trajectory_file, session_id = args
+    else:  # topology_file, trajectory_file, session_id
+        topology_file, trajectory_file, session_id = args
+        
+    try:
+        import MDAnalysis as mda
+        from MDAnalysis.analysis.base import AnalysisBase
+        import numpy as np
+    except ImportError as e:
+        raise ImportError(f"MDAnalysis not available: {e}")
+    
+    class EndToEndDistance(AnalysisBase):
+        """Calculate end-to-end distance for RNA (5' to 3' distance)"""
+        
+        def __init__(self, universe, **kwargs):
+            super().__init__(universe.trajectory, **kwargs)
+            self.universe = universe
+            
+            # Find 5' and 3' atoms (typically P atoms or C5' atoms)
+            residues = self.universe.select_atoms("nucleic").residues
+            
+            if len(residues) == 0:
+                raise ValueError("No nucleic acid residues found")
+            
+            # First residue - 5' end (use C5' atom)
+            first_res = residues[0]
+            self.five_prime = first_res.atoms.select_atoms("name C5'")
+            if len(self.five_prime) == 0:
+                self.five_prime = first_res.atoms.select_atoms("name P")
+            
+            # Last residue - 3' end (use C3' atom)
+            last_res = residues[-1]
+            self.three_prime = last_res.atoms.select_atoms("name C3'")
+            if len(self.three_prime) == 0:
+                self.three_prime = last_res.atoms.select_atoms("name P")
+            
+            # Validate that we found both atoms
+            if len(self.five_prime) == 0:
+                raise ValueError(f"Could not find 5' atom (C5' or P) in first residue {first_res.resname}{first_res.resid}")
+            if len(self.three_prime) == 0:
+                raise ValueError(f"Could not find 3' atom (C3' or P) in last residue {last_res.resname}{last_res.resid}")
+            
+            logger.info(f"5' atom: {self.five_prime}")
+            logger.info(f"3' atom: {self.three_prime}")
+            
+            self.results.distances = []
+        
+        def _single_frame(self):
+            distance = np.linalg.norm(self.five_prime.positions[0] - self.three_prime.positions[0])
+            self.results.distances.append(distance)
+    
+    # Load trajectory with MDAnalysis
+    u = mda.Universe(topology_file, trajectory_file)
+    
+    try:
+        # Calculate end-to-end distance
+        logger.info("Computing end-to-end distances...")
+        end_to_end = EndToEndDistance(u)
+        end_to_end.run()
+        
+        distances = np.array(end_to_end.results.distances)
+        
+        # Prepare result data
+        result_data = {
+            'distances': distances.tolist(),
+            'mean_distance': float(np.mean(distances)),
+            'std_distance': float(np.std(distances)),
+            'min_distance': float(np.min(distances)),
+            'max_distance': float(np.max(distances)),
+            'frames': list(range(len(distances))),
+            'times': [i * 0.1 for i in range(len(distances))]  # Adjust timestep as needed
+        }
+        
+        # Save to session directory
+        session_dir = os.path.join("static", "uploads", session_id)
+        os.makedirs(session_dir, exist_ok=True)
+        
+        e2e_path = os.path.join(session_dir, "end_to_end_distance_data.pkl")
+        with open(e2e_path, 'wb') as f:
+            pickle.dump(result_data, f)
+        
+        logger.info(f"End-to-end distance computed and saved to {e2e_path}")
+        logger.info(f"Distance range: {np.min(distances):.2f} - {np.max(distances):.2f} Å")
+        return {"metric": "end_to_end_distance", "status": "success", "path": e2e_path}
+        
+    except ValueError as e:
+        # Handle case where atoms are not found
+        error_msg = str(e)
+        logger.error(f"End-to-end distance calculation failed: {error_msg}")
+        return {"metric": "end_to_end_distance", "status": "error", "error": error_msg}
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def compute_dimensionality_reduction(self, *args):
+    """Compute PCA, UMAP, and t-SNE for conformational analysis"""
+    # Handle chain arguments
+    if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
+        _, topology_file, trajectory_file, session_id = args
+    else:  # topology_file, trajectory_file, session_id
+        topology_file, trajectory_file, session_id = args
+        
+    try:
+        import MDAnalysis as mda
+        import numpy as np
+        from sklearn.decomposition import PCA
+        from sklearn.manifold import TSNE
+        import umap
+    except ImportError as e:
+        raise ImportError(f"Required packages not available: {e}")
+    
+    def prepare_coordinates(universe, selection="nucleic"):
+        """Extract coordinates for all frames"""
+        atoms = universe.select_atoms(selection)
+        logger.info(f"Selected {len(atoms)} atoms for dimensionality reduction")
+        
+        coordinates = []
+        for ts in universe.trajectory:
+            coords = atoms.positions.flatten()
+            coordinates.append(coords)
+        
+        coordinates = np.array(coordinates)
+        logger.info(f"Coordinate matrix shape: {coordinates.shape}")
+        return coordinates, atoms
+    
+    # Load trajectory with MDAnalysis
+    u = mda.Universe(topology_file, trajectory_file)
+    
+    # Get coordinates
+    logger.info("Preparing coordinates for dimensionality reduction...")
+    coords, selected_atoms = prepare_coordinates(u, selection="nucleic")
+    
+    # Align to remove translational and rotational motion
+    logger.info("Aligning structures...")
+    reference_coords = coords[0].reshape(-1, 3)
+    aligned_coords = []
+    
+    for i, frame_coords in enumerate(coords):
+        frame_coords_3d = frame_coords.reshape(-1, 3)
+        
+        # Simple alignment (center at origin)
+        ref_center = reference_coords.mean(axis=0)
+        frame_center = frame_coords_3d.mean(axis=0)
+        
+        aligned_frame = frame_coords_3d - frame_center + ref_center
+        aligned_coords.append(aligned_frame.flatten())
+    
+    aligned_coords = np.array(aligned_coords)
+    logger.info(f"Aligned coordinates shape: {aligned_coords.shape}")
+    
+    # PCA Analysis
+    logger.info("Running PCA...")
+    pca = PCA(n_components=10)
+    pca_coords = pca.fit_transform(aligned_coords)
+    explained_variance = pca.explained_variance_ratio_
+    
+    logger.info(f"PC1 explains {explained_variance[0]*100:.1f}% of variance")
+    logger.info(f"PC2 explains {explained_variance[1]*100:.1f}% of variance")
+    
+    # UMAP Analysis
+    logger.info("Running UMAP...")
+    umap_reducer = umap.UMAP(
+        n_components=2, 
+        n_neighbors=15, 
+        min_dist=0.1, 
+        random_state=42
+    )
+    umap_coords = umap_reducer.fit_transform(aligned_coords)
+    
+    # t-SNE Analysis
+    logger.info("Running t-SNE...")
+    # Use PCA preprocessing for t-SNE (recommended for high-dimensional data)
+    pca_50 = PCA(n_components=min(50, aligned_coords.shape[1]))
+    pca_coords_50 = pca_50.fit_transform(aligned_coords)
+    
+    tsne = TSNE(
+        n_components=2, 
+        perplexity=min(30, len(aligned_coords)//4), 
+        random_state=42,
+        init='pca'
+    )
+    tsne_coords = tsne.fit_transform(pca_coords_50)
+    
+    # Prepare result data
+    result_data = {
+        'pca_coordinates': pca_coords[:, :3].tolist(),  # First 3 PCs
+        'pca_explained_variance': explained_variance[:10].tolist(),
+        'umap_coordinates': umap_coords.tolist(),
+        'tsne_coordinates': tsne_coords.tolist(),
+        'frames': list(range(len(pca_coords))),
+        'times': [i * 0.1 for i in range(len(pca_coords))]  # Adjust timestep as needed
+    }
+    
+    # Save to session directory
+    session_dir = os.path.join("static", "uploads", session_id)
+    os.makedirs(session_dir, exist_ok=True)
+    
+    dimred_path = os.path.join(session_dir, "dimensionality_reduction_data.pkl")
+    with open(dimred_path, 'wb') as f:
+        pickle.dump(result_data, f)
+    
+    logger.info(f"Dimensionality reduction computed and saved to {dimred_path}")
+    return {"metric": "dimensionality_reduction", "status": "success", "path": dimred_path}
+
 # Phase 2: Plot Generation Tasks
 @app.task(bind=True, max_retries=3)
 @log_task
@@ -922,6 +1213,246 @@ def update_landscape_frame(self, generate_data_path, coordinates):
     except Exception as exc:
         logger.error(f"Landscape frame update failed: {str(exc)}")
         raise exc
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def generate_radius_of_gyration_plot(self, session_id):
+    """Generate interactive plot for radius of gyration analysis"""
+    try:
+        logger.info(f"Starting radius of gyration plot generation for session {session_id}")
+        
+        # Load precomputed data
+        pickle_path = os.path.join("static", "uploads", session_id, 'radius_of_gyration_data.pkl')
+        if not os.path.exists(pickle_path):
+            raise FileNotFoundError(f"Radius of gyration data not found: {pickle_path}")
+        
+        with open(pickle_path, 'rb') as f:
+            data = pickle.load(f)
+        
+        # Extract data
+        frames = data['frames']
+        rg_total = data['rg_values']  # Total Rg values
+        rg_components = data['rg_components']  # Components as [[x,y,z], [x,y,z], ...]
+        
+        # Extract individual component arrays
+        rg_x = [comp[0] for comp in rg_components]
+        rg_y = [comp[1] for comp in rg_components]
+        rg_z = [comp[2] for comp in rg_components]
+        
+        # Create interactive plot
+        import plotly.graph_objects as go
+        
+        fig = go.Figure()
+        
+        # Add total radius of gyration
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_total,
+            mode='lines',
+            name='Total Rg',
+            line=dict(color='blue', width=2),
+            hovertemplate='Frame: %{x}<br>Total Rg: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        # Add components
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_x,
+            mode='lines',
+            name='Rg X',
+            line=dict(color='red', width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg X: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_y,
+            mode='lines',
+            name='Rg Y',
+            line=dict(color='green', width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg Y: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_z,
+            mode='lines',
+            name='Rg Z',
+            line=dict(color='orange', width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg Z: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        # Update layout
+        fig.update_layout(
+            title="Radius of Gyration vs Frame",
+            xaxis_title="Frame",
+            yaxis_title="Radius of Gyration (Å)",
+            hovermode='x unified',
+            showlegend=True,
+            template='plotly_white'
+        )
+        
+        # Convert to JSON
+        plot_json = plotly_to_json(fig)
+        
+        logger.info(f"Radius of gyration plot generated successfully for session {session_id}")
+        return plot_json
+        
+    except Exception as exc:
+        logger.error(f"Radius of gyration plot generation failed for session {session_id}: {str(exc)}")
+        raise exc
+
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def generate_end_to_end_distance_plot(self, session_id):
+    """Generate interactive plot for end-to-end distance analysis"""
+    try:
+        logger.info(f"Starting end-to-end distance plot generation for session {session_id}")
+        
+        # Load precomputed data
+        pickle_path = os.path.join("static", "uploads", session_id, 'end_to_end_distance.pkl')
+        if not os.path.exists(pickle_path):
+            raise FileNotFoundError(f"End-to-end distance data not found: {pickle_path}")
+        
+        with open(pickle_path, 'rb') as f:
+            data = pickle.load(f)
+        
+        # Check for errors
+        if 'error' in data:
+            logger.error(f"End-to-end distance contains error: {data['error']}")
+            raise ValueError(data['error'])
+        
+        # Extract data
+        frames = data['frames']
+        distances = data['distances']
+        
+        # Create interactive plot
+        import plotly.graph_objects as go
+        
+        fig = go.Figure()
+        
+        # Add distance trace
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=distances,
+            mode='lines+markers',
+            name="5' to 3' Distance",
+            line=dict(color='purple', width=2),
+            marker=dict(size=3),
+            hovertemplate='Frame: %{x}<br>Distance: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        # Update layout
+        fig.update_layout(
+            title="End-to-End Distance (5' to 3') vs Frame",
+            xaxis_title="Frame",
+            yaxis_title="Distance (Å)",
+            hovermode='x unified',
+            showlegend=True,
+            template='plotly_white'
+        )
+        
+        # Convert to JSON
+        plot_json = plotly_to_json(fig)        
+        logger.info(f"End-to-end distance plot generated successfully for session {session_id}")
+        return plot_json
+        
+    except Exception as exc:
+        logger.error(f"End-to-end distance plot generation failed for session {session_id}: {str(exc)}")
+        raise exc
+
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def generate_dimensionality_reduction_plot(self, session_id, method='pca'):
+    """Generate interactive plot for dimensionality reduction analysis"""
+    try:
+        logger.info(f"Starting {method.upper()} plot generation for session {session_id}")
+        
+        # Load precomputed data
+        pickle_path = os.path.join("static", "uploads", session_id, 'dimensionality_reduction_data.pkl')
+        if not os.path.exists(pickle_path):
+            raise FileNotFoundError(f"Dimensionality reduction data not found: {pickle_path}")
+        
+        with open(pickle_path, 'rb') as f:
+            data = pickle.load(f)
+        
+        # Map method names to data keys
+        method_key_map = {
+            'pca': 'pca_coordinates',
+            'umap': 'umap_coordinates', 
+            'tsne': 'tsne_coordinates'
+        }
+        
+        # Check if requested method exists
+        if method not in method_key_map:
+            raise ValueError(f"Method {method} not supported. Available: {list(method_key_map.keys())}")
+        
+        data_key = method_key_map[method]
+        if data_key not in data:
+            raise ValueError(f"Method data {data_key} not found in dimensionality reduction data")
+        
+        method_data = data[data_key]
+        frames = data['frames']
+        
+        # Convert to numpy array for easier indexing
+        import numpy as np
+        method_data = np.array(method_data)
+        
+        # Create interactive plot
+        import plotly.graph_objects as go
+        import numpy as np
+        
+        fig = go.Figure()
+        
+        # Add scatter plot with color gradient for frames
+        fig.add_trace(go.Scattergl(
+            x=method_data[:, 0],
+            y=method_data[:, 1],
+            mode='markers',
+            marker=dict(
+                size=6,
+                color=frames,
+                colorscale='Viridis',
+                colorbar=dict(title="Frame")
+            ),
+            text=[f"Frame: {frame}" for frame in frames],
+            hovertemplate='%{text}<br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>' if method == 'pca' else f'%{{text}}<br>{method.upper()}1: %{{x:.2f}}<br>{method.upper()}2: %{{y:.2f}}<extra></extra>',
+            name=f'{method.upper()} Projection'
+        ))
+        
+        # Update layout
+        method_title = {
+            'pca': 'Principal Component Analysis',
+            'umap': 'UMAP',
+            'tsne': 't-SNE'
+        }
+        
+        axis_labels = {
+            'pca': ('PC1', 'PC2'),
+            'umap': ('UMAP1', 'UMAP2'),
+            'tsne': ('t-SNE1', 't-SNE2')
+        }
+        
+        fig.update_layout(
+            title=f"{method_title.get(method, method.upper())} - Conformational Landscape",
+            xaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[0],
+            yaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[1],
+            hovermode='closest',
+            showlegend=True,
+            template='plotly_white'
+        )
+        
+        # Convert to JSON
+        plot_json = plotly_to_json(fig)        
+        logger.info(f"{method.upper()} plot generated successfully for session {session_id}")
+        return plot_json
+        
+    except Exception as exc:
+        logger.error(f"{method.upper()} plot generation failed for session {session_id}: {str(exc)}")
+        raise exc
+
 
 if __name__ == "__main__":
     logger.info("RNA analysis tasks module loaded")

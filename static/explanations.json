@@ -39,6 +39,31 @@
     "BASE_PAIRING": {
         "title": "Base Pairing",
         "content": "Base pairing refers to the hydrogen bonds between complementary nucleotides in RNA. This is crucial for secondary structure formation and stability. The plot shows the frequencies for all nucleotides during the whole trajectory, it gives informations about the correctness of the ForceField"
+    },
+    "RADIUS_OF_GYRATION": {
+        "title": "Radius of Gyration",
+        "content": "The radius of gyration is a measure of RNA compactness, describing how far atoms are distributed from the molecule's center of mass. It provides insights into the overall size and shape changes during RNA folding, with smaller values indicating more compact conformations.",
+        "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>R</mi><sub>g</sub><mo>=</mo><msqrt><mfrac><mrow><mo>&#x2211;</mo><msub><mi>m</mi><mi>i</mi></msub><msup><mi>r</mi><mn>2</mn></msup><sub><mi>i</mi></sub></mrow><mrow><mo>&#x2211;</mo><msub><mi>m</mi><mi>i</mi></msub></mrow></mfrac></msqrt></mrow></math>"
+    },
+    "END_TO_END_DISTANCE": {
+        "title": "End-to-End Distance (5' to 3')",
+        "content": "The end-to-end distance measures the spatial distance between the 5' and 3' terminal atoms of the RNA chain. This metric provides insights into RNA extension and compaction during folding, helping to understand how the RNA backbone extends or contracts over time.",
+        "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>d</mi><sub>e2e</sub><mo>=</mo><mo>|</mo><msub><mi>r</mi><mrow>5'</mrow></msub><mo>-</mo><msub><mi>r</mi><mrow>3'</mrow></msub><mo>|</mo></mrow></math>"
+    },
+    "PCA": {
+        "title": "Principal Component Analysis (PCA)",
+        "content": "PCA is a dimensionality reduction technique that identifies the principal components of structural variation in RNA conformations. It projects high-dimensional conformational data onto lower-dimensional space, revealing the main modes of structural variation during folding.",
+        "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>PC</mi><sub>i</sub><mo>=</mo><mo>&#x2211;</mo><msub><mi>w</mi><mi>ij</mi></msub><msub><mi>x</mi><mi>j</mi></msub></mrow></math>"
+    },
+    "UMAP": {
+        "title": "UMAP (Uniform Manifold Approximation)",
+        "content": "UMAP is a non-linear dimensionality reduction technique that preserves both local and global structure of conformational data. It provides a 2D representation of RNA conformational space, revealing clusters and transitions between different folding states.",
+        "formula": ""
+    },
+    "TSNE": {
+        "title": "t-SNE (t-Distributed Stochastic Neighbor Embedding)",
+        "content": "t-SNE is a non-linear dimensionality reduction method particularly effective at visualizing high-dimensional conformational data. It emphasizes local neighborhoods in the data, making it excellent for identifying distinct conformational clusters and folding intermediates.",
+        "formula": ""
     }
 }
 

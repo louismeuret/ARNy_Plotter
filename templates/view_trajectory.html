@@ -162,6 +162,16 @@
                             {% include '_plot_3D_landscape.html' %}
                         {% elif plot_info[0] == "CONTACT_MAPS" %}
                             {% include '_plot_contacts.html' %}
+                        {% elif plot_info[0] == "RADIUS_OF_GYRATION" %}
+                            {% include '_plot_radius_of_gyration.html' %}
+                        {% elif plot_info[0] == "END_TO_END_DISTANCE" %}
+                            {% include '_plot_end_to_end_distance.html' %}
+                        {% elif plot_info[0] == "PCA" %}
+                            {% include '_plot_pca.html' %}
+                        {% elif plot_info[0] == "UMAP" %}
+                            {% include '_plot_umap.html' %}
+                        {% elif plot_info[0] == "TSNE" %}
+                            {% include '_plot_tsne.html' %}
                         {% else %}
                             {% include '_plot_default.html' %}
                         {% endif %}

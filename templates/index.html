@@ -480,7 +480,97 @@ select {
                                         Fraction of Contact Formed
                                     </option>
                                 </select>
-                            </div>
+                            </div><br />
+                            
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="radius_of_gyration"
+                                    name="radius_of_gyration"
+                                    value="RADIUS_OF_GYRATION"
+                                />
+                                Radius of Gyration
+                                <a href="#" onclick="window.open(constructDocumentationUrl('RadiusOfGyration'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Measure RNA compactness through radius of gyration over time"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                            </label><br />
+                            
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="end_to_end_distance"
+                                    name="end_to_end_distance"
+                                    value="END_TO_END_DISTANCE"
+                                />
+                                End-to-End Distance (5' to 3')
+                                <a href="#" onclick="window.open(constructDocumentationUrl('EndToEndDistance'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Measure distance between 5' and 3' RNA terminal atoms over time"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                            </label><br />
+                            
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="pca"
+                                    name="pca"
+                                    value="PCA"
+                                />
+                                PCA (Principal Component Analysis)
+                                <a href="#" onclick="window.open(constructDocumentationUrl('PCA'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="Principal component analysis of RNA conformational landscape"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                            </label><br />
+                            
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="umap"
+                                    name="umap"
+                                    value="UMAP"
+                                />
+                                UMAP (Uniform Manifold Approximation)
+                                <a href="#" onclick="window.open(constructDocumentationUrl('UMAP'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="UMAP dimensionality reduction for RNA conformational analysis"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                            </label><br />
+                            
+                            <label class="checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="tsne"
+                                    name="tsne"
+                                    value="TSNE"
+                                />
+                                t-SNE (t-Distributed Stochastic Neighbor Embedding)
+                                <a href="#" onclick="window.open(constructDocumentationUrl('TSNE'), '_blank'); return false;">
+                                <span
+                                    class="icon has-tooltip"
+                                    data-tooltip="t-SNE dimensionality reduction for RNA conformational visualization"
+                                >
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </a>
+                            </label><br />
                         </div>
                     </div>
                     <div class="control mt-6">

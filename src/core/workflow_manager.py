@@ -24,6 +24,11 @@ class ComputationType(Enum):
     LANDSCAPE = "landscape"
     CONTACT_MAPS = "contact_maps"
     BASE_PAIRING = "base_pairing"
+    RADIUS_OF_GYRATION = "radius_of_gyration"
+    END_TO_END_DISTANCE = "end_to_end_distance"
+    PCA = "pca"
+    UMAP = "umap"
+    TSNE = "tsne"
 
 @dataclass
 class ComputationTask:
@@ -53,6 +58,11 @@ class WorkflowOrchestrator:
         ComputationType.LANDSCAPE: {ComputationType.RMSD, ComputationType.ERMSD},
         ComputationType.CONTACT_MAPS: {ComputationType.ANNOTATE},
         ComputationType.BASE_PAIRING: {ComputationType.ANNOTATE},
+        ComputationType.RADIUS_OF_GYRATION: set(),
+        ComputationType.END_TO_END_DISTANCE: set(),
+        ComputationType.PCA: set(),
+        ComputationType.UMAP: set(),
+        ComputationType.TSNE: set(),
     }
     
     # Task priorities (lower = higher priority, RMSD first)
@@ -63,7 +73,12 @@ class WorkflowOrchestrator:
         ComputationType.TORSION: 4,
         ComputationType.CONTACT_MAPS: 5,
         ComputationType.BASE_PAIRING: 6,
-        ComputationType.LANDSCAPE: 10,  # Depends on RMSD/ERMSD, so runs later
+        ComputationType.RADIUS_OF_GYRATION: 7,
+        ComputationType.END_TO_END_DISTANCE: 8,
+        ComputationType.PCA: 9,
+        ComputationType.UMAP: 10,
+        ComputationType.TSNE: 11,
+        ComputationType.LANDSCAPE: 12,  # Depends on RMSD/ERMSD, so runs later
     }
     
     # Estimated computation times (seconds)
@@ -74,6 +89,11 @@ class WorkflowOrchestrator:
         ComputationType.TORSION: 60.0,
         ComputationType.CONTACT_MAPS: 180.0,
         ComputationType.BASE_PAIRING: 150.0,
+        ComputationType.RADIUS_OF_GYRATION: 40.0,
+        ComputationType.END_TO_END_DISTANCE: 35.0,
+        ComputationType.PCA: 80.0,
+        ComputationType.UMAP: 120.0,
+        ComputationType.TSNE: 150.0,
         ComputationType.LANDSCAPE: 300.0,
     }
 
@@ -109,6 +129,11 @@ class WorkflowOrchestrator:
             'CONTACT_MAPS': ComputationType.CONTACT_MAPS,
             'BASE_PAIRING': ComputationType.BASE_PAIRING,
             'LANDSCAPE': ComputationType.LANDSCAPE,
+            'RADIUS_OF_GYRATION': ComputationType.RADIUS_OF_GYRATION,
+            'END_TO_END_DISTANCE': ComputationType.END_TO_END_DISTANCE,
+            'PCA': ComputationType.PCA,
+            'UMAP': ComputationType.UMAP,
+            'TSNE': ComputationType.TSNE,
         }
         
         # Create tasks for selected plots
@@ -288,10 +313,11 @@ class WorkflowExecutor:
     async def _execute_stage_parallel(self, tasks: List[ComputationTask], 
                                     workflow_plan: WorkflowPlan) -> Dict[ComputationType, Any]:
         """Execute tasks in a stage in parallel using Celery groups"""
-        from tasks_celery import (
+        from tasks import (
             generate_rmsd_plot, generate_ermsd_plot, generate_torsion_plot,
             generate_contact_map_plot, generate_annotate_plot, generate_landscape_plot,
-            generate_2Dpairing_plot
+            generate_2Dpairing_plot, generate_radius_of_gyration_plot,
+            generate_end_to_end_distance_plot, generate_dimensionality_reduction_plot
         )
         
         # Map computation types to Celery tasks
@@ -303,6 +329,11 @@ class WorkflowExecutor:
             ComputationType.CONTACT_MAPS: generate_contact_map_plot,
             ComputationType.BASE_PAIRING: generate_2Dpairing_plot,
             ComputationType.LANDSCAPE: generate_landscape_plot,
+            ComputationType.RADIUS_OF_GYRATION: generate_radius_of_gyration_plot,
+            ComputationType.END_TO_END_DISTANCE: generate_end_to_end_distance_plot,
+            ComputationType.PCA: generate_dimensionality_reduction_plot,
+            ComputationType.UMAP: generate_dimensionality_reduction_plot,
+            ComputationType.TSNE: generate_dimensionality_reduction_plot,
         }
         
         # Create Celery tasks
@@ -366,6 +397,17 @@ class WorkflowExecutor:
             # Add contact maps-specific parameters
             base_args.append(f"static/uploads/{workflow_plan.session_id}/generated_data")
             base_args.append(workflow_plan.session_id)
+        elif task.computation_type in [ComputationType.RADIUS_OF_GYRATION, ComputationType.END_TO_END_DISTANCE]:
+            # New RNA analysis plots take only session_id
+            return [workflow_plan.session_id]
+        elif task.computation_type in [ComputationType.PCA, ComputationType.UMAP, ComputationType.TSNE]:
+            # Dimensionality reduction plots take session_id and method
+            method_map = {
+                ComputationType.PCA: 'pca',
+                ComputationType.UMAP: 'umap', 
+                ComputationType.TSNE: 'tsne'
+            }
+            return [workflow_plan.session_id, method_map[task.computation_type]]
         else:
             base_args.append(workflow_plan.session_id)
 

@@ -1111,16 +1111,12 @@ def view_trajectory(session_id):
         else:
             traj_xtc_path = os.path.join(directory_path, f"traj_uploaded.xtc")
 
-    socketio.emit('update_progress', {"progress": 40, "message": "Trajectory loaded and optimized."}, to=session_id)
+    socketio.emit('update_progress', {"progress": 40, "message": "Trajectory loaded."}, to=session_id)
     socketio.sleep(0.1)
 
     # Cache trajectory data for efficient task sharing
-    socketio.emit('update_progress', {"progress": 42, "message": "Caching trajectory data for task sharing..."}, to=session_id)
     cache_key = shared_trajectory_manager.preload_and_cache_trajectory(native_pdb_path, traj_xtc_path, session_id)
     logger.info(f"Trajectory cached with key: {cache_key}")
-    logger.info("🚀 PERFORMANCE OPTIMIZATION: Trajectory loaded once and cached for all tasks")
-    logger.info("💾 MDTraj objects cached - Barnaba computations will skip file loading entirely")
-    socketio.emit('update_progress', {"progress": 44, "message": "MDTraj trajectory objects cached - Barnaba will use pre-loaded data for maximum performance"}, to=session_id)
 
     # Build execution tree and identify shared computations
     planner = CalculationPlanner(session_id)
@@ -1152,7 +1148,6 @@ def view_trajectory(session_id):
             logger.info(f"  └── {comp_type}: {plots}")
 
     socketio.emit('update_progress', {"progress": 45, "message": "Execution tree built and shared computations identified."}, to=session_id)
-    socketio.sleep(0.1)
 
     # Phase 1: Compute metrics needed by plots
     metrics_needed = []
