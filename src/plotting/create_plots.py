@@ -175,7 +175,7 @@ def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue:
         title=f"Torsion Angles Time Series - Residue {res[residue_index]} ({residue_index})",
         xaxis_title="Frame Number",
         yaxis_title="Angle (degrees)",
-        height=800,
+        height=600,
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
     )
@@ -221,12 +221,12 @@ def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidu
         )
         
         # Update axis labels for each subplot
-        fig.update_xaxes(title_text="Angle (degrees)", row=i+1, col=1)
+        fig.update_xaxes(title_text="Angle (radians)", row=i+1, col=1)
         fig.update_yaxes(title_text="Frequency", row=i+1, col=1)
     
     fig.update_layout(
         title=f"Torsion Angles Distributions - Residue {res[residue_index]} ({residue_index})",
-        height=800,
+        height=600,
         showlegend=False,
         margin=dict(t=50, b=50, l=60, r=20)
     )

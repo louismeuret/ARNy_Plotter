@@ -1,21 +1,21 @@
 {
     "RMSD": {
         "title": "Root Mean Square Deviation (RMSD)",
-        "content": "Root Mean Square Deviation (RMSD) is a measure of the average distance between atoms of superimposed proteins. It is commonly used in structural biology to assess the similarity between structures. In the context of RNA, it quantifies how much the structure deviates from a reference structure as it folds over time.",
+        "content": "Root Mean Square Deviation (RMSD) is a measure of the average distance between atoms of superimposed molecules. It is commonly used in structural biology to assess the similarity between structures. In the context of RNA, it quantifies how much the structure deviates from a reference structure as it change over time.",
         "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>RMSD</mi><mo>=</mo><msqrt><mfrac><mrow><mo>&#x2211;</mo><msub><mi>d</mi><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow></msub><mo>^2</mo></mrow><mi>N</mi></mfrac></msqrt></mrow></math>"
     },
     "ERMSD": {
-        "title": "Epsilon Root Mean Square Deviation (eRMSD)",
-        "content": "eRMSD is an extension of RMSD that enhances the sensitivity of RMSD measurements to structural rearrangements, providing more detailed information on RNA folding by using RNA metrics rather than pure geometric ones.",
+        "title": "Escore Root Mean Square Deviation (eRMSD)",
+        "content": "eRMSD is an extension of RMSD that enhances the sensitivity of RMSD measurements to structural rearrangements in RNA, providing more detailed information on RNA structural rearrangements by using RNA metrics rather than pure geometric ones.",
         "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>eRMSD</mi><mo>=</mo><msqrt><mfrac><mrow><mo>&#x2211;</mo><msub><mi>d</mi><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow></msub><mo>^2</mo></mrow><mi>N</mi></mfrac></msqrt></mrow></math>"
     },
     "CONTACT_MAPS": {
         "title": "Contact Maps",
-        "content": "Contact maps represent the spatial proximity of pairs of residues (or atoms) within a structure, typically shown as a 2D matrix. In RNA folding, they help visualize the formation of base pairs and interactions over time, reflecting how the structure is stabilizing."
+        "content": "Contact maps represent the spatial proximity of pairs of residues (or atoms) within a structure, here shown as a 2D matrix. In RNA folding, they help visualize the formation of base pairs and interactions over time, reflecting how the structure is stabilizing."
     },
     "TORSION": {
         "title": "Torsional Angles",
-        "content": "Torsional angles describe the rotation around bonds, particularly useful in determining the flexibility and conformation of RNA structures. Monitoring these angles during folding reveals how the structure transitions between different conformations.",
+        "content": "Torsional angles describe the rotation around bonds, particularly useful in determining the flexibility and conformation of RNA structures. Monitoring these angles during structural rearrangements reveals how the structure transitions between different conformations.",
         "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>φ</mi><mo>=</mo><mi>tan</mi><mo>(</mo><mfrac><mrow><mo>&#x2212;</mo><mi>r</mi><mo> × </mo><mi>s</mi></mrow><mi>s</mi></mfrac><mo>)</mo></mrow></math>"
     },
     "SEC_STRUCTURE": {
@@ -24,7 +24,7 @@
     },
     "DOTBRACKET": {
         "title": "Dot-Bracket Notation",
-        "content": "The dot-bracket notation is a compact way to represent the secondary structure of RNA, where dots represent unpaired bases, and parentheses represent paired bases. Here we're showing dotbracket found along the frames of the trajectory.",
+        "content": "The dot-bracket notation is a compact way to represent the secondary structure of RNA, where dots represent unpaired bases, and parentheses represent paired bases. Here we're showing dotbracket notations found along the frames of the trajectory.",
         "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>DB</mi><mo>(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>)</mo><mo>=</mo><mo>{</mo><mi>(</mi><mo> if </mo><mi>i</mi><mo> and </mo><mi>j</mi><mo> form </mo><mi>base-pair</mi><mo>,</mo><mi>.</mi><mo> otherwise</mo><mo>}</mo></mrow></math>"
     },
     "ARC": {
@@ -34,11 +34,11 @@
     },
     "LANDSCAPE": {
         "title": "Conformational Landscape",
-        "content": "The conformational landscape is a graphical representation of the system's conformational space as a function of structural coordinates (RMSD and eRMSD). It is used to identify stable states (minima) and transition states, providing insight into the folding pathway of RNA."
+        "content": "The conformational landscape is a graphical representation of the system's conformational space as a function of structural coordinates (here RMSD, eRMSD, Torsion values or the fraction of natives contacts). It is used to identify stable states (minima) and transition states, providing insight into the behaviors of RNA."
     },
     "BASE_PAIRING": {
         "title": "Base Pairing",
-        "content": "Base pairing refers to the hydrogen bonds between complementary nucleotides in RNA. This is crucial for secondary structure formation and stability. The plot shows the frequencies for all nucleotides during the whole trajectory, it gives informations about the correctness of the ForceField"
+        "content": "Base pairing refers to the hydrogen bonds between complementary nucleotides in RNA. This is crucial for secondary structure formation and stability. The plot shows the positions of the two bases in the base pairing, averaged for all the pairings , it mainly gives informations about the correctness of the ForceField and some specials pairings."
     },
     "RADIUS_OF_GYRATION": {
         "title": "Radius of Gyration",
@@ -52,12 +52,12 @@
     },
     "PCA": {
         "title": "Principal Component Analysis (PCA)",
-        "content": "PCA is a dimensionality reduction technique that identifies the principal components of structural variation in RNA conformations. It projects high-dimensional conformational data onto lower-dimensional space, revealing the main modes of structural variation during folding.",
+        "content": "PCA is a dimensionality reduction technique that identifies here the principal components of structural variation in RNA conformations. It projects high-dimensional conformational data onto lower-dimensional space, revealing the main modes of structural variation during conformational changed.",
         "formula": "<math xmlns='http://www.w3.org/1998/Math/MathML'><mrow><mi>PC</mi><sub>i</sub><mo>=</mo><mo>&#x2211;</mo><msub><mi>w</mi><mi>ij</mi></msub><msub><mi>x</mi><mi>j</mi></msub></mrow></math>"
     },
     "UMAP": {
         "title": "UMAP (Uniform Manifold Approximation)",
-        "content": "UMAP is a non-linear dimensionality reduction technique that preserves both local and global structure of conformational data. It provides a 2D representation of RNA conformational space, revealing clusters and transitions between different folding states.",
+        "content": "UMAP is a non-linear dimensionality reduction technique that preserves both local and global structure of conformational data. It provides a 2D representation of RNA conformational space, helping revealing clusters and transitions between different folding states.",
         "formula": ""
     },
     "TSNE": {
