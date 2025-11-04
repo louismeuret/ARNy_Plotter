@@ -215,362 +215,436 @@ select {
                         </div>
                     </div>
                     <h2 class="subtitle">Select Plots:</h2>
-                    <div class="field">
-                        <div class="control">
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="rmsd"
-                                    name="rmsd"
-                                    value="RMSD"
-                                />
-                                RMSD
-                                <a href="#" onclick="window.open(constructDocumentationUrl('RMSD'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Plot a Root mean Square Deviation Scatter plot"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span> </a></label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="ermsd"
-                                    name="ermsd"
-                                    value="ERMSD"
-                                />
-                                ERMSD
-                                <a href="#" onclick="window.open(constructDocumentationUrl('ERMSD'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Plot a ERMSD Scatter plot"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a> </label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="base_pairing"
-                                    name="base_pairing"
-                                    value="BASE_PAIRING"
-                                />
-                                Base Pairing 2D Plot
-                                <a href="#" onclick="window.open(constructDocumentationUrl('2DBasePairing'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Plot a 2D representation of the base pairing"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                                </label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="torsion"
-                                    name="torsion"
-                                    value="TORSION"
-                                />
-                                TORSION
-                                <a href="#" onclick="window.open(constructDocumentationUrl('Torsion'), '_blank'); return false;">
+                    
+                    <!-- Structural Deviation Analysis Group -->
+                    <div class="plot-group" style="border: 2px solid #3273dc; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #f8fbff;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 class="subtitle is-5" style="margin: 0; color: #3273dc;">Structural Deviation Analysis</h3>
+                            <button type="button" class="button is-small is-info is-outlined" onclick="toggleGroupSelection('structural-deviation')">
+                                Select All
+                            </button>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="rmsd"
+                                        name="rmsd"
+                                        value="RMSD"
+                                        data-group="structural-deviation"
+                                    />
+                                    RMSD
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('RMSD'), '_blank'); return false;">
                                     <span
                                         class="icon has-tooltip"
-                                        data-tooltip="Plot torsion angles for selected residues"
+                                        data-tooltip="Plot a Root mean Square Deviation Scatter plot"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span> </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="ermsd"
+                                        name="ermsd"
+                                        value="ERMSD"
+                                        data-group="structural-deviation"
+                                    />
+                                    ERMSD
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('ERMSD'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot a ERMSD Scatter plot"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a> 
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="radius_of_gyration"
+                                        name="radius_of_gyration"
+                                        value="RADIUS_OF_GYRATION"
+                                        data-group="structural-deviation"
+                                    />
+                                    Radius of Gyration
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('RadiusOfGyration'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Measure RNA compactness through radius of gyration over time"
                                     >
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
-                            </label>
-                            <div id="torsionOptions" style="display: none; margin-left: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">
-                                <div class="field">
-                                    <label class="label">Torsion Mode:</label>
-                                    <div class="control">
-                                        <label class="radio">
-                                            <input type="radio" name="torsionMode" value="single" checked>
-                                            Single Residue
-                                        </label>
-                                        <label class="radio">
-                                            <input type="radio" name="torsionMode" value="multiple">
-                                            Multiple Residues
-                                        </label>
-                                        <label class="radio">
-                                            <input type="radio" name="torsionMode" value="all">
-                                            All Residues
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div id="singleResidueOptions">
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="end_to_end_distance"
+                                        name="end_to_end_distance"
+                                        value="END_TO_END_DISTANCE"
+                                        data-group="structural-deviation"
+                                    />
+                                    End-to-End Distance (5' to 3')
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('EndToEndDistance'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Measure distance between 5' and 3' RNA terminal atoms over time"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                                </label><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Structure Analysis Group -->
+                    <div class="plot-group" style="border: 2px solid #48c774; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #f8fff9;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 class="subtitle is-5" style="margin: 0; color: #48c774;">Secondary Structure Analysis</h3>
+                            <button type="button" class="button is-small is-success is-outlined" onclick="toggleGroupSelection('secondary-structure')">
+                                Select All
+                            </button>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="sec_structure"
+                                        name="sec_structure"
+                                        value="SEC_STRUCTURE"
+                                        data-group="secondary-structure"
+                                    />
+                                    SEC_STRUCTURE
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('SecondaryStructure'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Secondary Structure"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span></a> 
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="dotbracket"
+                                        name="dotbracket"
+                                        value="DOTBRACKET"
+                                        data-group="secondary-structure"
+                                    />
+                                    DOTBRACKET
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('DotBracket'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Dot-Bracket Notation"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span> </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="arc"
+                                        name="arc"
+                                        value="ARC"
+                                        data-group="secondary-structure"
+                                    />
+                                    ARC
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('Arc'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot a diagram in Arc, showing the frequency of contacts during the MD"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span> </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="base_pairing"
+                                        name="base_pairing"
+                                        value="BASE_PAIRING"
+                                        data-group="secondary-structure"
+                                    />
+                                    Base Pairing 2D Plot
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('2DBasePairing'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot a 2D representation of the base pairing"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                                </label><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conformational Analysis Group -->
+                    <div class="plot-group" style="border: 2px solid #ff3860; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fffbfc;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 class="subtitle is-5" style="margin: 0; color: #ff3860;">Conformational Analysis</h3>
+                            <button type="button" class="button is-small is-danger is-outlined" onclick="toggleGroupSelection('conformational-analysis')">
+                                Select All
+                            </button>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="contact_maps"
+                                        name="contact_maps"
+                                        value="CONTACT_MAPS"
+                                        data-group="conformational-analysis"
+                                    />
+                                    CONTACT_MAPS
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('ContactMaps'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Contact Maps"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span> </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="torsion"
+                                        name="torsion"
+                                        value="TORSION"
+                                        data-group="conformational-analysis"
+                                    />
+                                    TORSION
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('Torsion'), '_blank'); return false;">
+                                        <span
+                                            class="icon has-tooltip"
+                                            data-tooltip="Plot torsion angles for selected residues"
+                                        >
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </a>
+                                </label>
+                                <div id="torsionOptions" style="display: none; margin-left: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">
                                     <div class="field">
-                                        <label class="label">Residue:</label>
-                                        <input
-                                            type="text"
-                                            class="input"
-                                            id="torsionResidue"
-                                            name="torsionResidue"
-                                            placeholder="Residue index (e.g., 0, 1, 2...)"
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div id="multipleResidueOptions" style="display: none;">
-                                    <div class="field">
-                                        <label class="label">Select Residues:</label>
-                                        <div id="residueCheckboxes" class="content">
-                                            <p><em>Upload topology file to see available residues</em></p>
+                                        <label class="label">Torsion Mode:</label>
+                                        <div class="control">
+                                            <label class="radio">
+                                                <input type="radio" name="torsionMode" value="single" checked>
+                                                Single Residue
+                                            </label>
+                                            <label class="radio">
+                                                <input type="radio" name="torsionMode" value="multiple">
+                                                Multiple Residues
+                                            </label>
+                                            <label class="radio">
+                                                <input type="radio" name="torsionMode" value="all">
+                                                All Residues
+                                            </label>
                                         </div>
                                     </div>
                                     
-                                    <div class="field">
-                                        <label class="label">Select Torsion Angles:</label>
-                                        <div id="angleCheckboxes" class="content">
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="alpha"> Alpha
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="beta"> Beta
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="gamma"> Gamma
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="delta"> Delta
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="epsilon"> Epsilon
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="zeta"> Zeta
-                                            </label>
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="torsionAngles" value="chi"> Chi
-                                            </label>
+                                    <div id="singleResidueOptions">
+                                        <div class="field">
+                                            <label class="label">Residue:</label>
+                                            <input
+                                                type="text"
+                                                class="input"
+                                                id="torsionResidue"
+                                                name="torsionResidue"
+                                                placeholder="Residue index (e.g., 0, 1, 2...)"
+                                            />
                                         </div>
                                     </div>
-                                </div>
-                            </div><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="sec_structure"
-                                    name="sec_structure"
-                                    value="SEC_STRUCTURE"
-                                />
-                                SEC_STRUCTURE
-                                <a href="#" onclick="window.open(constructDocumentationUrl('SecondaryStructure'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Secondary Structure"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span></a> </label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="dotbracket"
-                                    name="dotbracket"
-                                    value="DOTBRACKET"
-                                />
-                                DOTBRACKET
-                                <a href="#" onclick="window.open(constructDocumentationUrl('DotBracket'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Dot-Bracket Notation"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span> </a></label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="arc"
-                                    name="arc"
-                                    value="ARC"
-                                />
-                                ARC
-                                <a href="#" onclick="window.open(constructDocumentationUrl('Arc'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Plot a diagram in Arc, showing the frequency of contacts during the MD"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span> </a></label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="contact_maps"
-                                    name="contact_maps"
-                                    value="CONTACT_MAPS"
-                                />
-                                CONTACT_MAPS
-                                <a href="#" onclick="window.open(constructDocumentationUrl('ContactMaps'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Contact Maps"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span> </a></label
-                            ><br />
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="landscape"
-                                    name="landscape"
-                                    value="LANDSCAPE"
-                                />
-                                LANDSCAPE
-                                <a href="#" onclick="window.open(constructDocumentationUrl('Landscape'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Energy Landscape"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span></a>
-                            </label>
-                            <input
-                                type="text"
-                                class="input mt-2"
-                                id="landscape_stride"
-                                name="landscape_stride"
-                                placeholder="Precision of the Energy Landscape, (as a stride, 2 meaning one of two frames considered)"
-                                value="1"
-                            /><br />
-                            <div class="select mt-2 is-arrowless">
-                                <label for="firstDimension"
-                                    >First Dimension:</label
-                                >
-                                <select
-                                    id="firstDimension"
-                                    name="firstDimension"
-                                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
-                                >
-                                    <option value="" disabled selected>
-                                        Select First Dimension
-                                    </option>
-                                    <option value="RMSD">RMSD</option>
-                                    <option value="eRMSD">eRMSD</option>
-                                    <option value="Torsion" disabled>Torsion</option>
-                                    <option value="Fraction of Contact Formed">
-                                        Fraction of Contact Formed
-                                    </option>
-                                </select>
+                                    
+                                    <div id="multipleResidueOptions" style="display: none;">
+                                        <div class="field">
+                                            <label class="label">Select Residues:</label>
+                                            <div id="residueCheckboxes" class="content">
+                                                <p><em>Upload topology file to see available residues</em></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="field">
+                                            <label class="label">Select Torsion Angles:</label>
+                                            <div id="angleCheckboxes" class="content">
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="alpha"> Alpha
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="beta"> Beta
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="gamma"> Gamma
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="delta"> Delta
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="epsilon"> Epsilon
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="zeta"> Zeta
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="torsionAngles" value="chi"> Chi
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><br />
                             </div>
-                            <div class="select mt-2 is-arrowless">
-                                <label for="secondDimension"
-                                    >Second Dimension:</label
-                                >
-                                <select
-                                    id="secondDimension"
-                                    name="secondDimension"
-                                    style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
-                                >
-                                    <option value="" disabled selected>
-                                        Select Second Dimension
-                                    </option>
-                                    <option value="RMSD">RMSD</option>
-                                    <option value="eRMSD">eRMSD</option>
-                                    <option value="Torsion" disabled>Torsion</option>
-                                    <option value="Fraction of Contact Formed">
-                                        Fraction of Contact Formed
-                                    </option>
-                                </select>
-                            </div><br />
-                            
-                            <label class="checkbox">
+                        </div>
+                    </div>
+
+                    <!-- Dimensionality Reduction Group -->
+                    <div class="plot-group" style="border: 2px solid #9b59b6; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fdfbff;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 class="subtitle is-5" style="margin: 0; color: #9b59b6;">Dimensionality Reduction</h3>
+                            <button type="button" class="button is-small is-outlined" onclick="toggleGroupSelection('dimensionality-reduction')" style="border-color: #9b59b6; color: #9b59b6;">
+                                Select All
+                            </button>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="pca"
+                                        name="pca"
+                                        value="PCA"
+                                        data-group="dimensionality-reduction"
+                                    />
+                                    PCA (Principal Component Analysis)
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('PCA'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Principal component analysis of RNA conformational landscape"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="umap"
+                                        name="umap"
+                                        value="UMAP"
+                                        data-group="dimensionality-reduction"
+                                    />
+                                    UMAP (Uniform Manifold Approximation)
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('UMAP'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="UMAP dimensionality reduction for RNA conformational analysis"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                                </label><br />
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="tsne"
+                                        name="tsne"
+                                        value="TSNE"
+                                        data-group="dimensionality-reduction"
+                                    />
+                                    t-SNE (t-Distributed Stochastic Neighbor Embedding)
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('TSNE'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="t-SNE dimensionality reduction for RNA conformational visualization"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </a>
+                                </label><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Energy Landscape Group -->
+                    <div class="plot-group" style="border: 2px solid #f39c12; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fffdf8;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 class="subtitle is-5" style="margin: 0; color: #f39c12;">Energy Landscape</h3>
+                            <button type="button" class="button is-small is-outlined" onclick="toggleGroupSelection('energy-landscape')" style="border-color: #f39c12; color: #f39c12;">
+                                Select All
+                            </button>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="landscape"
+                                        name="landscape"
+                                        value="LANDSCAPE"
+                                        data-group="energy-landscape"
+                                    />
+                                    LANDSCAPE
+                                    <a href="#" onclick="window.open(constructDocumentationUrl('Landscape'), '_blank'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Energy Landscape"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                    </span></a>
+                                </label>
                                 <input
-                                    type="checkbox"
-                                    id="radius_of_gyration"
-                                    name="radius_of_gyration"
-                                    value="RADIUS_OF_GYRATION"
-                                />
-                                Radius of Gyration
-                                <a href="#" onclick="window.open(constructDocumentationUrl('RadiusOfGyration'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Measure RNA compactness through radius of gyration over time"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                            </label><br />
-                            
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="end_to_end_distance"
-                                    name="end_to_end_distance"
-                                    value="END_TO_END_DISTANCE"
-                                />
-                                End-to-End Distance (5' to 3')
-                                <a href="#" onclick="window.open(constructDocumentationUrl('EndToEndDistance'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Measure distance between 5' and 3' RNA terminal atoms over time"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                            </label><br />
-                            
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="pca"
-                                    name="pca"
-                                    value="PCA"
-                                />
-                                PCA (Principal Component Analysis)
-                                <a href="#" onclick="window.open(constructDocumentationUrl('PCA'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="Principal component analysis of RNA conformational landscape"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                            </label><br />
-                            
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="umap"
-                                    name="umap"
-                                    value="UMAP"
-                                />
-                                UMAP (Uniform Manifold Approximation)
-                                <a href="#" onclick="window.open(constructDocumentationUrl('UMAP'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="UMAP dimensionality reduction for RNA conformational analysis"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                            </label><br />
-                            
-                            <label class="checkbox">
-                                <input
-                                    type="checkbox"
-                                    id="tsne"
-                                    name="tsne"
-                                    value="TSNE"
-                                />
-                                t-SNE (t-Distributed Stochastic Neighbor Embedding)
-                                <a href="#" onclick="window.open(constructDocumentationUrl('TSNE'), '_blank'); return false;">
-                                <span
-                                    class="icon has-tooltip"
-                                    data-tooltip="t-SNE dimensionality reduction for RNA conformational visualization"
-                                >
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </a>
-                            </label><br />
+                                    type="text"
+                                    class="input mt-2"
+                                    id="landscape_stride"
+                                    name="landscape_stride"
+                                    placeholder="Precision of the Energy Landscape, (as a stride, 2 meaning one of two frames considered)"
+                                    value="1"
+                                /><br />
+                                <div class="select mt-2 is-arrowless">
+                                    <label for="firstDimension"
+                                        >First Dimension:</label
+                                    >
+                                    <select
+                                        id="firstDimension"
+                                        name="firstDimension"
+                                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
+                                    >
+                                        <option value="" disabled selected>
+                                            Select First Dimension
+                                        </option>
+                                        <option value="RMSD">RMSD</option>
+                                        <option value="eRMSD">eRMSD</option>
+                                        <option value="Torsion" disabled>Torsion</option>
+                                        <option value="Fraction of Contact Formed">
+                                            Fraction of Contact Formed
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="select mt-2 is-arrowless">
+                                    <label for="secondDimension"
+                                        >Second Dimension:</label
+                                    >
+                                    <select
+                                        id="secondDimension"
+                                        name="secondDimension"
+                                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
+                                    >
+                                        <option value="" disabled selected>
+                                            Select Second Dimension
+                                        </option>
+                                        <option value="RMSD">RMSD</option>
+                                        <option value="eRMSD">eRMSD</option>
+                                        <option value="Torsion" disabled>Torsion</option>
+                                        <option value="Fraction of Contact Formed">
+                                            Fraction of Contact Formed
+                                        </option>
+                                    </select>
+                                </div><br />
+                            </div>
                         </div>
                     </div>
                     <div class="control mt-6">
@@ -1191,6 +1265,29 @@ select {
         </script>
         
         <script>
+            // Function to toggle group selection
+            function toggleGroupSelection(groupName) {
+                const checkboxes = document.querySelectorAll(`input[data-group="${groupName}"]`);
+                const button = event.target;
+                
+                // Check if all checkboxes in the group are currently checked
+                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                
+                // Toggle all checkboxes in the group
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = !allChecked;
+                });
+                
+                // Update button text
+                button.textContent = allChecked ? "Select All" : "Deselect All";
+                
+                // For torsion checkbox, trigger the change event to show/hide options
+                const torsionCheckbox = document.getElementById('torsion');
+                if (torsionCheckbox && Array.from(checkboxes).includes(torsionCheckbox)) {
+                    torsionCheckbox.dispatchEvent(new Event('change'));
+                }
+            }
+            
             function initializeTorsionControls() {
                 const torsionCheckbox = document.getElementById('torsion');
                 const torsionOptions = document.getElementById('torsionOptions');
