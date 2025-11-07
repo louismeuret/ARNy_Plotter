@@ -242,6 +242,14 @@ select {
                                     >
                                         <i class="fas fa-info-circle"></i>
                                     </span> </a>
+                                    <a href="#" onclick="openPlotSettings('rmsd'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                                 <label class="checkbox">
                                     <input
@@ -259,7 +267,15 @@ select {
                                     >
                                         <i class="fas fa-info-circle"></i>
                                     </span>
-                                </a> 
+                                </a>
+                                    <a href="#" onclick="openPlotSettings('ermsd'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                                 <label class="checkbox">
                                     <input
@@ -278,6 +294,14 @@ select {
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
+                                    <a href="#" onclick="openPlotSettings('radius_of_gyration'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                                 <label class="checkbox">
                                     <input
@@ -296,6 +320,14 @@ select {
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
+                                    <a href="#" onclick="openPlotSettings('end_to_end_distance'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                             </div>
                         </div>
@@ -528,6 +560,14 @@ select {
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
+                                    <a href="#" onclick="openPlotSettings('pca'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                                 <label class="checkbox">
                                     <input
@@ -546,6 +586,14 @@ select {
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
+                                    <a href="#" onclick="openPlotSettings('umap'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                                 <label class="checkbox">
                                     <input
@@ -564,6 +612,14 @@ select {
                                         <i class="fas fa-info-circle"></i>
                                     </span>
                                 </a>
+                                    <a href="#" onclick="openPlotSettings('tsne'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label><br />
                             </div>
                         </div>
@@ -595,6 +651,14 @@ select {
                                     >
                                         <i class="fas fa-info-circle"></i>
                                     </span></a>
+                                    <a href="#" onclick="openPlotSettings('landscape'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Plot settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
+                                    </span> </a>
                                 </label>
                                 <input
                                     type="text"
@@ -604,14 +668,13 @@ select {
                                     placeholder="Precision of the Energy Landscape, (as a stride, 2 meaning one of two frames considered)"
                                     value="1"
                                 /><br />
-                                <div class="select mt-2 is-arrowless">
+                                <div class="select mt-2 is-arrowless" style="margin-bottom: 20px">
                                     <label for="firstDimension"
                                         >First Dimension:</label
                                     >
                                     <select
                                         id="firstDimension"
                                         name="firstDimension"
-                                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
                                     >
                                         <option value="" disabled selected>
                                             Select First Dimension
@@ -631,7 +694,6 @@ select {
                                     <select
                                         id="secondDimension"
                                         name="secondDimension"
-                                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
                                     >
                                         <option value="" disabled selected>
                                             Select Second Dimension
@@ -731,7 +793,7 @@ select {
             <div class="box mt-5" id="sessionHistoryBox" style="display: none;">
                 <h2 class="title">Recent Sessions</h2>
                 <p class="subtitle" style="font-size: 1.2em; font-family: 'Georgia', serif; color: #555;">
-                    Your last 5 analysis sessions. Click on any session to retrieve its results.
+                    Your last 6 analysis sessions. Click on any session to retrieve its results.
                 </p>
                 <div id="sessionHistoryList" class="columns is-multiline">
                     <!-- Session history items will be populated here -->
@@ -785,7 +847,7 @@ select {
                 });
                 
                 // Keep only last 5
-                history = history.slice(0, 5);
+                history = history.slice(0, 6);
                 
                 // Save back to cookie
                 setCookie('arny_session_history', JSON.stringify(history), 30); // 30 days
@@ -1018,6 +1080,21 @@ select {
                     formData.append('nativePdb_filename', document.getElementById("nativePdb").files[0].name);
                     formData.append('trajXtc_filename', document.getElementById("trajXtc").files[0].name);
                     formData.append('session_id', sessionId);
+                    
+                    // Add plot settings for selected plots
+                    const selectedPlots = [];
+                    for (const element of form.elements) {
+                        if (element.type === 'checkbox' && element.checked && element.name in plotSettings) {
+                            selectedPlots.push(element.name);
+                        }
+                    }
+                    
+                    // Include settings for all selected plots
+                    const plotSettingsToSend = {};
+                    selectedPlots.forEach(plotName => {
+                        plotSettingsToSend[plotName] = plotSettings[plotName];
+                    });
+                    formData.append('plot_settings', JSON.stringify(plotSettingsToSend));
 
                     console.log('Submitting form data to /upload-files...');
                     const response = await fetch('/upload-files', {
@@ -1541,6 +1618,421 @@ select {
             }
         </script>
         
+        <!-- Plot Settings Modal -->
+        <div id="plotSettingsModal" class="modal">
+            <div class="modal-background" onclick="closePlotSettings()"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" id="plotSettingsTitle">Plot Settings</p>
+                    <button class="delete" aria-label="close" onclick="closePlotSettings()"></button>
+                </header>
+                <section class="modal-card-body" id="plotSettingsBody">
+                    <!-- Dynamic content will be populated here -->
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="savePlotSettings()">Save Settings</button>
+                    <button class="button" onclick="resetPlotSettings()">Reset to Defaults</button>
+                    <button class="button" onclick="closePlotSettings()">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal.is-active {
+            display: flex;
+        }
+
+        .modal-card {
+            margin: auto;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        </style>
+
+        <script>
+        // Plot settings storage
+        let plotSettings = {};
+        let currentPlotType = '';
+
+        // Default settings for each plot type
+        const defaultSettings = {
+            rmsd: {
+                heavy_atom: true,
+                title: "RMSD Analysis",
+                color_scheme: "viridis"
+            },
+            ermsd: {
+                heavy_atom: true,
+                title: "eRMSD Analysis", 
+                color_scheme: "viridis"
+            },
+            radius_of_gyration: {
+                selection: "nucleic",
+                title: "Radius of Gyration Analysis",
+                show_components: true,
+                color_scheme: "viridis"
+            },
+            end_to_end_distance: {
+                five_prime_atom: "C5'",
+                three_prime_atom: "C3'",
+                title: "End-to-End Distance Analysis",
+                color_scheme: "viridis"
+            },
+            pca: {
+                n_components: 10,
+                title: "PCA Analysis",
+                show_variance: true,
+                color_scheme: "viridis"
+            },
+            umap: {
+                n_neighbors: 15,
+                min_dist: 0.1,
+                random_state: 42,
+                title: "UMAP Analysis",
+                color_scheme: "viridis"
+            },
+            tsne: {
+                perplexity: 30,
+                random_state: 42,
+                title: "t-SNE Analysis",
+                color_scheme: "viridis"
+            },
+            landscape: {
+                stride: 1,
+                grid_size: 65,
+                first_dimension: "RMSD",
+                second_dimension: "eRMSD",
+                title: "Energy Landscape",
+                color_scheme: "viridis"
+            }
+        };
+
+        // Initialize settings from defaults
+        Object.keys(defaultSettings).forEach(plotType => {
+            plotSettings[plotType] = { ...defaultSettings[plotType] };
+        });
+
+        function openPlotSettings(plotType) {
+            currentPlotType = plotType;
+            const modal = document.getElementById('plotSettingsModal');
+            const title = document.getElementById('plotSettingsTitle');
+            const body = document.getElementById('plotSettingsBody');
+            
+            title.textContent = `${plotType.toUpperCase().replace('_', ' ')} Settings`;
+            body.innerHTML = generateSettingsHTML(plotType);
+            
+            modal.classList.add('is-active');
+        }
+
+        function closePlotSettings() {
+            const modal = document.getElementById('plotSettingsModal');
+            modal.classList.remove('is-active');
+        }
+
+        function generateSettingsHTML(plotType) {
+            const settings = plotSettings[plotType];
+            let html = '';
+
+            switch(plotType) {
+                case 'rmsd':
+                case 'ermsd':
+                    html = `
+                        <div class="field">
+                            <label class="label">Heavy Atoms Only</label>
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="heavy_atom" ${settings.heavy_atom ? 'checked' : ''}>
+                                    Use heavy atoms only for calculation
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Color Scheme</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="color_scheme">
+                                        <option value="viridis" ${settings.color_scheme === 'viridis' ? 'selected' : ''}>Viridis</option>
+                                        <option value="plasma" ${settings.color_scheme === 'plasma' ? 'selected' : ''}>Plasma</option>
+                                        <option value="blues" ${settings.color_scheme === 'blues' ? 'selected' : ''}>Blues</option>
+                                        <option value="reds" ${settings.color_scheme === 'reds' ? 'selected' : ''}>Reds</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'radius_of_gyration':
+                    html = `
+                        <div class="field">
+                            <label class="label">Atom Selection</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="selection">
+                                        <option value="nucleic" ${settings.selection === 'nucleic' ? 'selected' : ''}>Nucleic acids only</option>
+                                        <option value="all" ${settings.selection === 'all' ? 'selected' : ''}>All atoms</option>
+                                        <option value="backbone" ${settings.selection === 'backbone' ? 'selected' : ''}>Backbone only</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Show Components</label>
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="show_components" ${settings.show_components ? 'checked' : ''}>
+                                    Show X, Y, Z components
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'end_to_end_distance':
+                    html = `
+                        <div class="field">
+                            <label class="label">5' Terminal Atom</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="five_prime_atom">
+                                        <option value="C5'" ${settings.five_prime_atom === "C5'" ? 'selected' : ''}>C5'</option>
+                                        <option value="P" ${settings.five_prime_atom === 'P' ? 'selected' : ''}>P (Phosphorus)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">3' Terminal Atom</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="three_prime_atom">
+                                        <option value="C3'" ${settings.three_prime_atom === "C3'" ? 'selected' : ''}>C3'</option>
+                                        <option value="P" ${settings.three_prime_atom === 'P' ? 'selected' : ''}>P (Phosphorus)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'pca':
+                    html = `
+                        <div class="field">
+                            <label class="label">Number of Components</label>
+                            <div class="control">
+                                <input class="input" type="number" id="n_components" value="${settings.n_components}" min="2" max="50" placeholder="Number of PCA components">
+                            </div>
+                            <p class="help">Number of principal components to compute (2-50)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Show Variance Explained</label>
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="show_variance" ${settings.show_variance ? 'checked' : ''}>
+                                    Display variance explained by each component
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'umap':
+                    html = `
+                        <div class="field">
+                            <label class="label">Number of Neighbors</label>
+                            <div class="control">
+                                <input class="input" type="number" id="n_neighbors" value="${settings.n_neighbors}" min="2" max="100" placeholder="Number of neighbors">
+                            </div>
+                            <p class="help">Controls local vs global structure balance (2-100)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Minimum Distance</label>
+                            <div class="control">
+                                <input class="input" type="number" id="min_dist" value="${settings.min_dist}" min="0" max="1" step="0.01" placeholder="Minimum distance">
+                            </div>
+                            <p class="help">Controls tightness of embedding (0.0-1.0)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Random State</label>
+                            <div class="control">
+                                <input class="input" type="number" id="random_state" value="${settings.random_state}" placeholder="Random seed">
+                            </div>
+                            <p class="help">Random seed for reproducibility</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'tsne':
+                    html = `
+                        <div class="field">
+                            <label class="label">Perplexity</label>
+                            <div class="control">
+                                <input class="input" type="number" id="perplexity" value="${settings.perplexity}" min="5" max="50" placeholder="Perplexity">
+                            </div>
+                            <p class="help">Balance between local and global aspects (5-50)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Random State</label>
+                            <div class="control">
+                                <input class="input" type="number" id="random_state" value="${settings.random_state}" placeholder="Random seed">
+                            </div>
+                            <p class="help">Random seed for reproducibility</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'landscape':
+                    html = `
+                        <div class="field">
+                            <label class="label">Stride</label>
+                            <div class="control">
+                                <input class="input" type="number" id="stride" value="${settings.stride}" min="1" placeholder="Stride value">
+                            </div>
+                            <p class="help">Frame sampling stride (1 = every frame)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Grid Size</label>
+                            <div class="control">
+                                <input class="input" type="number" id="grid_size" value="${settings.grid_size}" min="20" max="200" placeholder="Grid size">
+                            </div>
+                            <p class="help">Resolution of the energy landscape grid (20-200)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">First Dimension</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="first_dimension">
+                                        <option value="RMSD" ${settings.first_dimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
+                                        <option value="eRMSD" ${settings.first_dimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Second Dimension</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="second_dimension">
+                                        <option value="RMSD" ${settings.second_dimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
+                                        <option value="eRMSD" ${settings.second_dimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                default:
+                    html = '<p>No settings available for this plot type.</p>';
+            }
+
+            return html;
+        }
+
+        function savePlotSettings() {
+            const body = document.getElementById('plotSettingsBody');
+            const inputs = body.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                const value = input.type === 'checkbox' ? input.checked : 
+                              input.type === 'number' ? parseFloat(input.value) || input.value : 
+                              input.value;
+                plotSettings[currentPlotType][input.id] = value;
+            });
+            
+            console.log(`Settings saved for ${currentPlotType}:`, plotSettings[currentPlotType]);
+            closePlotSettings();
+            
+            // Show a brief confirmation
+            showSettingsConfirmation();
+        }
+
+        function resetPlotSettings() {
+            plotSettings[currentPlotType] = { ...defaultSettings[currentPlotType] };
+            const body = document.getElementById('plotSettingsBody');
+            body.innerHTML = generateSettingsHTML(currentPlotType);
+            console.log(`Settings reset for ${currentPlotType}`);
+        }
+
+        function showSettingsConfirmation() {
+            const notification = document.createElement('div');
+            notification.className = 'notification is-success is-light';
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1001; min-width: 250px;';
+            notification.innerHTML = `
+                <button class="delete" onclick="this.parentElement.remove()"></button>
+                Settings saved for ${currentPlotType.replace('_', ' ').toUpperCase()}
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Function to get settings for a specific plot type (to be used during form submission)
+        function getPlotSettings(plotType) {
+            return plotSettings[plotType] || defaultSettings[plotType] || {};
+        }
+        </script>
+
         <div style="height: 20px"></div>
     </body>
 </html>

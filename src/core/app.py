@@ -191,7 +191,6 @@ class SharedTrajectoryManager:
                 return cache_key
         
         try:
-            logger.info("🚀 Loading and caching MDTraj objects for Barnaba optimization...")
             
             # Load MDTraj objects (what Barnaba uses internally)
             import mdtraj as md
@@ -603,7 +602,7 @@ def benchmark_performance_route(session_id):
         
         # Wait for results (with timeout)
         try:
-            results = benchmark_job.get(timeout=300)  # 5 minute timeout
+            results = benchmark_job.get(timeout=30000)  # 8.3 hours timeout
             return jsonify({
                 'success': True,
                 'benchmark_results': results,
@@ -815,6 +814,17 @@ def upload_files():
     torsion_angles = request.form.getlist("torsionAngles")
     torsion_mode = request.form.get("torsionMode", "single")  # single, multiple, all
     
+    # Handle plot settings
+    plot_settings = {}
+    plot_settings_json = request.form.get("plot_settings")
+    if plot_settings_json:
+        try:
+            plot_settings = json.loads(plot_settings_json)
+            logger.info(f"Received plot settings: {plot_settings}")
+        except json.JSONDecodeError as e:
+            logger.warning(f"Failed to parse plot settings JSON: {e}")
+            plot_settings = {}
+    
     session_data = {
         "selected_plots": selected_plots,
         "n_frames": n_frames,
@@ -826,6 +836,7 @@ def upload_files():
         "landscape_stride": request.form.get("landscape_stride", 0),
         "landscape_first_component": request.form.get("firstDimension", 0),
         "landscape_second_component": request.form.get("secondDimension", 0),
+        "plot_settings": plot_settings,
         "form": list(request.form),
         "files": {
             "nativePdb": str(native_pdb_name),
@@ -1034,12 +1045,13 @@ def view_trajectory(session_id):
     selected_plots = session.get("selected_plots", [])
     n_frames = session.get("n_frames", 1)
     frame_range = session.get("frame_range", "all")
+    plot_settings = session_data_json.get("plot_settings", {})
 
     socketio.emit('update_progress', {"progress": 20, "message": "Session data validated."}, to=session_id)
     socketio.sleep(0.1)  # Ensure the message is sent
 
     # Optimized trajectory loading with parallel preprocessing
-    socketio.emit('update_progress', {"progress": 25, "message": "Loading trajectory with optimizations..."}, to=session_id)
+    socketio.emit('update_progress', {"progress": 25, "message": "Loading trajectory..."}, to=session_id)
     
     def load_and_preprocess_trajectory():
         """Load trajectory with parallel optimization"""
@@ -1182,7 +1194,6 @@ def view_trajectory(session_id):
         socketio.emit('update_progress', {"progress": 50, "message": "Computing metrics..."}, to=session_id)
         
         # Create Celery chain for metrics computation
-        from celery import chain
         metrics_jobs = []
         
         if "rmsd" in metrics_needed:
@@ -1198,22 +1209,35 @@ def view_trajectory(session_id):
         if "dimensionality_reduction" in metrics_needed:
             metrics_jobs.append(compute_dimensionality_reduction.s(native_pdb_path, traj_xtc_path, session_id))
         
-        # Execute metrics computation chain
+        # Execute metrics computation in parallel using group
         if metrics_jobs:
-            metrics_chain = chain(*metrics_jobs)
-            metrics_result = metrics_chain.apply_async()
+            from celery import group
+            metrics_group = group(metrics_jobs)
+            metrics_result = metrics_group.apply_async()
             
             # Wait for metrics computation to complete
             while not metrics_result.ready():
                 socketio.sleep(0.1)
             
             if metrics_result.successful():
-                logger.info("All metrics computed successfully")
-                socketio.emit('update_progress', {"progress": 55, "message": "Metrics computed."}, to=session_id)
+                logger.info("All metrics computed successfully in parallel")
+                socketio.emit('update_progress', {"progress": 55, "message": "Metrics computed in parallel."}, to=session_id)
             else:
-                logger.error(f"Metrics computation failed: {metrics_result.result}")
-                socketio.emit('update_progress', {"progress": 100, "message": "Error: Metrics computation failed"}, to=session_id)
-                return
+                logger.error(f"Some metrics computation failed: {metrics_result.result}")
+                # Try to get partial results and continue
+                successful_results = []
+                failed_results = []
+                for i, task_result in enumerate(metrics_result.results):
+                    try:
+                        if task_result.successful():
+                            successful_results.append(task_result.get())
+                        else:
+                            failed_results.append(str(task_result.result))
+                    except Exception as e:
+                        failed_results.append(str(e))
+                
+                logger.info(f"Metrics: {len(successful_results)} successful, {len(failed_results)} failed")
+                socketio.emit('update_progress', {"progress": 55, "message": f"Metrics computed: {len(successful_results)} successful, {len(failed_results)} failed"}, to=session_id)
 
     # Phase 2: Generate plots using execution tree with chord structure
     socketio.emit('update_progress', {"progress": 60, "message": "Generating plots using dependency tree..."}, to=session_id)
@@ -1340,8 +1364,14 @@ def view_trajectory(session_id):
     
     # Wait for required metrics to complete (needed for dependent plots)
     if phase1_result:
-        phase1_result.get()
-        logger.info("Required metrics completed")
+        # Use timeout to avoid hanging indefinitely
+        try:
+            phase1_result.get(timeout=300)  # 5 minute timeout
+            logger.info("Required metrics completed")
+        except Exception as e:
+            logger.error(f"Required metrics failed or timed out: {e}")
+            socketio.emit('update_progress', {"progress": 100, "message": "Error: Required metrics failed"}, to=session_id)
+            return
     
     # Phase 3: Execute dependent plots (these depend on Phase 1 metrics)
     if execution_tree['phase_3_dependent']:

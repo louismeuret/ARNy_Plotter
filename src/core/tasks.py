@@ -42,8 +42,18 @@ app.conf.update(
     result_serializer='orjson',
     accept_content=['orjson', 'json'],  # Accept both orjson and json for compatibility
     task_acks_late=False,
-    worker_prefetch_multiplier=1,
+    worker_prefetch_multiplier=4,  # Allow workers to prefetch more tasks for better parallelism
+    worker_concurrency=4,  # Set explicit concurrency level
+    # Temporarily disable task routes to avoid queue routing issues
+    # task_routes={
+    #     # Route compute tasks to a specific queue for better resource management
+    #     'src.core.tasks.compute_*': {'queue': 'compute'},
+    #     'src.core.tasks.generate_*': {'queue': 'plots'},
+    # },
     result_expires=3600,
+    # Enable task result persistence for better debugging
+    task_track_started=True,
+    task_send_sent_event=True,
 )
 
 # Check dependencies
@@ -121,21 +131,22 @@ def load_cached_mdtraj_objects(session_id):
         return None, None
     
 def log_task(func):
-    """Simple task logging decorator"""
+    """Simple task logging decorator with parallel execution tracking"""
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         task_name = func.__name__
+        task_id = self.request.id if hasattr(self, 'request') else 'unknown'
         start_time = time.time()
         
         try:
-            logger.info(f"Starting {task_name}")
+            logger.info(f"🚀 Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}]")
             result = func(self, *args, **kwargs)
             duration = time.time() - start_time
-            logger.info(f"Completed {task_name} in {duration:.2f}s")
+            logger.info(f"✅ Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}]")
             return result
         except Exception as exc:
             duration = time.time() - start_time
-            logger.error(f"Failed {task_name} after {duration:.2f}s: {exc}")
+            logger.error(f"❌ Failed {task_name} [Task ID: {task_id}] after {duration:.2f}s [Worker: {os.getpid()}]: {exc}")
             raise
     return wrapper
 
@@ -1403,6 +1414,50 @@ def generate_dimensionality_reduction_plot(self, topology_file, trajectory_file,
         logger.error(f"{method.upper()} plot generation failed for session {session_id}: {str(exc)}")
         raise exc
 
+
+@app.task(bind=True)
+@log_task
+def test_parallel_execution(self, task_number, duration=5):
+    """Test task to verify parallel execution"""
+    import time
+    import os
+    
+    logger.info(f"Test task {task_number} starting on worker PID {os.getpid()}")
+    time.sleep(duration)
+    logger.info(f"Test task {task_number} completed on worker PID {os.getpid()}")
+    return f"Task {task_number} completed in {duration}s on PID {os.getpid()}"
+
+def test_celery_parallelism():
+    """Helper function to test if Celery is running tasks in parallel"""
+    from celery import group
+    
+    # Create 4 test tasks that each take 3 seconds
+    test_jobs = [
+        test_parallel_execution.s(i, 3) for i in range(4)
+    ]
+    
+    start_time = time.time()
+    logger.info("Starting parallel test - 4 tasks of 3 seconds each")
+    
+    # If running in parallel: should take ~3 seconds
+    # If running sequentially: would take ~12 seconds
+    test_group = group(test_jobs)
+    result = test_group.apply_async()
+    
+    try:
+        results = result.get(timeout=15)
+        duration = time.time() - start_time
+        
+        logger.info(f"Parallel test completed in {duration:.2f}s")
+        if duration < 6:  # Allow some overhead
+            logger.info("✅ PARALLEL EXECUTION CONFIRMED")
+        else:
+            logger.warning("⚠️  SEQUENTIAL EXECUTION DETECTED")
+            
+        return duration, results
+    except Exception as e:
+        logger.error(f"Parallel test failed: {e}")
+        return None, None
 
 if __name__ == "__main__":
     logger.info("RNA analysis tasks module loaded")

@@ -50,7 +50,7 @@ class RNATrajectoryAnalysis:
         print(session_id)
         return session_id
 
-    def upload_files(self, native_pdb_path, traj_xtc_path, analysis_options=None, frame_options=None, landscape_params=None):
+    def upload_files(self, native_pdb_path, traj_xtc_path, analysis_options=None, frame_options=None, landscape_params=None, plot_settings=None):
         """
         Upload PDB and XTC files for analysis.
 
@@ -60,6 +60,7 @@ class RNATrajectoryAnalysis:
             analysis_options (list): List of analysis types to perform (e.g., ["RMSD", "ERMSD", "TORSION"])
             frame_options (dict): Dict with frame selection options (e.g., {"n_frames": 10, "first_frame": 1, "last_frame": 100, "stride": 1})
             landscape_params (dict): Parameters for LANDSCAPE plot (e.g., {"x_param": "ERMSD", "y_param": "Q"})
+            plot_settings (dict): Plot-specific settings for customization (e.g., {"rmsd": {"heavy_atom": True, "title": "Custom RMSD"}})
 
         Returns:
             dict: Response from the server with the status of the upload
@@ -76,6 +77,9 @@ class RNATrajectoryAnalysis:
 
         if landscape_params is None:
             landscape_params = {"x_param": "ERMSD", "y_param": "Q"}
+
+        if plot_settings is None:
+            plot_settings = {}
 
         # Prepare form data
         form_data = {
@@ -106,6 +110,9 @@ class RNATrajectoryAnalysis:
             if y_param == "ERMSD":
                 form_data["secondDimension"] = "eRMSD"
 
+        # Add plot settings if provided
+        if plot_settings:
+            form_data["plot_settings"] = json.dumps(plot_settings)
 
         # Prepare files
         files = {
@@ -380,6 +387,7 @@ class RNATrajectoryAnalysis:
             "RMSD",
             "ERMSD",
             "CONTACT_MAPS",
+            "TORSION",
             "SEC_STRUCTURE",
             "DOTBRACKET",
             "ARC",
@@ -389,7 +397,12 @@ class RNATrajectoryAnalysis:
             "JCOUPLING",
             "ESCORE",
             "LANDSCAPE",
-            "BASE_PAIRING"
+            "BASE_PAIRING",
+            "RADIUS_OF_GYRATION",
+            "END_TO_END_DISTANCE",
+            "PCA",
+            "UMAP",
+            "TSNE"
         ]
 
     def get_landscape_parameters(self):
@@ -404,6 +417,58 @@ class RNATrajectoryAnalysis:
             "y_params": ["RMSD", "ERMSD", "TORSION", "Q"]
         }
 
+    def get_plot_settings_info(self):
+        """
+        Get information about available plot settings.
+
+        Returns:
+            dict: Dictionary with plot settings information and examples
+        """
+        return {
+            "rmsd": {
+                "heavy_atom": "Use heavy atoms only (bool, default: True)",
+                "title": "Custom plot title (string)",
+                "color_scheme": "Color scheme (viridis, plasma, blues, reds)"
+            },
+            "ermsd": {
+                "heavy_atom": "Use heavy atoms only (bool, default: True)",
+                "title": "Custom plot title (string)",
+                "color_scheme": "Color scheme (viridis, plasma, blues, reds)"
+            },
+            "radius_of_gyration": {
+                "selection": "Atom selection (nucleic, all, backbone)",
+                "show_components": "Show X,Y,Z components (bool, default: True)",
+                "title": "Custom plot title (string)"
+            },
+            "end_to_end_distance": {
+                "five_prime_atom": "5' terminal atom (C5', P)",
+                "three_prime_atom": "3' terminal atom (C3', P)",
+                "title": "Custom plot title (string)"
+            },
+            "pca": {
+                "n_components": "Number of components (int, 2-50, default: 10)",
+                "show_variance": "Show variance explained (bool, default: True)",
+                "title": "Custom plot title (string)"
+            },
+            "umap": {
+                "n_neighbors": "Number of neighbors (int, 2-100, default: 15)",
+                "min_dist": "Minimum distance (float, 0.0-1.0, default: 0.1)",
+                "random_state": "Random seed (int, default: 42)",
+                "title": "Custom plot title (string)"
+            },
+            "tsne": {
+                "perplexity": "Perplexity (int, 5-50, default: 30)",
+                "random_state": "Random seed (int, default: 42)",
+                "title": "Custom plot title (string)"
+            },
+            "landscape": {
+                "grid_size": "Grid resolution (int, 20-200, default: 65)",
+                "first_dimension": "X-axis parameter (RMSD, eRMSD)",
+                "second_dimension": "Y-axis parameter (RMSD, eRMSD)",
+                "title": "Custom plot title (string)"
+            }
+        }
+
 def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description='RNA Trajectory Analysis Tool')
@@ -411,7 +476,8 @@ def main():
     parser.add_argument('topology', help='Path to the topology PDB file')
     parser.add_argument('--analyses', nargs='+', default=['RMSD', 'ERMSD'],
                       choices=['RMSD', 'ERMSD', 'CONTACT_MAPS', 'TORSION', 'SEC_STRUCTURE',
-                              'DOTBRACKET', 'ARC', 'LANDSCAPE', 'BASE_PAIRING', 'ALL'],
+                              'DOTBRACKET', 'ARC', 'LANDSCAPE', 'BASE_PAIRING', 
+                              'RADIUS_OF_GYRATION', 'END_TO_END_DISTANCE', 'PCA', 'UMAP', 'TSNE', 'ALL'],
                       help='List of analyses to run (or "ALL" to run everything)')
     parser.add_argument('--n_frames', type=int, default=1,
                        help='Number of frames to analyze')
@@ -431,12 +497,37 @@ def main():
                        help='Y-axis parameter for LANDSCAPE plot')
     parser.add_argument('--no-progress', action='store_true',
                        help='Disable progress animation')
+    
+    # Plot settings arguments
+    parser.add_argument('--rmsd-heavy-atoms', action='store_true', default=True,
+                       help='Use heavy atoms only for RMSD calculation (default: True)')
+    parser.add_argument('--ermsd-heavy-atoms', action='store_true', default=True,
+                       help='Use heavy atoms only for eRMSD calculation (default: True)')
+    parser.add_argument('--rog-selection', choices=['nucleic', 'all', 'backbone'], default='nucleic',
+                       help='Atom selection for radius of gyration (default: nucleic)')
+    parser.add_argument('--e2e-five-prime', choices=["C5'", 'P'], default="C5'",
+                       help="5' terminal atom for end-to-end distance (default: C5')")
+    parser.add_argument('--e2e-three-prime', choices=["C3'", 'P'], default="C3'",
+                       help="3' terminal atom for end-to-end distance (default: C3')")
+    parser.add_argument('--pca-components', type=int, default=10, metavar='N',
+                       help='Number of PCA components to compute (default: 10)')
+    parser.add_argument('--umap-neighbors', type=int, default=15, metavar='N',
+                       help='Number of neighbors for UMAP (default: 15)')
+    parser.add_argument('--umap-min-dist', type=float, default=0.1, metavar='DIST',
+                       help='Minimum distance for UMAP (default: 0.1)')
+    parser.add_argument('--tsne-perplexity', type=int, default=30, metavar='N',
+                       help='Perplexity for t-SNE (default: 30)')
+    parser.add_argument('--landscape-grid-size', type=int, default=65, metavar='N',
+                       help='Grid size for landscape plot (default: 65)')
+    parser.add_argument('--random-seed', type=int, default=42, metavar='SEED',
+                       help='Random seed for reproducible results (default: 42)')
 
     args = parser.parse_args()
 
-    all_analyses = ['RMSD', 'ERMSD', 'CONTACT_MAPS',
+    all_analyses = ['RMSD', 'ERMSD', 'CONTACT_MAPS', 'TORSION',
                     'SEC_STRUCTURE', 'DOTBRACKET', 'ARC',
-                    'LANDSCAPE', 'BASE_PAIRING']
+                    'LANDSCAPE', 'BASE_PAIRING', 'RADIUS_OF_GYRATION',
+                    'END_TO_END_DISTANCE', 'PCA', 'UMAP', 'TSNE']
 
     if 'ALL' in args.analyses:
         args.analyses = all_analyses
@@ -455,6 +546,59 @@ def main():
         'y_param': args.landscape_y
     }
 
+    # Create plot settings dictionary
+    plot_settings = {
+        'rmsd': {
+            'heavy_atom': args.rmsd_heavy_atoms,
+            'title': 'RMSD Analysis',
+            'color_scheme': 'viridis'
+        },
+        'ermsd': {
+            'heavy_atom': args.ermsd_heavy_atoms,
+            'title': 'eRMSD Analysis',
+            'color_scheme': 'viridis'
+        },
+        'radius_of_gyration': {
+            'selection': args.rog_selection,
+            'title': 'Radius of Gyration Analysis',
+            'show_components': True,
+            'color_scheme': 'viridis'
+        },
+        'end_to_end_distance': {
+            'five_prime_atom': args.e2e_five_prime,
+            'three_prime_atom': args.e2e_three_prime,
+            'title': 'End-to-End Distance Analysis',
+            'color_scheme': 'viridis'
+        },
+        'pca': {
+            'n_components': args.pca_components,
+            'title': 'PCA Analysis',
+            'show_variance': True,
+            'color_scheme': 'viridis'
+        },
+        'umap': {
+            'n_neighbors': args.umap_neighbors,
+            'min_dist': args.umap_min_dist,
+            'random_state': args.random_seed,
+            'title': 'UMAP Analysis',
+            'color_scheme': 'viridis'
+        },
+        'tsne': {
+            'perplexity': args.tsne_perplexity,
+            'random_state': args.random_seed,
+            'title': 't-SNE Analysis',
+            'color_scheme': 'viridis'
+        },
+        'landscape': {
+            'stride': 1,  # This is handled separately by landscape_stride in form
+            'grid_size': args.landscape_grid_size,
+            'first_dimension': args.landscape_x,
+            'second_dimension': args.landscape_y,
+            'title': 'Energy Landscape',
+            'color_scheme': 'viridis'
+        }
+    }
+
     # Initialize the client
     client = RNATrajectoryAnalysis(base_url=args.server, verify_ssl=not args.no_verify_ssl)
 
@@ -465,7 +609,8 @@ def main():
         traj_xtc_path=args.trajectory,
         analysis_options=args.analyses,
         frame_options=frame_options,
-        landscape_params=landscape_params
+        landscape_params=landscape_params,
+        plot_settings=plot_settings
     )
 
     if upload_result['status'] != 'success':

@@ -265,19 +265,20 @@
                         <li>Set frame stride to skip frames</li>
                         <li>Specify start/end frames to trim trajectory</li>
                         <li>Leave empty to use full trajectory</li>
+                        <li>Note that the modifications are done on the server, the whole trajectory will still need to be uploaded</li>
                       </ul>
                     </div>
               
                     <div class="step">
                       <span class="step-number">3</span>
                       <span class="step-title">Select Desired Plots</span>
-                      <p>Choose which plots you want to generate from the available options described below<, all the plots are described in the suite of this page/p>
+                      <p>Choose which plots you want to generate from the available options described below, all the plots are described in the suite of this page</p>
                     </div>
               
                     <div class="step">
                       <span class="step-number">4</span>
                       <span class="step-title">Start Calculations</span>
-                      <p>Click the "Upload" button to begin processing your data, at this moment, the website is going to send the form to the server: it can take some time, depending of the upload speed, the number of users, and the plots selected </p>
+                      <p>Click the "Upload" button to begin processing your data, at this moment, the website is going to send the form to the server: it can take some time, depending of the upload speed, the number of users, and the plots selected. No need to stay on the page while the computations are running: once the trajectory is sent to the server, you can leave and come back later to check the results using the session ID </p>
                     </div>
                   </div>
               
@@ -286,6 +287,7 @@
                     <ul>
                       <li>Click "Go to already computed results" to view an example, note that it's not going to recompute the data, hence the faster loading time.</li>
                       <li>Enter a previous session ID in "Retrieve Previous Results" to access past calculations</li>
+                      <li>If you have already sent calculations to the server, they are saved locally in a cookie, it allow us to add a pane showing the 6 last trajectories you've sent to the server, without the need to recompute the results.</li>
                     </ul>
                   </div>
               
@@ -607,6 +609,7 @@
                 >
                     10. Landscape Plot
                 </h2>
+                
                 <div style="display: flex; justify-content: space-between;">
                     <figure style="flex: 1; margin-right: 10px;">
                         <img
