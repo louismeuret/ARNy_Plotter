@@ -32,7 +32,7 @@ class ServiceManager:
             },
             "2": {
                 "name": "Gunicorn Server", 
-                "cmd": ["gunicorn", "--bind", "127.0.0.1:4242", "--workers", "1", 
+                "cmd": ["gunicorn", "--bind", "127.0.0.1:4242", "--workers", "5", 
                        "--worker-class", "eventlet", "--timeout", "600", "--chdir", "src/core", "app:app"],
                 "process": None,
                 "status": ServiceStatus.STOPPED,
@@ -199,26 +199,28 @@ class ServiceManager:
         bottom_line = "└" + "─" * (box_width - 2) + "┘"
         
         # Service name and ID line
-        name_line = f"│ {service_id}. {name:<{box_width-6}} │"
+        name_line = f"│ {service_id}. {name:<{box_width-7}} │"
         
         # Status line with color and PID if running
         if service["process"] and service["status"] == ServiceStatus.RUNNING:
             status_info = f"{status_text} (PID: {service['process'].pid})"
+            size_width = 35
         else:
             status_info = status_text
-        status_line = f"│ Status: {color}{status_info:<20}{reset} {'':>{box_width-30}} │"
+            size_width = 33
+        status_line = f"│ Status: {color}{status_info:<20}{reset} {'':>{box_width-size_width}} │"
         
         # Description line
         desc_line = f"│ {service['description']:<{box_width-4}} │"
         
         # Log file line
-        log_line = f"│ Log: {service['log_file']:<{box_width-10}} │"
+        log_line = f"│ Log: {service['log_file']:<{box_width-9}} │"
         
         # Command preview (truncated)
         cmd_preview = " ".join(service["cmd"])
         if len(cmd_preview) > box_width - 12:
             cmd_preview = cmd_preview[:box_width-15] + "..."
-        cmd_line = f"│ Cmd: {cmd_preview:<{box_width-8}} │"
+        cmd_line = f"│ Cmd: {cmd_preview:<{box_width-9}} │"
         
         return [top_line, name_line, status_line, desc_line, log_line, cmd_line, bottom_line]
         
