@@ -106,9 +106,9 @@ class OptimizedTrajectoryManager:
         self._metadata_cache = {}
         self._lock = threading.Lock()
     
-    def preload_trajectory_metadata(self, native_pdb_path: str, traj_xtc_path: str) -> Dict[str, Any]:
+    def preload_trajectory_metadata(self, native_pdb_path: str, trajectory_path: str) -> Dict[str, Any]:
         """Preload trajectory metadata for optimization"""
-        cache_key = f"{native_pdb_path}:{traj_xtc_path}"
+        cache_key = f"{native_pdb_path}:{trajectory_path}"
         
         with self._lock:
             if cache_key in self._metadata_cache:
@@ -117,10 +117,10 @@ class OptimizedTrajectoryManager:
         try:
             # Load minimal trajectory info without full data
             import mdtraj as md
-            traj = md.load_frame(traj_xtc_path, 0, top=native_pdb_path)
+            traj = md.load_frame(trajectory_path, 0, top=native_pdb_path)
             
             metadata = {
-                'n_frames': md.load(traj_xtc_path, top=native_pdb_path).n_frames,
+                'n_frames': md.load(trajectory_path, top=native_pdb_path).n_frames,
                 'n_atoms': traj.n_atoms,
                 'n_residues': traj.n_residues,
                 'topology': traj.topology,
@@ -137,9 +137,9 @@ class OptimizedTrajectoryManager:
             logger.warning(f"Failed to preload trajectory metadata: {e}")
             return {}
     
-    def load_trajectory_parallel(self, native_pdb_path: str, traj_xtc_path: str, stride: int = 1) -> Tuple[Any, Any]:
+    def load_trajectory_parallel(self, native_pdb_path: str, trajectory_path: str, stride: int = 1) -> Tuple[Any, Any]:
         """Load trajectory with parallel optimization"""
-        cache_key = f"{native_pdb_path}:{traj_xtc_path}:{stride}"
+        cache_key = f"{native_pdb_path}:{trajectory_path}:{stride}"
         
         with self._lock:
             if cache_key in self._trajectory_cache:
@@ -153,9 +153,9 @@ class OptimizedTrajectoryManager:
         def load_trajectory():
             import mdtraj as md
             if stride > 1:
-                return md.load(traj_xtc_path, top=native_pdb_path, stride=stride)
+                return md.load(trajectory_path, top=native_pdb_path, stride=stride)
             else:
-                return md.load(traj_xtc_path, top=native_pdb_path)
+                return md.load(trajectory_path, top=native_pdb_path)
         
         # Parallel loading
         with ThreadPoolExecutor(max_workers=2) as executor:
@@ -181,7 +181,7 @@ class SharedTrajectoryManager:
         self._cache = {}
         self._lock = threading.Lock()
     
-    def preload_and_cache_trajectory(self, native_pdb_path: str, traj_xtc_path: str, session_id: str) -> str:
+    def preload_and_cache_trajectory(self, native_pdb_path: str, trajectory_path: str, session_id: str) -> str:
         """Load trajectory once and cache MDTraj objects for efficient Barnaba sharing"""
         cache_key = f"{session_id}_trajectory"
         
@@ -195,18 +195,18 @@ class SharedTrajectoryManager:
             # Load MDTraj objects (what Barnaba uses internally)
             import mdtraj as md
             reference_traj = md.load(native_pdb_path)
-            target_traj = md.load(traj_xtc_path, top=native_pdb_path)
+            target_traj = md.load(trajectory_path, top=native_pdb_path)
             
             logger.info(f"Loaded MDTraj: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
             
             # Also load MDAnalysis for compatibility
-            u = mda.Universe(native_pdb_path, traj_xtc_path)
+            u = mda.Universe(native_pdb_path, trajectory_path)
             ref = mda.Universe(native_pdb_path)
             
             # Pre-compute commonly used data
             trajectory_data = {
                 'topology_path': native_pdb_path,
-                'trajectory_path': traj_xtc_path,
+                'trajectory_path': trajectory_path,
                 'n_frames': target_traj.n_frames,
                 'n_atoms': target_traj.n_atoms,
                 'n_residues': target_traj.n_residues,
@@ -284,6 +284,66 @@ class SharedTrajectoryManager:
         return None
 
 shared_trajectory_manager = SharedTrajectoryManager()
+
+def convert_trajectory_to_xtc(topology_path: str, trajectory_path: str, session_id: str) -> str:
+    """
+    Convert trajectory file to XTC format if it's not in a supported format.
+    
+    Supported formats: dcd, nc, nctraj, trr, xtc
+    Unsupported formats (will be converted): pdb with multiple frames, other formats
+    
+    Args:
+        topology_path: Path to topology file (PDB/GRO)
+        trajectory_path: Path to trajectory file
+        session_id: Session ID for logging and file naming
+        
+    Returns:
+        Path to the trajectory file (original if already supported, converted if not)
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Extract file extension
+    _, ext = os.path.splitext(trajectory_path.lower())
+    supported_formats = ['.dcd', '.nc', '.nctraj', '.trr', '.xtc']
+    
+    # If already in supported format, return original path
+    if ext in supported_formats:
+        logger.info(f"Trajectory format {ext} is supported, no conversion needed")
+        return trajectory_path
+    
+    # Check if it's a multi-frame PDB or other unsupported format
+    logger.info(f"Trajectory format {ext} is not supported, converting to XTC")
+    
+    try:
+        # Create output path
+        directory = os.path.dirname(trajectory_path)
+        base_name = os.path.splitext(os.path.basename(trajectory_path))[0]
+        xtc_path = os.path.join(directory, f"{base_name}_converted.xtc")
+        
+        # Load and convert using MDAnalysis
+        logger.info(f"Loading trajectory for conversion: {trajectory_path}")
+        u = mda.Universe(topology_path, trajectory_path)
+        
+        # Check if trajectory has multiple frames
+        n_frames = len(u.trajectory)
+        logger.info(f"Trajectory has {n_frames} frames")
+        
+        if n_frames == 1:
+            logger.warning(f"Trajectory appears to have only 1 frame, this might not be a proper trajectory file")
+        
+        # Write to XTC format
+        logger.info(f"Converting trajectory to XTC: {xtc_path}")
+        with mda.Writer(xtc_path, u.atoms.n_atoms) as writer:
+            for ts in u.trajectory:
+                writer.write(u.atoms)
+        
+        logger.info(f"Trajectory conversion completed: {xtc_path}")
+        return xtc_path
+        
+    except Exception as e:
+        logger.error(f"Failed to convert trajectory to XTC: {e}")
+        # If conversion fails, try to return original path and let downstream handle the error
+        return trajectory_path
 
 class CalculationPlanner:
     """Plans and manages calculation resources"""
@@ -985,6 +1045,20 @@ def view_trajectory(session_id):
         native_pdb_path = os.path.join(directory_path, native_pdb_cached)
         traj_xtc_path = os.path.join(directory_path, traj_xtc_cached)
 
+        # Check if trajectory needs conversion to XTC format (even for cached results)
+        original_traj_path = traj_xtc_path
+        traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
+        
+        # If conversion happened, update the session data
+        if traj_xtc_path != original_traj_path:
+            converted_filename = os.path.basename(traj_xtc_path)
+            session_data['files']['trajXtc'] = converted_filename
+            traj_xtc_cached = converted_filename
+            # Update session data file
+            with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+                json.dump(session_data, file, indent=4)
+            logger.info(f"Updated cached session data with converted trajectory: {converted_filename}")
+
         u = mda.Universe(native_pdb_path, traj_xtc_path)
 
         with open(pickle_file_path, "rb") as f:
@@ -1042,12 +1116,27 @@ def view_trajectory(session_id):
         socketio.emit('update_progress', {"progress": 100, "message": "Error: File not found."}, to=session_id)
         return
 
+    # Check if trajectory needs conversion to XTC format
+    socketio.emit('update_progress', {"progress": 15, "message": "Checking trajectory format..."}, to=session_id)
+    original_traj_path = traj_xtc_path
+    traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
+    
+    # If conversion happened, update the session data
+    if traj_xtc_path != original_traj_path:
+        converted_filename = os.path.basename(traj_xtc_path)
+        session_data_json['files']['trajXtc'] = converted_filename
+        # Update session data file
+        with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+            json.dump(session_data_json, file, indent=4)
+        logger.info(f"Updated session data with converted trajectory: {converted_filename}")
+        socketio.emit('update_progress', {"progress": 18, "message": "Trajectory converted to XTC format."}, to=session_id)
+    
     selected_plots = session.get("selected_plots", [])
     n_frames = session.get("n_frames", 1)
     frame_range = session.get("frame_range", "all")
     plot_settings = session_data_json.get("plot_settings", {})
 
-    socketio.emit('update_progress', {"progress": 20, "message": "Session data validated."}, to=session_id)
+    socketio.emit('update_progress', {"progress": 20, "message": "Session data validated and trajectory format checked."}, to=session_id)
     socketio.sleep(0.1)  # Ensure the message is sent
 
     # Optimized trajectory loading with parallel preprocessing
@@ -1084,6 +1173,7 @@ def view_trajectory(session_id):
     # Load with optimization
     u, ref, r_matrix, residue_names = load_and_preprocess_trajectory()
     logger.info(f"Computed the rotation matrix: {r_matrix}")
+    file_name, file_extension = os.path.splitext(traj_xtc_path)
     try:
         r_matrix_str = str(r_matrix.tolist())
     except:
@@ -1092,6 +1182,7 @@ def view_trajectory(session_id):
     logger.info(f"Nucleic backbone atoms: {len(u.select_atoms('nucleicbackbone').positions)}")
     logger.info(f"Reference backbone atoms: {len(ref.select_atoms('nucleicbackbone').positions)}")
     
+    file_name, file_extension = os.path.splitext(traj_xtc_path)
     # Optimized trajectory writing with parallel processing
     def write_trajectory_range():
         if frame_range != "all":
@@ -1099,9 +1190,9 @@ def view_trajectory(session_id):
             end, stride = end_stride.split(":")
             start, end, stride = int(start), int(end), int(stride)
             u.trajectory[start:end:stride]
-            output_path = os.path.join(directory_path, f"traj_{start}_{end}.xtc")
+            output_path = os.path.join(directory_path, f"traj_{start}_{end}{file_extension}")
         else:
-            output_path = os.path.join(directory_path, f"traj_uploaded.xtc")
+            output_path = os.path.join(directory_path, f"traj_uploaded{file_extension}")
             start, end, stride = 0, len(u.trajectory), 1
         
         # Parallel trajectory writing
@@ -1133,9 +1224,9 @@ def view_trajectory(session_id):
         if frame_range != "all":
             start, end_stride = frame_range.split("-")
             end, stride = end_stride.split(":")
-            traj_xtc_path = os.path.join(directory_path, f"traj_{start}_{end}.xtc")
+            traj_xtc_path = os.path.join(directory_path, f"traj_{start}_{end}{file_extension}")
         else:
-            traj_xtc_path = os.path.join(directory_path, f"traj_uploaded.xtc")
+            traj_xtc_path = os.path.join(directory_path, f"traj_uploaded{file_extension}")
 
     socketio.emit('update_progress', {"progress": 40, "message": "Trajectory loaded."}, to=session_id)
     socketio.sleep(0.1)
@@ -1223,7 +1314,7 @@ def view_trajectory(session_id):
                 logger.info("All metrics computed successfully in parallel")
                 socketio.emit('update_progress', {"progress": 55, "message": "Metrics computed in parallel."}, to=session_id)
             else:
-                logger.error(f"Some metrics computation failed: {metrics_result.result}")
+                logger.error(f"Some metrics computation failed: {metrics_result.results}")
                 # Try to get partial results and continue
                 successful_results = []
                 failed_results = []
@@ -1232,7 +1323,7 @@ def view_trajectory(session_id):
                         if task_result.successful():
                             successful_results.append(task_result.get())
                         else:
-                            failed_results.append(str(task_result.result))
+                            failed_results.append(str(task_result.results))
                     except Exception as e:
                         failed_results.append(str(e))
                 
@@ -1520,7 +1611,7 @@ def view_trajectory(session_id):
             "view_trajectory.html",
             session_id=session_id,
             native_pdb=native_pdb,
-            traj_xtc="traj_uploaded.xtc",
+            traj_xtc=f"traj_uploaded{file_extension}",
             plot_data=completed_plot_data,
             trajectory_length=len(u.trajectory),
             explainations=explanations,
