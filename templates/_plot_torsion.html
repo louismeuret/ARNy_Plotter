@@ -88,11 +88,54 @@
       };
       
       // Initialize plot with time series data by default
-      Plotly.newPlot('{{ plot_info[1] }}', plotDataTimeSeries).then(() => {
+      Plotly.newPlot('{{ plot_info[1] }}', plotDataTimeSeries, layout, config).then(() => {
         console.log('Torsion: Initial plot created successfully');
-        setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+        setTimeout(() => {
+          Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+          
+          // Register this plot with the global frame marker manager after it's fully loaded
+          if (typeof frameMarkers !== 'undefined') {
+            frameMarkers.register('{{ plot_info[1] }}', plotDataTimeSeries);
+            console.log('Torsion plot registered with frame markers');
+          }
+        }, 100);
       }).catch(function(error) {
         console.error('Torsion: Error creating initial plot:', error);
+      });
+
+      // Add click handler for frame selection (only works in time series mode)
+      var currentPlot_{{ plot_info[1] }} = document.getElementById('{{ plot_info[1] }}');
+      currentPlot_{{ plot_info[1] }}.on('plotly_click', function(data) {
+        // Only handle clicks when in time series mode
+        if (currentMode === 'timeSeries') {
+          const frameNumber = data.points[0].x;
+          console.log('Torsion: Clicked on frame', frameNumber);
+          
+          // Update the 3D viewer
+          LouisMolStarWrapper.interactivity.changeFrame(frameNumber);
+          
+          // Update slider and frame number input to stay synchronized
+          const frameSlider = document.getElementById('frame-slider');
+          const frameNumberInput = document.getElementById('frame-number');
+          if (frameSlider) frameSlider.value = frameNumber;
+          if (frameNumberInput) frameNumberInput.value = frameNumber;
+
+          // Update all frame markers across all plots using the global manager
+          if (typeof frameMarkers !== 'undefined') {
+            frameMarkers.updateAll(frameNumber);
+          }
+
+          // Update contact map if socket is available
+          if (typeof io !== 'undefined') {
+            const socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
+              query: "session_id={{ session_id }}"
+            });
+            socket.emit("update_contact_map", {
+              value: frameNumber,
+              session_id: "{{ session_id }}"
+            }, "{{ session_id }}");
+          }
+        }
       });
 
       // Function to switch between time series and distribution modes
@@ -105,12 +148,22 @@
           document.getElementById('btnDistribution').classList.remove('is-active');
           currentMode = 'timeSeries';
           console.log('Torsion: Switched to time series view');
+          
+          // Re-register with frame markers for time series mode
+          if (typeof frameMarkers !== 'undefined') {
+            frameMarkers.register('{{ plot_info[1] }}', plotDataTimeSeries);
+          }
         } else {
           Plotly.react(plotDiv, plotDataDistribution);
           document.getElementById('btnDistribution').classList.add('is-active');
           document.getElementById('btnTimeSeries').classList.remove('is-active');
           currentMode = 'distribution';
           console.log('Torsion: Switched to distribution view');
+          
+          // Re-register with frame markers for distribution mode (if applicable)
+          if (typeof frameMarkers !== 'undefined') {
+            frameMarkers.register('{{ plot_info[1] }}', plotDataDistribution);
+          }
         }
       }
       

@@ -89,12 +89,15 @@ uploads_dir = os.path.abspath(os.path.join(static_dir, 'uploads'))
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.secret_key = "pi"
-app.debug = True
+app.debug = False
+
+# Performance optimizations
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400  # Cache static files for 24 hours
 
 # Ensure uploads directory exists
 os.makedirs(uploads_dir, exist_ok=True)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -440,8 +443,8 @@ class CalculationPlanner:
     
 socketio = SocketIO(
     app,
-    logger=True,
-    engineio_logger=True,
+    logger=False,
+    engineio_logger=False,
     async_mode='eventlet' if EVENTLET_AVAILABLE else 'threading',
     cors_allowed_origins=[
         "https://arny-plotter.rpbs.univ-paris-diderot.fr",
@@ -455,14 +458,14 @@ socketio = SocketIO(
     allow_upgrades=True,       # Allow protocol upgrades
     transports=['websocket', 'polling'],  # Support both transport methods
 
-    # Additional proxy configurations
-    ping_timeout=60,           # Increase timeout for proxy delays
-    ping_interval=25,          # Regular ping to keep connection alive
+    # Optimized connection settings
+    ping_timeout=30,           # Reduced timeout for faster detection
+    ping_interval=15,          # Less frequent pings to reduce overhead
 
     # Handle proxy headers
     engineio_options={
-        'ping_timeout': 60,
-        'ping_interval': 25,
+        'ping_timeout': 30,
+        'ping_interval': 15,
         'upgrade_timeout': 30,
         'max_http_buffer_size': 1000000,
         # Additional engineio CORS options
@@ -944,6 +947,21 @@ def retrieve_results():
     print(f"Native PDB: {native_pdb_path}")
     print(f"Trajectory XTC: {traj_xtc_path}")
 
+    # Check if trajectory needs conversion to XTC format (for retrieve results)
+    original_traj_path = traj_xtc_path
+    traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
+    
+    # If conversion happened, update the session data
+    if traj_xtc_path != original_traj_path:
+        converted_filename = os.path.basename(traj_xtc_path)
+        session_data['files']['trajXtc'] = converted_filename
+        session_data['trajectory_converted'] = True  # Flag to bypass cache
+        traj_xtc = converted_filename
+        # Update session data file
+        with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+            json.dump(session_data, file, indent=4)
+        logger.info(f"Updated retrieve results session data with converted trajectory: {converted_filename}")
+
     u = mda.Universe(native_pdb_path, traj_xtc_path)
 
     if not os.path.exists(pickle_file_path):
@@ -964,7 +982,8 @@ def retrieve_results():
         traj_xtc=traj_xtc,
         plot_data=plot_data,
         trajectory_length=len(u.trajectory),
-        explainations=explanations
+        explainations=explanations,
+        trajectory_converted=session_data.get('trajectory_converted', False)
     )
 
 
@@ -1081,7 +1100,7 @@ def view_trajectory(session_id):
 
     # Results don't exist, need to process
     socketio.emit('update_progress', {"progress": 0, "message": "Initializing trajectory analysis..."}, to=session_id)
-    socketio.sleep(0.1)  # Ensure the message is sent
+    socketio.sleep(0.01)  # Minimal delay for message sending
 
     # Setup paths and load explanations
     directory_path = os.path.join(uploads_dir, session_id)
@@ -1098,7 +1117,7 @@ def view_trajectory(session_id):
         explanations = json.load(f)
 
     socketio.emit('update_progress', {"progress": 10, "message": "Paths set up and explanations loaded."}, to=session_id)
-    socketio.sleep(0.1)  # Ensure the message is sent
+    socketio.sleep(0.01)  # Minimal delay for message sending
 
     # Load session data to get file names
     try:
@@ -1140,7 +1159,7 @@ def view_trajectory(session_id):
     plot_settings = session_data_json.get("plot_settings", {})
 
     socketio.emit('update_progress', {"progress": 20, "message": "Session data validated and trajectory format checked."}, to=session_id)
-    socketio.sleep(0.1)  # Ensure the message is sent
+    socketio.sleep(0.01)  # Minimal delay for message sending
 
     # Optimized trajectory loading with parallel preprocessing
     socketio.emit('update_progress', {"progress": 25, "message": "Loading trajectory..."}, to=session_id)
@@ -1346,42 +1365,45 @@ def view_trajectory(session_id):
 
         plot_style = "default"
 
+        # Get plot-specific settings
+        plot_settings_for_task = plot_settings.get(plot.lower(), {})
+        
         if plot == "RMSD":
-            job_sig = generate_rmsd_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_rmsd_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "scatter2"
         elif plot == "ERMSD":
-            job_sig = generate_ermsd_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_ermsd_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "scatter"
         elif plot == "TORSION":
             torsion_residue = session.get("torsionResidue", 0)
-            job_sig = generate_torsion_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, torsion_residue)
+            job_sig = generate_torsion_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, torsion_residue, plot_settings_for_task)
             plot_style = "torsion"
         elif plot == "SEC_STRUCTURE":
-            job_sig = generate_sec_structure_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_sec_structure_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "bar"
         elif plot == "DOTBRACKET":
-            job_sig = generate_dotbracket_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_dotbracket_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "dotbracket"
         elif plot == "ARC":
-            job_sig = generate_arc_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_arc_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "arc"
         elif plot == "CONTACT_MAPS":
-            job_sig = generate_contact_map_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, generate_data_path, session_id)
+            job_sig = generate_contact_map_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, generate_data_path, session_id, plot_settings_for_task)
             plot_style = "CONTACT_MAPS"
         elif plot == "ANNOTATE":
-            job_sig = generate_annotate_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_annotate_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "annotate"
         elif plot == "DS_MOTIF":
-            job_sig = generate_ds_motif_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_ds_motif_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "motif"
         elif plot == "SS_MOTIF":
-            job_sig = generate_ss_motif_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_ss_motif_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "motif"
         elif plot == "JCOUPLING":
-            job_sig = generate_jcoupling_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_jcoupling_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "s"
         elif plot == "ESCORE":
-            job_sig = generate_escore_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_escore_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "scatter"
         elif plot == "LANDSCAPE":
             landscape_params = [
@@ -1389,25 +1411,25 @@ def view_trajectory(session_id):
                 session.get("landscape_first_component", 1),
                 session.get("landscape_second_component", 1)
             ]
-            job_sig = generate_landscape_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, landscape_params, generate_data_path)
+            job_sig = generate_landscape_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, landscape_params, generate_data_path, plot_settings_for_task)
             plot_style = "surface"
         elif plot == "BASE_PAIRING":
-            job_sig = generate_2Dpairing_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_2Dpairing_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "2Dpairing"
         elif plot == "RADIUS_OF_GYRATION":
-            job_sig = generate_radius_of_gyration_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_radius_of_gyration_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "scatter_rog"
         elif plot == "END_TO_END_DISTANCE":
-            job_sig = generate_end_to_end_distance_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id)
+            job_sig = generate_end_to_end_distance_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, plot_settings_for_task)
             plot_style = "scatter_e2e"
         elif plot == "PCA":
-            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'pca')
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'pca', plot_settings_for_task)
             plot_style = "scatter_PCA"
         elif plot == "UMAP":
-            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'umap')
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'umap', plot_settings_for_task)
             plot_style = "scatter_UMAP"
         elif plot == "TSNE":
-            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'tsne')
+            job_sig = generate_dimensionality_reduction_plot.s(native_pdb_path, traj_xtc_path, files_path, plot_dir, session_id, 'tsne', plot_settings_for_task)
             plot_style = "scatter_TSNE"
         else:
             logger.warning(f"Unknown plot type: {plot}")

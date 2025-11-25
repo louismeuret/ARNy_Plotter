@@ -501,18 +501,37 @@ def compute_dimensionality_reduction(self, *args):
     
     # PCA Analysis
     logger.info("Running PCA...")
-    pca = PCA(n_components=10)
-    pca_coords = pca.fit_transform(aligned_coords)
-    explained_variance = pca.explained_variance_ratio_
+    # Ensure n_components is valid for the data
+    max_components = min(aligned_coords.shape[0] - 1, aligned_coords.shape[1])
+    n_components = min(10, max_components)
+    
+    if n_components < 2:
+        logger.warning(f"Cannot perform PCA: insufficient data (shape: {aligned_coords.shape}, max_components: {max_components})")
+        # Create dummy data for compatibility
+        pca_coords = aligned_coords[:, :2] if aligned_coords.shape[1] >= 2 else np.column_stack([aligned_coords[:, 0], aligned_coords[:, 0]])
+        explained_variance = np.array([1.0, 0.0])  # Dummy variance
+    else:
+        logger.info(f"Using PCA with {n_components} components (data shape: {aligned_coords.shape})")
+        pca = PCA(n_components=n_components)
+        pca_coords = pca.fit_transform(aligned_coords)
+        explained_variance = pca.explained_variance_ratio_
     
     logger.info(f"PC1 explains {explained_variance[0]*100:.1f}% of variance")
-    logger.info(f"PC2 explains {explained_variance[1]*100:.1f}% of variance")
+    if len(explained_variance) > 1:
+        logger.info(f"PC2 explains {explained_variance[1]*100:.1f}% of variance")
+    else:
+        logger.info("Only 1 principal component available")
     
     # UMAP Analysis
     logger.info("Running UMAP...")
+    # Adjust n_neighbors for small datasets (must be < n_samples)
+    n_neighbors = min(15, aligned_coords.shape[0] - 1)
+    n_neighbors = max(2, n_neighbors)  # Ensure at least 2 neighbors
+    
+    logger.info(f"Using UMAP with {n_neighbors} neighbors (data shape: {aligned_coords.shape})")
     umap_reducer = umap.UMAP(
         n_components=2, 
-        n_neighbors=15, 
+        n_neighbors=n_neighbors, 
         min_dist=0.1, 
         random_state=42
     )
@@ -521,8 +540,18 @@ def compute_dimensionality_reduction(self, *args):
     # t-SNE Analysis
     logger.info("Running t-SNE...")
     # Use PCA preprocessing for t-SNE (recommended for high-dimensional data)
-    pca_50 = PCA(n_components=min(50, aligned_coords.shape[1]))
-    pca_coords_50 = pca_50.fit_transform(aligned_coords)
+    # n_components must be <= min(n_samples, n_features)
+    max_components = min(aligned_coords.shape[0] - 1, aligned_coords.shape[1])
+    n_components_pca = min(50, max_components)
+    
+    if n_components_pca < 1:
+        logger.warning(f"Cannot perform PCA preprocessing: insufficient data (shape: {aligned_coords.shape})")
+        # Skip PCA preprocessing and use original data directly
+        pca_coords_50 = aligned_coords
+    else:
+        logger.info(f"Using PCA with {n_components_pca} components (data shape: {aligned_coords.shape})")
+        pca_50 = PCA(n_components=n_components_pca)
+        pca_coords_50 = pca_50.fit_transform(aligned_coords)
     
     tsne = TSNE(
         n_components=2, 
@@ -556,7 +585,7 @@ def compute_dimensionality_reduction(self, *args):
 # Phase 2: Plot Generation Tasks
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate RMSD plot using pre-computed data"""
     try:
         # Load pre-computed RMSD data
@@ -581,19 +610,22 @@ def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_di
             import barnaba as bb
             
             # Try to use cached MDTraj objects first
+            # Use heavy_atom setting from plot_settings (default: True)
+            heavy_atom = plot_settings.get("heavy_atom", True)
+            
             reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
             
             if reference_traj is not None and target_traj is not None:
                 logger.info("🚀 Using cached MDTraj objects for RMSD plot fallback")
-                rmsd = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
+                rmsd = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=heavy_atom)
             else:
                 logger.info("⚠️  Using file loading for RMSD plot fallback")
-                rmsd = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
+                rmsd = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=heavy_atom)
 
-        # Create plot using create_plots functions
+        # Create plot using create_plots functions with settings
         #try:
         logging.info("Default plots are used")
-        fig = plot_rmsd(rmsd)
+        fig = plot_rmsd(rmsd, plot_settings)
         print(fig)
     
         # Save data and plot
@@ -632,7 +664,7 @@ def generate_rmsd_plot(self, topology_file, trajectory_file, files_path, plot_di
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_ermsd_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_ermsd_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate eRMSD plot using pre-computed data"""
     try:
         # Load pre-computed eRMSD data
@@ -651,7 +683,7 @@ def generate_ermsd_plot(self, topology_file, trajectory_file, files_path, plot_d
 
         # Create plot using create_plots functions
         try:
-            fig = plot_ermsd(ermsd)
+            fig = plot_ermsd(ermsd, plot_settings)
             
             # Save data and plot
             import pandas as pd
@@ -689,7 +721,7 @@ def generate_ermsd_plot(self, topology_file, trajectory_file, files_path, plot_d
 # Placeholder tasks for other plots that don't need metrics
 @app.task(bind=True, max_retries=3)
 @log_task  
-def generate_torsion_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, torsion_residue=0):
+def generate_torsion_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, torsion_residue=0, plot_settings={}):
     """Generate torsion plot"""
     try:
         if not BARNABA_AVAILABLE:
@@ -798,7 +830,7 @@ def generate_sec_structure_plot(self, topology_file, trajectory_file, files_path
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_dotbracket_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_dotbracket_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate dot-bracket plot"""
     try:
         # Load pre-computed annotate data if available
@@ -831,7 +863,7 @@ def generate_dotbracket_plot(self, topology_file, trajectory_file, files_path, p
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_arc_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_arc_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate arc plot"""
     try:
         print("ARC")
@@ -976,7 +1008,7 @@ def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, 
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_annotate_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_annotate_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate annotate plot using pre-computed data"""
     try:
         # Load pre-computed annotate data
@@ -1013,7 +1045,7 @@ def generate_ss_motif_plot(self, topology_file, trajectory_file, files_path, plo
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_jcoupling_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_jcoupling_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate J-coupling plot"""
     try:
         if not BARNABA_AVAILABLE:
@@ -1028,13 +1060,13 @@ def generate_jcoupling_plot(self, topology_file, trajectory_file, files_path, pl
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_escore_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_escore_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate e-score plot"""
     return {"path": f"static/uploads/{session_id}/escore_plot.png", "status": "placeholder"}
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_landscape_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, landscape_params, generate_data_path):
+def generate_landscape_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, landscape_params, generate_data_path, plot_settings={}):
     """Generate landscape plot using pre-computed metrics"""
     try:
         # Load pre-computed RMSD and eRMSD data if available
@@ -1147,7 +1179,7 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_2Dpairing_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_2Dpairing_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate 2D pairing plot"""
     try:
         if not BARNABA_AVAILABLE:
@@ -1227,7 +1259,7 @@ def update_landscape_frame(self, generate_data_path, coordinates):
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_radius_of_gyration_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_radius_of_gyration_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate interactive plot for radius of gyration analysis"""
     try:
         logger.info(f"Starting radius of gyration plot generation for session {session_id}")
@@ -1252,7 +1284,7 @@ def generate_radius_of_gyration_plot(self, topology_file, trajectory_file, files
         
         # Create plot using create_plots function
         logger.info(f"RADIUS_OF_GYRATION: Calling plot_radius_of_gyration with {len(frames)} frames")
-        fig = plot_radius_of_gyration(frames, rg_total, rg_components)
+        fig = plot_radius_of_gyration(frames, rg_total, rg_components, plot_settings)
         logger.info(f"RADIUS_OF_GYRATION: Plot figure created, type: {type(fig)}")
         
         # Save data to CSV
@@ -1343,7 +1375,7 @@ def generate_end_to_end_distance_plot(self, topology_file, trajectory_file, file
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_dimensionality_reduction_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, method='pca'):
+def generate_dimensionality_reduction_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, method='pca', plot_settings={}):
     """Generate interactive plot for dimensionality reduction analysis"""
     try:
         logger.info(f"Starting {method.upper()} plot generation for session {session_id}")

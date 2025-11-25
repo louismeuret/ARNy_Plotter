@@ -274,7 +274,8 @@
         register: function(plotId, plotData) {
             this.plots[plotId] = {
                 plotData: plotData,
-                markerCreated: false
+                markerCreated: false,
+                markerTraceIndex: -1  // Track which trace index the marker is at
             };
         },
 
@@ -298,7 +299,7 @@
                         : plot.plotData.data[0].y[frameNumber];
 
                     if (!plot.markerCreated) {
-                        // Create the frame marker
+                        // Create the frame marker as a new trace
                         console.log(`Creating frame marker for ${plotId} at frame ${frameNumber}`);
                         const newMarkerTrace = {
                             x: [frameNumber],
@@ -312,17 +313,27 @@
                             },
                             name: 'Frame Marker'
                         };
-                        Plotly.addTraces(plotId, newMarkerTrace);
+                        
+                        // Add the marker trace and track its index
+                        Plotly.addTraces(plotId, newMarkerTrace).then(() => {
+                            // The new trace will be at the last index
+                            const plotDiv = document.getElementById(plotId);
+                            if (plotDiv && plotDiv.data) {
+                                plot.markerTraceIndex = plotDiv.data.length - 1;
+                                console.log(`Frame marker created for ${plotId} at trace index ${plot.markerTraceIndex}`);
+                            }
+                        });
                         plot.markerCreated = true;
-                        console.log(`Frame marker created for ${plotId}`);
                     } else {
-                        // Update existing marker
-                        console.log(`Updating frame marker for ${plotId} to frame ${frameNumber}`);
+                        // Update existing marker using the correct trace index
+                        console.log(`Updating frame marker for ${plotId} to frame ${frameNumber}, trace index: ${plot.markerTraceIndex}`);
                         const update = {
                             'x': [[frameNumber]],
                             'y': [[yValue]]
                         };
-                        Plotly.restyle(plotId, update, [1]); // Update trace index 1 (marker)
+                        if (plot.markerTraceIndex >= 0) {
+                            Plotly.restyle(plotId, update, [plot.markerTraceIndex]);
+                        }
                     }
                 } catch (error) {
                     console.error(`Could not update marker for plot ${plotId}:`, error);

@@ -40,26 +40,66 @@ def handle_plot_errors(func):
     return wrapper
 
 @handle_plot_errors
-def plot_ermsd(ermsd: np.ndarray) -> go.Figure:
+def plot_ermsd(ermsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
+    # Apply plot settings with defaults
+    title = plot_settings.get("title", "eRMSD Scatter Plot")
+    color_scheme = plot_settings.get("color_scheme", "viridis")
+    heavy_atom = plot_settings.get("heavy_atom", True)
+    
+    # Set marker color based on color scheme
+    if color_scheme == "viridis":
+        marker_color = "green"
+    elif color_scheme == "plasma":
+        marker_color = "purple"
+    elif color_scheme == "inferno":
+        marker_color = "orange"
+    else:
+        marker_color = "green"  # default
+    
     fig = go.Figure(
-        data=go.Scattergl(y=ermsd, mode="markers", legendrank=1),
+        data=go.Scattergl(
+            y=ermsd, 
+            mode="markers", 
+            legendrank=1,
+            marker=dict(color=marker_color)
+        ),
         layout=dict(
-            title="ERMSD Scatter Plot",
+            title=title,
             xaxis_title="Frame",
-            yaxis_title="ERMSD Value",
+            yaxis_title="eRMSD Value (Å)" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
             hovermode="closest"
         )
     )
     return fig
 
 @handle_plot_errors
-def plot_rmsd(rmsd: np.ndarray) -> go.Figure:
+def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
+    # Apply plot settings with defaults
+    title = plot_settings.get("title", "RMSD Scatter Plot")
+    color_scheme = plot_settings.get("color_scheme", "viridis")
+    heavy_atom = plot_settings.get("heavy_atom", True)
+    
+    # Set marker color based on color scheme
+    if color_scheme == "viridis":
+        marker_color = "green"
+    elif color_scheme == "plasma":
+        marker_color = "purple"
+    elif color_scheme == "inferno":
+        marker_color = "orange"
+    else:
+        marker_color = "green"  # default
+    
     fig = go.Figure(
-        data=go.Scattergl(y=rmsd, mode="markers", legendrank=1),
+        data=go.Scattergl(
+            y=rmsd, 
+            mode="markers", 
+            legendrank=1,
+            marker=dict(color=marker_color)
+        ),
         layout=dict(
-            title="RMSD Scatter Plot",
+            title=title,
             xaxis_title="Frame",
-            yaxis_title="RMSD Value",
+            yaxis_title="RMSD Value (Å)" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
             hovermode="closest"
         )
     )
@@ -140,7 +180,7 @@ def plot_dotbracket(dotbracket_data: List[str]) -> go.Figure:
     fig = go.Figure(data=traces, layout=layout)
     return fig
 
-def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue: int) -> go.Figure:
+def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue: int, plot_settings: dict = {}) -> go.Figure:
     """Create time series plot for torsion angles"""
     if isinstance(torsionResidue, str) and torsionResidue.isdigit():
         residue_index = int(torsionResidue)
@@ -152,7 +192,12 @@ def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue:
     residue_index = min(residue_index, len(res) - 1) if len(res) > 0 else 0
     specific_residue_angles = angles[:, residue_index, :]
     angles_names = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "chi"]
-    colors = ["#636efa", "#ef553b", "#00cc96", "#a45bf9", "#fa9f5e", "#1ad0f2", "#ff6692"]
+    
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', f"Torsion Angles Time Series - Residue {res[residue_index]} ({residue_index})")
+    custom_colors = plot_settings.get('angle_colors', ["#636efa", "#ef553b", "#00cc96", "#a45bf9", "#fa9f5e", "#1ad0f2", "#ff6692"])
+    line_width = plot_settings.get('line_width', 2)
+    marker_size = plot_settings.get('marker_size', 3)
     
     fig = go.Figure()
     
@@ -167,12 +212,12 @@ def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue:
             y=y_values[valid_indices],
             mode="lines+markers",
             name=f"{angles_names[i]}",
-            line=dict(color=colors[i], width=2),
-            marker=dict(size=3, color=colors[i]),
+            line=dict(color=custom_colors[i], width=line_width),
+            marker=dict(size=marker_size, color=custom_colors[i]),
         ))
     
     fig.update_layout(
-        title=f"Torsion Angles Time Series - Residue {res[residue_index]} ({residue_index})",
+        title=title,
         xaxis_title="Frame Number",
         yaxis_title="Angle (degrees)",
         height=600,
@@ -182,7 +227,7 @@ def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue:
     
     return fig
 
-def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidue: int) -> go.Figure:
+def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidue: int, plot_settings: dict = {}) -> go.Figure:
     """Create distribution plot for torsion angles"""
     if isinstance(torsionResidue, str) and torsionResidue.isdigit():
         residue_index = int(torsionResidue)
@@ -194,7 +239,11 @@ def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidu
     residue_index = min(residue_index, len(res) - 1) if len(res) > 0 else 0
     specific_residue_angles = angles[:, residue_index, :]
     angles_names = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "chi"]
-    colors = ["#636efa", "#ef553b", "#00cc96", "#a45bf9", "#fa9f5e", "#1ad0f2", "#ff6692"]
+    
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', f"Torsion Angles Distribution - Residue {res[residue_index]} ({residue_index})")
+    custom_colors = plot_settings.get('angle_colors', ["#636efa", "#ef553b", "#00cc96", "#a45bf9", "#fa9f5e", "#1ad0f2", "#ff6692"])
+    nbins = plot_settings.get('histogram_bins', 30)
     
     # Create subplots with 7 rows and 1 column for distributions
     fig = make_subplots(
@@ -212,8 +261,8 @@ def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidu
             go.Histogram(
                 x=y_values[valid_indices],
                 name=f"{angles_names[i]}",
-                marker=dict(color=colors[i], opacity=0.7),
-                nbinsx=30,
+                marker=dict(color=custom_colors[i], opacity=0.7),
+                nbinsx=nbins,
                 showlegend=False,
             ),
             row=i + 1,
@@ -225,7 +274,7 @@ def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidu
         fig.update_yaxes(title_text="Frequency", row=i+1, col=1)
     
     fig.update_layout(
-        title=f"Torsion Angles Distributions - Residue {res[residue_index]} ({residue_index})",
+        title=title,
         height=600,
         showlegend=False,
         margin=dict(t=50, b=50, l=60, r=20)
@@ -234,10 +283,10 @@ def plot_torsion_distributions(angles: np.ndarray, res: List[str], torsionResidu
     return fig
 
 @handle_plot_errors
-def plot_torsion(angles: np.ndarray, res: List[str], torsionResidue: int) -> List[go.Figure]:
+def plot_torsion(angles: np.ndarray, res: List[str], torsionResidue: int, plot_settings: dict = {}) -> List[go.Figure]:
     """Create both time series and distribution plots for torsion angles"""
-    time_series_fig = plot_torsion_time_series(angles, res, torsionResidue)
-    distribution_fig = plot_torsion_distributions(angles, res, torsionResidue)
+    time_series_fig = plot_torsion_time_series(angles, res, torsionResidue, plot_settings)
+    distribution_fig = plot_torsion_distributions(angles, res, torsionResidue, plot_settings)
     return [time_series_fig, distribution_fig]
 
 # Keep the old implementation as fallback but rename it
@@ -531,7 +580,7 @@ def plot_multiple_torsions(angles: np.ndarray, res: List[str], selected_residues
     return fig
 
 @handle_plot_errors
-def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], output_file: Optional[str] = None, frame_number: Optional[int] = None) -> go.Figure:
+def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], output_file: Optional[str] = None, frame_number: Optional[int] = None, plot_settings: dict = {}) -> go.Figure:
     """
     Create an interactive contact map visualization for RNA base pairs
     using Plotly with Leontis-Westhof classification
@@ -552,6 +601,11 @@ def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], outpu
     fig : plotly.graph_objects.Figure
         Plotly figure object
     """
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', "RNA Contact Map with Leontis-Westhof Base Pairs")
+    colorscale = plot_settings.get('colorscale', 'default')
+    marker_size = plot_settings.get('marker_size', 15)
+    
     fig = go.Figure()
     if base_pairs_df.empty:
         print("No base pairs to display")
@@ -564,7 +618,7 @@ def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], outpu
         )
         # Update layout to center the text
         fig.update_layout(
-            title="RNA Contact Map with Leontis-Westhof Base Pairs",
+            title=title,
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             width=800,
@@ -689,12 +743,12 @@ def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], outpu
     ))
     
     # Update layout with better titles and hover info
-    title = "RNA Contact Map with Leontis-Westhof Base Pairs"
+    final_title = title
     if frame_number is not None:
-        title += f" - Frame {frame_number}"
+        final_title += f" - Frame {frame_number}"
         
     fig.update_layout(
-        title=title,
+        title=final_title,
         xaxis=dict(
             title="Nucleotide position",
             tickvals=tick_vals,
@@ -789,7 +843,7 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
         return color_map.get(nucleotide, 'black')  # Default to black if unknown nucleotide
 
     # Function to plot arc diagram
-    def plot_arc_diagram(sequence, pair_frequencies, pairs):
+    def plot_arc_diagram(sequence, pair_frequencies, pairs, plot_settings: dict = {}):
         logging.debug(f"Pairs for arc diagram: {pairs}")
 
         fig = go.Figure()
@@ -1011,8 +1065,23 @@ def create_contact_maps(traj_file, top_file, index, session):
 
 
 @handle_plot_errors
-def plot_radius_of_gyration(frames: List[int], rg_total: List[float], rg_components: List[List[float]]) -> go.Figure:
+def plot_radius_of_gyration(frames: List[int], rg_total: List[float], rg_components: List[List[float]], plot_settings: dict = {}) -> go.Figure:
     """Create interactive radius of gyration plot"""
+    
+    # Apply plot settings with defaults
+    title = plot_settings.get("title", "Radius of Gyration Analysis")
+    color_scheme = plot_settings.get("color_scheme", "viridis")
+    show_components = plot_settings.get("show_components", True)
+    
+    # Set colors based on color scheme
+    if color_scheme == "viridis":
+        colors = {"total": "blue", "x": "red", "y": "green", "z": "orange"}
+    elif color_scheme == "plasma":
+        colors = {"total": "purple", "x": "magenta", "y": "blue", "z": "cyan"}
+    elif color_scheme == "inferno":
+        colors = {"total": "red", "x": "orange", "y": "yellow", "z": "pink"}
+    else:
+        colors = {"total": "blue", "x": "red", "y": "green", "z": "orange"}  # default
     
     # Extract individual component arrays
     rg_x = [comp[0] for comp in rg_components]
@@ -1027,41 +1096,42 @@ def plot_radius_of_gyration(frames: List[int], rg_total: List[float], rg_compone
         y=rg_total,
         mode='lines',
         name='Total Rg',
-        line=dict(color='blue', width=2),
+        line=dict(color=colors["total"], width=2),
         hovertemplate='Frame: %{x}<br>Total Rg: %{y:.2f} Å<extra></extra>'
     ))
     
-    # Add components
-    fig.add_trace(go.Scattergl(
-        x=frames,
-        y=rg_x,
-        mode='lines',
-        name='Rg X',
-        line=dict(color='red', width=1, dash='dash'),
-        hovertemplate='Frame: %{x}<br>Rg X: %{y:.2f} Å<extra></extra>'
-    ))
-    
-    fig.add_trace(go.Scattergl(
-        x=frames,
-        y=rg_y,
-        mode='lines',
-        name='Rg Y',
-        line=dict(color='green', width=1, dash='dash'),
-        hovertemplate='Frame: %{x}<br>Rg Y: %{y:.2f} Å<extra></extra>'
-    ))
-    
-    fig.add_trace(go.Scattergl(
-        x=frames,
-        y=rg_z,
-        mode='lines',
-        name='Rg Z',
-        line=dict(color='orange', width=1, dash='dash'),
-        hovertemplate='Frame: %{x}<br>Rg Z: %{y:.2f} Å<extra></extra>'
-    ))
+    # Add components if enabled in settings
+    if show_components:
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_x,
+            mode='lines',
+            name='Rg X',
+            line=dict(color=colors["x"], width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg X: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_y,
+            mode='lines',
+            name='Rg Y',
+            line=dict(color=colors["y"], width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg Y: %{y:.2f} Å<extra></extra>'
+        ))
+        
+        fig.add_trace(go.Scattergl(
+            x=frames,
+            y=rg_z,
+            mode='lines',
+            name='Rg Z',
+            line=dict(color=colors["z"], width=1, dash='dash'),
+            hovertemplate='Frame: %{x}<br>Rg Z: %{y:.2f} Å<extra></extra>'
+        ))
     
     # Update layout
     fig.update_layout(
-        title=f"Radius of Gyration vs Frame ({len(frames)} frames)",
+        title=f"{title} ({len(frames)} frames)",
         xaxis_title="Frame",
         yaxis_title="Radius of Gyration (Å)",
         hovermode='x unified',
@@ -1073,8 +1143,14 @@ def plot_radius_of_gyration(frames: List[int], rg_total: List[float], rg_compone
 
 
 @handle_plot_errors
-def plot_end_to_end_distance(frames: List[int], distances: List[float]) -> go.Figure:
+def plot_end_to_end_distance(frames: List[int], distances: List[float], plot_settings: dict = {}) -> go.Figure:
     """Create interactive end-to-end distance plot"""
+    
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', f"End-to-End Distance (5' to 3') vs Frame ({len(frames)} frames)")
+    color_scheme = plot_settings.get('color_scheme', 'purple')
+    five_prime_atom = plot_settings.get('five_prime_atom', "P")
+    three_prime_atom = plot_settings.get('three_prime_atom', "P")
     
     fig = go.Figure()
     
@@ -1084,14 +1160,14 @@ def plot_end_to_end_distance(frames: List[int], distances: List[float]) -> go.Fi
         y=distances,
         mode='lines+markers',
         name='End-to-End Distance',
-        line=dict(color='purple', width=2),
+        line=dict(color=color_scheme, width=2),
         marker=dict(size=4),
         hovertemplate='Frame: %{x}<br>Distance: %{y:.2f} Å<extra></extra>'
     ))
     
     # Update layout
     fig.update_layout(
-        title=f"End-to-End Distance (5' to 3') vs Frame ({len(frames)} frames)",
+        title=title,
         xaxis_title="Frame",
         yaxis_title="End-to-End Distance (Å)",
         hovermode='x unified',
@@ -1103,7 +1179,7 @@ def plot_end_to_end_distance(frames: List[int], distances: List[float]) -> go.Fi
 
 
 @handle_plot_errors
-def plot_dimensionality_reduction(frames: List[int], method_data: np.ndarray, method: str = 'pca') -> go.Figure:
+def plot_dimensionality_reduction(frames: List[int], method_data: np.ndarray, method: str = 'pca', plot_settings: dict = {}) -> go.Figure:
     """Create interactive dimensionality reduction plot"""
     
     fig = go.Figure()
@@ -1121,15 +1197,20 @@ def plot_dimensionality_reduction(frames: List[int], method_data: np.ndarray, me
         'tsne': ('t-SNE1', 't-SNE2')
     }
     
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', f"{method_title.get(method, method.upper())} - Conformational Landscape ({len(frames)} frames)")
+    color_scheme = plot_settings.get('color_scheme', 'Viridis')
+    marker_size = plot_settings.get('marker_size', 6)
+    
     # Add scatter plot with color gradient for frames
     fig.add_trace(go.Scattergl(
         x=method_data[:, 0],
         y=method_data[:, 1],
         mode='markers',
         marker=dict(
-            size=6,
+            size=marker_size,
             color=frames,
-            colorscale='Viridis',
+            colorscale=color_scheme,
             colorbar=dict(title="Frame")
         ),
         text=[f"Frame: {frame}" for frame in frames],
@@ -1139,7 +1220,7 @@ def plot_dimensionality_reduction(frames: List[int], method_data: np.ndarray, me
     
     # Update layout
     fig.update_layout(
-        title=f"{method_title.get(method, method.upper())} - Conformational Landscape ({len(frames)} frames)",
+        title=title,
         xaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[0],
         yaxis_title=axis_labels.get(method, (f'{method.upper()}1', f'{method.upper()}2'))[1],
         hovermode='closest',
