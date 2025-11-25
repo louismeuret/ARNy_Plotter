@@ -54,7 +54,7 @@ def plot_ermsd(ermsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
     elif color_scheme == "inferno":
         marker_color = "orange"
     else:
-        marker_color = "green"  # default
+        marker_color = "blue"  # default
     
     fig = go.Figure(
         data=go.Scattergl(
@@ -87,7 +87,7 @@ def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
     elif color_scheme == "inferno":
         marker_color = "orange"
     else:
-        marker_color = "green"  # default
+        marker_color = "blue"  # default
     
     fig = go.Figure(
         data=go.Scattergl(
