@@ -96,6 +96,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400  # Cache static files for 24 hou
 
 # Ensure uploads directory exists
 os.makedirs(uploads_dir, exist_ok=True)
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -220,7 +221,9 @@ class SharedTrajectoryManager:
             }
             
             # Save to session directory for task access
-            session_dir = os.path.join("static", "uploads", session_id)
+            # session_dir = os.path.join("static", "uploads", session_id)
+            
+            session_dir = os.path.join(uploads_dir, session_id)
             os.makedirs(session_dir, exist_ok=True)
             
             # Save trajectory data
@@ -238,7 +241,7 @@ class SharedTrajectoryManager:
             with open(mdtraj_traj_path, 'wb') as f:
                 pickle.dump(target_traj, f)
             
-            logger.info("💾 MDTraj objects saved for Barnaba task sharing")
+            logger.info("MDTraj objects saved for Barnaba task sharing")
             
             # Store in memory cache
             with self._lock:

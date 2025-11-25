@@ -32,8 +32,8 @@ class ServiceManager:
             },
             "2": {
                 "name": "Gunicorn Server", 
-                "cmd": ["gunicorn", "--bind", "127.0.0.1:4242", "--workers", "5", 
-                       "--worker-class", "eventlet", "--timeout", "600", "--chdir", "src/core", "app:app"],
+                "cmd": ["gunicorn", "--bind", "127.0.0.1:4242", "--workers", "1", 
+                       "--worker-class", "eventlet","--threads", "4", "--timeout", "600", "--chdir", "src/core", "app:app"],
                 "process": None,
                 "status": ServiceStatus.STOPPED,
                 "log_file": "logs/gunicorn.log",

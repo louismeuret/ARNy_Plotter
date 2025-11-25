@@ -106,7 +106,11 @@ def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
     return fig
 
 @handle_plot_errors
-def plot_dotbracket(dotbracket_data: List[str]) -> go.Figure:
+def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.Figure:
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', "Timeline of RNA Structures")
+    line_width = plot_settings.get('line_width', 8)
+    
     reverse_mapping = {}
     for frame, dotbracket in enumerate(dotbracket_data, start=1):
         reverse_mapping.setdefault(dotbracket, []).append(frame)
@@ -155,13 +159,13 @@ def plot_dotbracket(dotbracket_data: List[str]) -> go.Figure:
             x=x_values,
             y=y_values,
             mode="lines",
-            line=dict(color=color_dict[dotbracket], width=8),
+            line=dict(color=color_dict[dotbracket], width=line_width),
             name=dotbracket,
         )
         traces.append(trace)
 
     layout = go.Layout(
-        title="Timeline of RNA Structures",
+        title=title,
         xaxis=dict(title="Frame", showgrid=False, zeroline=False, showline=False),
         yaxis=dict(
             title="Dot-Bracket Structure",
@@ -846,6 +850,15 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
     def plot_arc_diagram(sequence, pair_frequencies, pairs, plot_settings: dict = {}):
         logging.debug(f"Pairs for arc diagram: {pairs}")
 
+        # Extract plot settings with defaults
+        title = plot_settings.get('title', "RNA Secondary Structure Arc Diagram with Frequency-Based Coloring")
+        node_size = plot_settings.get('node_size', 10)
+        arc_width = plot_settings.get('arc_width', 2)
+        custom_colorscale = plot_settings.get('arc_colorscale', [
+            [0.0, 'rgb(0, 0, 255)'],   # Blue
+            [1.0, 'rgb(255, 0, 0)']    # Red
+        ])
+
         fig = go.Figure()
 
         # Plot nodes with nucleotide-specific colors
@@ -853,7 +866,7 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
             color = nucleotide_color(nucleotide)
             fig.add_trace(go.Scattergl(
                 x=[i], y=[0], mode='markers+text', text=nucleotide, textposition="bottom center",
-                marker=dict(size=10, color=color),
+                marker=dict(size=node_size, color=color),
                 showlegend=False
             ))
 
@@ -869,12 +882,6 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
         else:
             norm_frequencies = [0] * len(pairs)
 
-        # Custom color scale from blue (least frequent) to red (most frequent)
-        custom_colorscale = [
-            [0.0, 'rgb(0, 0, 255)'],   # Blue
-            [1.0, 'rgb(255, 0, 0)']    # Red
-        ]
-
         # Plot arcs for edges with frequency-based colors
         for (start, end), norm_frequency, frequency in zip(pairs_unique, norm_frequencies, frequencies):
             center = (start + end) / 2
@@ -885,7 +892,7 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
             color = px.colors.sample_colorscale(custom_colorscale, norm_frequency)
             fig.add_trace(go.Scattergl(
                 x=x, y=y, mode='lines',
-                line=dict(color=color[0], width=2),
+                line=dict(color=color[0], width=arc_width),
                 showlegend=False,
                 hoverinfo='text',
                 text=f'Frequency: {frequency:.2f}'
@@ -919,7 +926,7 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
             width=800,
             height=400,
             plot_bgcolor='white',
-            title="RNA Secondary Structure Arc Diagram with Frequency-Based Coloring"
+            title=title
         )
         return fig
 

@@ -814,7 +814,7 @@ def generate_torsion_plot(self, topology_file, trajectory_file, files_path, plot
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_sec_structure_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_sec_structure_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings={}):
     """Generate secondary structure plot"""
     try:
         if not BARNABA_AVAILABLE:
@@ -909,7 +909,7 @@ def generate_arc_plot(self, topology_file, trajectory_file, files_path, plot_dir
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, plot_dir, generate_data_path, session_id):
+def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, plot_dir, generate_data_path, session_id, plot_settings={}):
     """Generate contact map plot"""
     def process_barnaba_pairings(pairings, res):
         """Process barnaba pairings and residue information into frames dictionary"""
