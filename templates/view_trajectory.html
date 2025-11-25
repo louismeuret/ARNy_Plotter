@@ -192,7 +192,8 @@
         trajXtc: "{{ url_for('static', filename='uploads/' + session_id + '/' + traj_xtc) }}",
         trajFormat: "{{ traj_xtc.split('.')[-1] }}",
         maxFrame: {{ trajectory_length - 1 }},
-        baseUrl: window.location.origin
+        baseUrl: window.location.origin,
+        trajectoryConverted: {{ 'true' if trajectory_converted else 'false' }}
     };
 
     // Session History Management (same functions as in index.html)
@@ -445,6 +446,12 @@
     // Enhanced trajectory loading with IndexedDB caching
     async function loadTrajectoryWithCache() {
         console.log('Cache: Starting cached trajectory loading...');
+        
+        // Check if trajectory was converted (bypass cache if so)
+        if (CONFIG.trajectoryConverted) {
+            console.log('Warning: Cache: Trajectory was converted, bypassing cache and using server files');
+            return await loadTrajectoryFromServer();
+        }
         
         // Check if frame settings were modified (bypass cache if so)
         const frameSettingsModified = checkIfFrameSettingsModified();

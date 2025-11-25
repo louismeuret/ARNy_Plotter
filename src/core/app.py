@@ -1053,6 +1053,7 @@ def view_trajectory(session_id):
         if traj_xtc_path != original_traj_path:
             converted_filename = os.path.basename(traj_xtc_path)
             session_data['files']['trajXtc'] = converted_filename
+            session_data['trajectory_converted'] = True  # Flag to bypass cache
             traj_xtc_cached = converted_filename
             # Update session data file
             with open(os.path.join(directory_path, "session_data.json"), "w") as file:
@@ -1074,7 +1075,8 @@ def view_trajectory(session_id):
             traj_xtc=traj_xtc_cached,
             plot_data=plot_data,
             trajectory_length=len(u.trajectory),
-            explainations=explanations
+            explainations=explanations,
+            trajectory_converted=session_data.get('trajectory_converted', False)
         )
 
     # Results don't exist, need to process
@@ -1125,6 +1127,7 @@ def view_trajectory(session_id):
     if traj_xtc_path != original_traj_path:
         converted_filename = os.path.basename(traj_xtc_path)
         session_data_json['files']['trajXtc'] = converted_filename
+        session_data_json['trajectory_converted'] = True  # Flag to bypass cache
         # Update session data file
         with open(os.path.join(directory_path, "session_data.json"), "w") as file:
             json.dump(session_data_json, file, indent=4)
@@ -1611,11 +1614,12 @@ def view_trajectory(session_id):
             "view_trajectory.html",
             session_id=session_id,
             native_pdb=native_pdb,
-            traj_xtc=f"traj_uploaded{file_extension}",
+            traj_xtc=os.path.basename(traj_xtc_path),
             plot_data=completed_plot_data,
             trajectory_length=len(u.trajectory),
             explainations=explanations,
             rotation_matrix=r_matrix_str,
+            trajectory_converted=session_data_json.get('trajectory_converted', False)
         )
 
 
