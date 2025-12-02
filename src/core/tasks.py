@@ -443,6 +443,109 @@ def compute_end_to_end_distance(self, *args):
 
 @app.task(bind=True, max_retries=3)
 @log_task
+def compute_q_value(self, *args):
+    """Compute Q-value (fraction of native contacts) using MDTraj"""
+    # Handle chain arguments
+    if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
+        _, topology_file, trajectory_file, session_id = args
+    else:  # topology_file, trajectory_file, session_id
+        topology_file, trajectory_file, session_id = args
+        
+    try:
+        import mdtraj as md
+        import numpy as np
+        from itertools import combinations
+    except ImportError as e:
+        raise ImportError(f"Required packages not available: {e}")
+    
+    def best_hummer_q(traj, native):
+        """Compute the fraction of native contacts according the definition from
+        Best, Hummer and Eaton [1]
+
+        Parameters
+        ----------
+        traj : md.Trajectory
+            The trajectory to do the computation for
+        native : md.Trajectory
+            The 'native state'. This can be an entire trajectory, or just a single frame.
+            Only the first conformation is used
+
+        Returns
+        -------
+        q : np.array, shape=(len(traj),)
+            The fraction of native contacts in each frame of `traj`
+
+        References
+        ----------
+        ..[1] Best, Hummer, and Eaton, "Native contacts determine protein folding
+              mechanisms in atomistic simulations" PNAS (2013)
+        """
+
+        BETA_CONST = 10
+        LAMBDA_CONST = 1.8
+        NATIVE_CUTOFF = 0.45  # nanometers
+
+        # get the indices of all of the heavy atoms
+        heavy = native.topology.select('all')
+        # get the pairs of heavy atoms which are farther than 3
+        # residues apart
+        heavy_pairs = np.array(
+            [(i,j) for (i,j) in combinations(heavy, 2)
+                if abs(native.topology.atom(i).residue.index - \
+                       native.topology.atom(j).residue.index) > 3])
+
+        # compute the distances between these pairs in the native state
+        heavy_pairs_distances = md.compute_distances(native[0], heavy_pairs)[0]
+        # and get the pairs s.t. the distance is less than NATIVE_CUTOFF
+        native_contacts = heavy_pairs[heavy_pairs_distances < NATIVE_CUTOFF]
+        print(f"Number of native contacts: {len(native_contacts)}")
+
+        # now compute these distances for the whole trajectory
+        r = md.compute_distances(traj, native_contacts)
+        # and recompute them for just the native state
+        r0 = md.compute_distances(native[0], native_contacts)
+
+        q = np.mean(1.0 / (1 + np.exp(BETA_CONST * (r - LAMBDA_CONST * r0))), axis=1)
+        return q
+    
+    # Try to use cached MDTraj objects for massive performance improvement
+    reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
+    
+    if reference_traj is not None and target_traj is not None:
+        logger.info("🚀 Using cached MDTraj objects for Q-value computation")
+        q_values = best_hummer_q(target_traj, reference_traj)
+    else:
+        # Fallback to file loading
+        logger.info("⚠️  Using fallback file loading for Q-value")
+        reference_traj = md.load(topology_file)
+        target_traj = md.load(trajectory_file, top=topology_file)
+        q_values = best_hummer_q(target_traj, reference_traj)
+    
+    # Prepare result data
+    result_data = {
+        'q_values': q_values.tolist(),
+        'mean_q': float(np.mean(q_values)),
+        'std_q': float(np.std(q_values)),
+        'min_q': float(np.min(q_values)),
+        'max_q': float(np.max(q_values)),
+        'frames': list(range(len(q_values))),
+        'times': [i * 0.1 for i in range(len(q_values))]  # Adjust timestep as needed
+    }
+    
+    # Save to session directory
+    session_dir = os.path.join("static", "uploads", session_id)
+    os.makedirs(session_dir, exist_ok=True)
+    
+    q_path = os.path.join(session_dir, "q_value_data.pkl")
+    with open(q_path, 'wb') as f:
+        pickle.dump(result_data, f)
+    
+    logger.info(f"Q-value computed and saved to {q_path}")
+    logger.info(f"Q range: {np.min(q_values):.3f} - {np.max(q_values):.3f}")
+    return {"metric": "q_value", "status": "success", "path": q_path}
+
+@app.task(bind=True, max_retries=3)
+@log_task
 def compute_dimensionality_reduction(self, *args):
     """Compute PCA, UMAP, and t-SNE for conformational analysis"""
     # Handle chain arguments
@@ -1069,9 +1172,10 @@ def generate_escore_plot(self, topology_file, trajectory_file, files_path, plot_
 def generate_landscape_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, landscape_params, generate_data_path, plot_settings={}):
     """Generate landscape plot using pre-computed metrics"""
     try:
-        # Load pre-computed RMSD and eRMSD data if available
+        # Load pre-computed RMSD, eRMSD, and Q-value data if available
         rmsd_data = None
         ermsd_data = None
+        q_value_data = None
         
         rmsd_path = os.path.join("static", "uploads", session_id, "rmsd_data.pkl")
         if os.path.exists(rmsd_path):
@@ -1085,40 +1189,135 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
                 ermsd_data = pickle.load(f)
             print(f"LOADED eRMSD FROM SAVED DATA FOR LANDSCAPE")
         
+        q_value_path = os.path.join("static", "uploads", session_id, "q_value_data.pkl")
+        if os.path.exists(q_value_path):
+            with open(q_value_path, 'rb') as f:
+                q_value_data_dict = pickle.load(f)
+                q_value_data = q_value_data_dict['q_values']
+            print(f"LOADED Q-VALUE FROM SAVED DATA FOR LANDSCAPE")
+        
         # If data not available, fall back to computation
-        if rmsd_data is None or ermsd_data is None:
-            logger.warning("Pre-computed metrics not available, computing for landscape plot")
-            if not BARNABA_AVAILABLE:
-                raise ImportError("Barnaba not available and no pre-computed data")
-            
-            import barnaba as bb
+        needs_computation = False
+        components_needed = []
+        
+        # Check which components we need to compute
+        first_dim = landscape_params[1] if len(landscape_params) > 1 else 1
+        second_dim = landscape_params[2] if len(landscape_params) > 2 else 2
+        
+        if first_dim == 1 or second_dim == 1:  # RMSD needed
+            if rmsd_data is None:
+                components_needed.append("rmsd")
+                needs_computation = True
+        
+        if first_dim == 2 or second_dim == 2:  # eRMSD needed
+            if ermsd_data is None:
+                components_needed.append("ermsd")
+                needs_computation = True
+        
+        if first_dim in [3, 4] or second_dim in [3, 4]:  # Q-value needed for both Q and Fraction of Contact Formed
+            if q_value_data is None:
+                components_needed.append("q_value")
+                needs_computation = True
+        
+        if needs_computation:
+            logger.warning(f"Pre-computed metrics not available, computing: {components_needed}")
             
             # Try to use cached MDTraj objects for landscape fallback computations
             reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
             
             if reference_traj is not None and target_traj is not None:
                 logger.info("🚀 Using cached MDTraj objects for landscape fallback computations")
-                if rmsd_data is None:
+                
+                if "rmsd" in components_needed:
+                    if not BARNABA_AVAILABLE:
+                        raise ImportError("Barnaba not available and no pre-computed RMSD data")
+                    import barnaba as bb
                     rmsd_data = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
-                if ermsd_data is None:
+                
+                if "ermsd" in components_needed:
+                    if not BARNABA_AVAILABLE:
+                        raise ImportError("Barnaba not available and no pre-computed eRMSD data")
+                    import barnaba as bb
                     ermsd_data = bb.ermsd_traj(reference_traj, target_traj)
+                
+                if "q_value" in components_needed:
+                    import mdtraj as md
+                    import numpy as np
+                    from itertools import combinations
+                    
+                    def best_hummer_q(traj, native):
+                        BETA_CONST = 10
+                        LAMBDA_CONST = 1.8
+                        NATIVE_CUTOFF = 0.45  # nanometers
+                        heavy = native.topology.select('all')
+                        heavy_pairs = np.array(
+                            [(i,j) for (i,j) in combinations(heavy, 2)
+                                if abs(native.topology.atom(i).residue.index - \
+                                       native.topology.atom(j).residue.index) > 3])
+                        heavy_pairs_distances = md.compute_distances(native[0], heavy_pairs)[0]
+                        native_contacts = heavy_pairs[heavy_pairs_distances < NATIVE_CUTOFF]
+                        r = md.compute_distances(traj, native_contacts)
+                        r0 = md.compute_distances(native[0], native_contacts)
+                        q = np.mean(1.0 / (1 + np.exp(BETA_CONST * (r - LAMBDA_CONST * r0))), axis=1)
+                        return q
+                    
+                    q_value_data = best_hummer_q(target_traj, reference_traj).tolist()
+            
             else:
                 logger.info("⚠️  Using file loading for landscape fallback computations")
-                if rmsd_data is None:
+                import mdtraj as md
+                
+                if "rmsd" in components_needed:
+                    if not BARNABA_AVAILABLE:
+                        raise ImportError("Barnaba not available and no pre-computed RMSD data")
+                    import barnaba as bb
                     rmsd_data = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
-                if ermsd_data is None:
+                
+                if "ermsd" in components_needed:
+                    if not BARNABA_AVAILABLE:
+                        raise ImportError("Barnaba not available and no pre-computed eRMSD data")
+                    import barnaba as bb
                     ermsd_data = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
+                
+                if "q_value" in components_needed:
+                    reference_traj = md.load(topology_file)
+                    target_traj = md.load(trajectory_file, top=topology_file)
+                    
+                    import numpy as np
+                    from itertools import combinations
+                    
+                    def best_hummer_q(traj, native):
+                        BETA_CONST = 10
+                        LAMBDA_CONST = 1.8
+                        NATIVE_CUTOFF = 0.45  # nanometers
+                        heavy = native.topology.select('all')
+                        heavy_pairs = np.array(
+                            [(i,j) for (i,j) in combinations(heavy, 2)
+                                if abs(native.topology.atom(i).residue.index - \
+                                       native.topology.atom(j).residue.index) > 3])
+                        heavy_pairs_distances = md.compute_distances(native[0], heavy_pairs)[0]
+                        native_contacts = heavy_pairs[heavy_pairs_distances < NATIVE_CUTOFF]
+                        r = md.compute_distances(traj, native_contacts)
+                        r0 = md.compute_distances(native[0], native_contacts)
+                        q = np.mean(1.0 / (1 + np.exp(BETA_CONST * (r - LAMBDA_CONST * r0))), axis=1)
+                        return q
+                    
+                    q_value_data = best_hummer_q(target_traj, reference_traj).tolist()
         
         # Extract landscape parameters
         stride = int(landscape_params[0])
 
-        # Map dimension selections to actual metric names
-        # Users select: 1 = RMSD, 2 = eRMSD (can be extended for more metrics)
+        # Map dimension selections to actual metric names after data computation
+        # Users select: 1 = RMSD, 2 = eRMSD, 3 = Q-value, 4 = Fraction of Contact Formed
         dimension_map = {
             1: ("RMSD (Å)", rmsd_data),
             2: ("eRMSD (Å)", ermsd_data),
+            3: ("Q-value", q_value_data),
+            4: ("Fraction of Contact Formed", q_value_data),  # Using same Q-value calculation for now
             "1": ("RMSD (Å)", rmsd_data),
-            "2": ("eRMSD (Å)", ermsd_data)
+            "2": ("eRMSD (Å)", ermsd_data),
+            "3": ("Q-value", q_value_data),
+            "4": ("Fraction of Contact Formed", q_value_data)  # Using same Q-value calculation for now
         }
 
         # Get user-selected dimensions (default to RMSD and eRMSD if not specified)
@@ -1127,17 +1326,25 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
 
         component1_name, component1_data = dimension_map.get(first_dim, ("RMSD (Å)", rmsd_data))
         component2_name, component2_data = dimension_map.get(second_dim, ("eRMSD (Å)", ermsd_data))
+        
+        # Check if required data is available
+        if component1_data is None:
+            raise ValueError(f"Data for first dimension (dim {first_dim}) not available. Required metrics may not have been computed.")
+        if component2_data is None:
+            raise ValueError(f"Data for second dimension (dim {second_dim}) not available. Required metrics may not have been computed.")
 
         # Apply stride to the data
-        component1 = component1_data[::stride]  # X-axis (stored as "Q" in DataFrame for legacy reasons)
-        component2 = component2_data[::stride]  # Y-axis (stored as "RMSD" in DataFrame for legacy reasons)
+        component1 = component1_data[::stride]  # X-axis
+        component2 = component2_data[::stride]  # Y-axis
 
-        # Create DataFrame for landscape
+        # Create DataFrame for landscape with correct column names
+        # Note: Using "Q" and "RMSD" as column names for backward compatibility with plotting functions
+        # but the actual data corresponds to the user-selected dimensions
         import pandas as pd
         df = pd.DataFrame({
             "frame": list(range(len(component1))),
-            "Q": component1,  # Actually RMSD (X-axis)
-            "RMSD": component2,  # Actually eRMSD (Y-axis)
+            "Q": component1,  # X-axis data (could be RMSD, eRMSD, or Q-value)
+            "RMSD": component2,  # Y-axis data (could be RMSD, eRMSD, or Q-value)
             "traj": "traj_1",
         })
         

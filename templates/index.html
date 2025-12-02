@@ -625,10 +625,10 @@ select {
                         </div>
                     </div>
 
-                    <!-- Energy Landscape Group -->
+                    <!-- Conformational Landscape Group -->
                     <div class="plot-group" style="border: 2px solid #f39c12; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fffdf8;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 class="subtitle is-5" style="margin: 0; color: #f39c12;">Energy Landscape</h3>
+                            <h3 class="subtitle is-5" style="margin: 0; color: #f39c12;">Conformational Landscape</h3>
                             <button type="button" class="button is-small is-outlined" onclick="toggleGroupSelection('energy-landscape')" style="border-color: #f39c12; color: #f39c12;">
                                 Select All
                             </button>
@@ -647,7 +647,7 @@ select {
                                     <a href="#" onclick="window.open(constructDocumentationUrl('Landscape'), '_blank'); return false;">
                                     <span
                                         class="icon has-tooltip"
-                                        data-tooltip="Energy Landscape"
+                                        data-tooltip="Conformational Landscape"
                                     >
                                         <i class="fas fa-info-circle"></i>
                                     </span></a>
@@ -665,7 +665,7 @@ select {
                                     class="input mt-2"
                                     id="landscape_stride"
                                     name="landscape_stride"
-                                    placeholder="Precision of the Energy Landscape, (as a stride, 2 meaning one of two frames considered)"
+                                    placeholder="Precision of the Conformational Landscape, (as a stride, 2 meaning one of two frames considered)"
                                     value="1"
                                 /><br />
                                 <div class="select mt-2 is-arrowless" style="margin-bottom: 20px">
@@ -685,6 +685,7 @@ select {
                                         <option value="Fraction of Contact Formed">
                                             Fraction of Contact Formed
                                         </option>
+                                        <option value="Q">Q (Fraction of Native contacts)</option>
                                     </select>
                                 </div>
                                 <div class="select mt-2 is-arrowless">
@@ -704,6 +705,7 @@ select {
                                         <option value="Fraction of Contact Formed">
                                             Fraction of Contact Formed
                                         </option>
+                                        <option value="Q">Q (Fraction of Native contacts)</option>
                                     </select>
                                 </div><br />
                             </div>
@@ -1714,9 +1716,9 @@ select {
             landscape: {
                 stride: 1,
                 grid_size: 65,
-                first_dimension: "RMSD",
-                second_dimension: "eRMSD",
-                title: "Energy Landscape",
+                firstDimension: "RMSD",
+                secondDimension: "eRMSD",
+                title: "Conformational Landscape",
                 color_scheme: "viridis"
             }
         };
@@ -1951,9 +1953,11 @@ select {
                             <label class="label">First Dimension</label>
                             <div class="control">
                                 <div class="select">
-                                    <select id="first_dimension">
-                                        <option value="RMSD" ${settings.first_dimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
-                                        <option value="eRMSD" ${settings.first_dimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                    <select id="firstDimension">
+                                        <option value="RMSD" ${settings.firstDimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
+                                        <option value="eRMSD" ${settings.firstDimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                        <option value="Fraction of Contact Formed" ${settings.firstDimension === 'Fraction of Contact Formed' ? 'selected' : ''}>Fraction of Contact Formed</option>
+                                        <option value="Q" ${settings.firstDimension === 'Q' ? 'selected' : ''}>Q (Fraction of Native contacts)</option>
                                     </select>
                                 </div>
                             </div>
@@ -1962,9 +1966,11 @@ select {
                             <label class="label">Second Dimension</label>
                             <div class="control">
                                 <div class="select">
-                                    <select id="second_dimension">
-                                        <option value="RMSD" ${settings.second_dimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
-                                        <option value="eRMSD" ${settings.second_dimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                    <select id="secondDimension">
+                                        <option value="RMSD" ${settings.secondDimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
+                                        <option value="eRMSD" ${settings.secondDimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
+                                        <option value="Fraction of Contact Formed" ${settings.secondDimension === 'Fraction of Contact Formed' ? 'selected' : ''}>Fraction of Contact Formed</option>
+                                        <option value="Q" ${settings.secondDimension === 'Q' ? 'selected' : ''}>Q (Fraction of Native contacts)</option>
                                     </select>
                                 </div>
                             </div>

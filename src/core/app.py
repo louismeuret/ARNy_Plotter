@@ -291,6 +291,24 @@ class SharedTrajectoryManager:
 
 shared_trajectory_manager = SharedTrajectoryManager()
 
+def convert_dimension_to_numeric(dimension_name: str) -> int:
+    """
+    Convert dimension name string to numeric value for backend processing.
+    
+    Args:
+        dimension_name: String dimension name from frontend
+        
+    Returns:
+        Numeric dimension code (1=RMSD, 2=eRMSD, 3=Q, 4=Fraction of Contact Formed)
+    """
+    dimension_map = {
+        "RMSD": 1,
+        "eRMSD": 2,
+        "Q": 3,
+        "Fraction of Contact Formed": 4
+    }
+    return dimension_map.get(dimension_name, 1)  # Default to RMSD
+
 def convert_trajectory_to_xtc(topology_path: str, trajectory_path: str, session_id: str) -> str:
     """
     Convert trajectory file to XTC format if it's not in a supported format.
@@ -900,8 +918,8 @@ def upload_files():
         "torsionAngles": torsion_angles,
         "torsionMode": torsion_mode,
         "landscape_stride": request.form.get("landscape_stride", 0),
-        "landscape_first_component": request.form.get("firstDimension", 0),
-        "landscape_second_component": request.form.get("secondDimension", 0),
+        "landscape_first_component": convert_dimension_to_numeric(request.form.get("firstDimension", "RMSD")),
+        "landscape_second_component": convert_dimension_to_numeric(request.form.get("secondDimension", "eRMSD")),
         "plot_settings": plot_settings,
         "form": list(request.form),
         "files": {
@@ -1306,6 +1324,23 @@ def view_trajectory(session_id):
     if any(plot in selected_plots for plot in ["PCA", "UMAP", "TSNE"]):
         metrics_needed.append("dimensionality_reduction")
     
+    # Check if landscape plot needs additional metrics based on user selection
+    if "LANDSCAPE" in selected_plots:
+        landscape_first_component = session.get("landscape_first_component", 1)
+        landscape_second_component = session.get("landscape_second_component", 2)
+        
+        # Add RMSD if component 1 is selected
+        if (landscape_first_component == 1 or landscape_second_component == 1) and "rmsd" not in metrics_needed:
+            metrics_needed.append("rmsd")
+        
+        # Add eRMSD if component 2 is selected
+        if (landscape_first_component == 2 or landscape_second_component == 2) and "ermsd" not in metrics_needed:
+            metrics_needed.append("ermsd")
+        
+        # Add Q-value if component 3 or 4 is selected
+        if (landscape_first_component in [3, 4] or landscape_second_component in [3, 4]) and "q_value" not in metrics_needed:
+            metrics_needed.append("q_value")
+    
     if metrics_needed:
         socketio.emit('update_progress', {"progress": 50, "message": "Computing metrics..."}, to=session_id)
         
@@ -1318,6 +1353,8 @@ def view_trajectory(session_id):
             metrics_jobs.append(compute_ermsd.s(native_pdb_path, traj_xtc_path, session_id))
         if "annotate" in metrics_needed:
             metrics_jobs.append(compute_annotate.s(native_pdb_path, traj_xtc_path, session_id))
+        if "q_value" in metrics_needed:
+            metrics_jobs.append(compute_q_value.s(native_pdb_path, traj_xtc_path, session_id))
         if "radius_of_gyration" in metrics_needed:
             metrics_jobs.append(compute_radius_of_gyration.s(native_pdb_path, traj_xtc_path, session_id))
         if "end_to_end_distance" in metrics_needed:

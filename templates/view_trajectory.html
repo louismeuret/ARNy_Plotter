@@ -263,7 +263,9 @@
         isSpinning: false,
         viewerReady: false,
         sideChainsVisible: false,
-        plotsLoaded: false
+        plotsLoaded: false,
+        frameUpdateInterval: null,
+        frameCounter: 0
     };
 
     // Global frame marker management
@@ -765,6 +767,13 @@
         // For example, click handlers for plot expansion, etc.
     }
 
+    // Update frame UI elements
+    function updateFrameUI(frame) {
+        elements_doc.frameSlider.value = frame;
+        elements_doc.frameNumber.value = frame;
+        frameMarkers.updateAll(frame);
+    }
+
     // Handle frame changes
     function handleFrameChange() {
         if (!state.viewerReady) return;
@@ -778,16 +787,37 @@
         frameMarkers.updateAll(frame);
     }
 
+    
+
     // Toggle play/pause
     function togglePlayPause() {
         if (!state.viewerReady) return;
 
         if (!state.isRunning) {
-            state.player = LouisMolStarWrapper.plugin.managers.animation.play();
+            state.player = LouisMolStarWrapper.mdPlayer.play();
             elements_doc.playPauseButton.textContent = "Pause";
+            
+            // Start frame monitoring
+            state.frameCounter = 0;
+            state.frameUpdateInterval = setInterval(() => {
+                state.frameCounter++;
+                if (state.frameCounter >= 100) {
+                    state.frameCounter = 0;
+                    // Get current frame from MolStar and update UI
+                    const currentFrame = LouisMolStarWrapper.plugin.managers.structure.hierarchy.current.models[1].cell.transform.params.modelIndex || 0;
+                    updateFrameUI(currentFrame);
+                }
+            }, 50); // Check every 50ms to ensure we catch frame changes
         } else {
-            LouisMolStarWrapper.plugin.managers.animation.pause();
+            LouisMolStarWrapper.mdPlayer.stop();
             elements_doc.playPauseButton.textContent = "Play";
+            
+            // Stop frame monitoring
+            if (state.frameUpdateInterval) {
+                clearInterval(state.frameUpdateInterval);
+                state.frameUpdateInterval = null;
+                state.frameCounter = 0;
+            }
         }
         state.isRunning = !state.isRunning;
     }
@@ -824,9 +854,28 @@
     // Toggle MD run
     function toggleRunMDs() {
         if (!state.isRunning) {
-            state.player = LouisMolStarWrapper.plugin.managers.animation.play();
+            state.player = LouisMolStarWrapper.mdPlayer.play();
+            
+            // Start frame monitoring
+            state.frameCounter = 0;
+            state.frameUpdateInterval = setInterval(() => {
+                state.frameCounter++;
+                if (state.frameCounter >= 100) {
+                    state.frameCounter = 0;
+                    // Get current frame from MolStar and update UI
+                    const currentFrame = LouisMolStarWrapper.plugin.managers.structure.hierarchy.current.models[1].cell.transform.params.modelIndex || 0;
+                    updateFrameUI(currentFrame);
+                }
+            }, 50); // Check every 50ms to ensure we catch frame changes
         } else {
-            LouisMolStarWrapper.plugin.managers.animation.pause();
+            LouisMolStarWrapper.mdPlayer.stop();
+            
+            // Stop frame monitoring
+            if (state.frameUpdateInterval) {
+                clearInterval(state.frameUpdateInterval);
+                state.frameUpdateInterval = null;
+                state.frameCounter = 0;
+            }
         }
         state.isRunning = !state.isRunning;
     }
