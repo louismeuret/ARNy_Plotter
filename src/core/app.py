@@ -1358,7 +1358,9 @@ def view_trajectory(session_id):
         if "radius_of_gyration" in metrics_needed:
             metrics_jobs.append(compute_radius_of_gyration.s(native_pdb_path, traj_xtc_path, session_id))
         if "end_to_end_distance" in metrics_needed:
-            metrics_jobs.append(compute_end_to_end_distance.s(native_pdb_path, traj_xtc_path, session_id))
+            # Get plot settings for end_to_end_distance
+            e2e_settings = session.get("plot_settings", {}).get("end_to_end_distance", {})
+            metrics_jobs.append(compute_end_to_end_distance.s(native_pdb_path, traj_xtc_path, session_id, e2e_settings))
         if "dimensionality_reduction" in metrics_needed:
             metrics_jobs.append(compute_dimensionality_reduction.s(native_pdb_path, traj_xtc_path, session_id))
         

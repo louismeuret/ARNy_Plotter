@@ -27,39 +27,39 @@ def make_emptylists_matrix(dimension):
 
 #I want a matrix (24x24) to keep bins consistent with previous 2D plots
 
-def make_matrix_probability(df, dimension, maximal_RMSD, maximal_Q):
+def make_matrix_probability(df, dimension, maximal_RMSD, maximal_Q, metrics_names=None):
+    """
+    Create probability matrix for energy landscape
+    
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        DataFrame containing 'Q' and 'RMSD' columns
+    dimension : int
+        Dimension of the output matrix (dimension x dimension)
+    maximal_RMSD : float
+        Maximum value for RMSD axis
+    maximal_Q : float
+        Maximum value for Q axis
+    metrics_names : list, optional
+        List of two metric names [x_axis_name, y_axis_name] for labeling (axis reversal handled in plotting)
+    
+    Returns:
+    --------
+    matrix_probability : numpy.ndarray
+        Probability matrix
+    matrix_txt : list
+        Matrix containing frame information for each bin
+    bin_size_Q : float
+        Bin size for Q axis
+    bin_size_RMSD : float
+        Bin size for RMSD axis
+    """
     # Calculate bin sizes
     bin_size_Q = maximal_Q / dimension
     bin_size_RMSD = maximal_RMSD / dimension
     
-    # Calculate normalized indices in one step using numpy operations
-    q_normalized = np.minimum((df['Q'] / bin_size_Q).astype(int), dimension - 1)
-    rmsd_normalized = np.minimum((df['RMSD'] / bin_size_RMSD).astype(int), dimension - 1)
-    
-    # Create matrix_counts using numpy's histogram2d
-    matrix_counts, _, _ = np.histogram2d(
-        q_normalized, 
-        rmsd_normalized,
-        bins=[dimension, dimension],
-        range=[[0, dimension], [0, dimension]]
-    )
-    
-    # Create matrix_txt efficiently using list comprehension
-    matrix_txt = [[[] for _ in range(dimension)] for _ in range(dimension)]
-    for i, (q, r, t, f) in enumerate(zip(q_normalized, rmsd_normalized, df['traj'], df['frame'])):
-        matrix_txt[q][r].append([t, f])
-    
-    # Calculate probability matrix
-    matrix_probability = matrix_counts / len(df)
-    
-    return matrix_probability, matrix_txt, bin_size_Q, bin_size_RMSD
-
-def make_matrix_probability(df, dimension, maximal_RMSD, maximal_Q):
-    # Calculate bin sizes
-    bin_size_Q = maximal_Q / dimension
-    bin_size_RMSD = maximal_RMSD / dimension
-    
-    # Calculate normalized indices in one step using numpy operations
+    # Calculate normalized indices (no data reversal, just normal binning)
     q_normalized = np.minimum((df['Q'] / bin_size_Q).astype(int), dimension - 1)
     rmsd_normalized = np.minimum((df['RMSD'] / bin_size_RMSD).astype(int), dimension - 1)
     
@@ -109,6 +109,10 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     # Create a meshgrid for the x and y bin centers
     X, Y = np.meshgrid(x_centers, y_centers)
 
+    # Check if we need to reverse any axes for Q-values
+    reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
+    reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+
     # Create the surface plot
     fig = go.Figure(data=[go.Surface(z=matrix_energy_rescaled.T, x=X, y=Y, colorscale='RdYlBu_r', cmin=0, cmax=np.amax(real_values))])
 
@@ -127,13 +131,15 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             name=labels[square]
         ))
 
-    # Update layout
+    # Update layout with potential axis reversal
     fig.update_layout(
         title='Conformational Landscape (3D)',
         scene=dict(
             xaxis_title=f"{names_axis[0]}",
             yaxis_title=f"{names_axis[1]}",
             zaxis_title='-ln(p)  (Frequency)',
+            xaxis=dict(autorange='reversed' if reverse_x else True),
+            yaxis=dict(autorange='reversed' if reverse_y else True),
             zaxis=dict(range=[0, np.amax(real_values)])
         ),
         width=800,
@@ -269,6 +275,10 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     x_centers = np.linspace(0, maximal_Q, matrix_energy_rescaled.shape[0])
     y_centers = np.linspace(0, maximal_RMSD, matrix_energy_rescaled.shape[1])
     
+    # Check if we need to reverse any axes for Q-values
+    reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
+    reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+    
     # Create the heatmap
     fig = go.Figure()
     
@@ -286,7 +296,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         )
     ))
     
-    # Update layout with a cleaner modern theme
+    # Update layout with a cleaner modern theme and potential axis reversal
     fig.update_layout(
         title=dict(
             text='Conformational Landscape',
@@ -300,6 +310,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             showgrid=True,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
+            autorange='reversed' if reverse_x else True,
         ),
         yaxis=dict(
             title=f'{names_axis[1]}',
@@ -307,6 +318,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             showgrid=True,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
+            autorange='reversed' if reverse_y else True,
         ),
         width=900,
         height=700,

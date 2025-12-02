@@ -794,7 +794,7 @@
         if (!state.viewerReady) return;
 
         if (!state.isRunning) {
-            state.player = LouisMolStarWrapper.mdPlayer.play();
+            state.player = LouisMolStarWrapper.mdPlayer.playFromFrame(LouisMolStarWrapper.plugin.managers.structure.hierarchy.current.models[1].cell.transform.params.modelIndex);
             elements_doc.playPauseButton.textContent = "Pause";
             
             // Start frame monitoring

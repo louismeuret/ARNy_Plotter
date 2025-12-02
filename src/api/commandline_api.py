@@ -594,7 +594,7 @@ def main():
             'grid_size': args.landscape_grid_size,
             'first_dimension': args.landscape_x,
             'second_dimension': args.landscape_y,
-            'title': 'Energy Landscape',
+            'title': 'Conformational Landscape',
             'color_scheme': 'viridis'
         }
     }

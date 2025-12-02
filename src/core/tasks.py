@@ -349,10 +349,13 @@ def compute_radius_of_gyration(self, *args):
 def compute_end_to_end_distance(self, *args):
     """Compute End-to-End Distance (5' to 3' distance) using MDAnalysis"""
     # Handle chain arguments
-    if len(args) == 4:  # previous_result, topology_file, trajectory_file, session_id
-        _, topology_file, trajectory_file, session_id = args
-    else:  # topology_file, trajectory_file, session_id
-        topology_file, trajectory_file, session_id = args
+    if len(args) == 5:  # previous_result, topology_file, trajectory_file, session_id, plot_settings
+        _, topology_file, trajectory_file, session_id, plot_settings = args
+    elif len(args) == 4:  # topology_file, trajectory_file, session_id, plot_settings
+        topology_file, trajectory_file, session_id, plot_settings = args
+    else:  # fallback for old calls without plot_settings
+        topology_file, trajectory_file, session_id = args[:3]
+        plot_settings = {}
         
     try:
         import MDAnalysis as mda
@@ -364,36 +367,54 @@ def compute_end_to_end_distance(self, *args):
     class EndToEndDistance(AnalysisBase):
         """Calculate end-to-end distance for RNA (5' to 3' distance)"""
         
-        def __init__(self, universe, **kwargs):
+        def __init__(self, universe, five_prime_atom="C5'", three_prime_atom="C3'", **kwargs):
             super().__init__(universe.trajectory, **kwargs)
             self.universe = universe
+            self.five_prime_atom_name = five_prime_atom
+            self.three_prime_atom_name = three_prime_atom
             
-            # Find 5' and 3' atoms (typically P atoms or C5' atoms)
+            # Find 5' and 3' atoms with fallback mechanism
             residues = self.universe.select_atoms("nucleic").residues
             
             if len(residues) == 0:
-                raise ValueError("No nucleic acid residues found")
-            
-            # First residue - 5' end (use C5' atom)
-            first_res = residues[0]
-            self.five_prime = first_res.atoms.select_atoms("name C5'")
-            if len(self.five_prime) == 0:
-                self.five_prime = first_res.atoms.select_atoms("name P")
-            
-            # Last residue - 3' end (use C3' atom)
-            last_res = residues[-1]
-            self.three_prime = last_res.atoms.select_atoms("name C3'")
-            if len(self.three_prime) == 0:
-                self.three_prime = last_res.atoms.select_atoms("name P")
-            
-            # Validate that we found both atoms
-            if len(self.five_prime) == 0:
-                raise ValueError(f"Could not find 5' atom (C5' or P) in first residue {first_res.resname}{first_res.resid}")
-            if len(self.three_prime) == 0:
-                raise ValueError(f"Could not find 3' atom (C3' or P) in last residue {last_res.resname}{last_res.resid}")
-            
-            logger.info(f"5' atom: {self.five_prime}")
-            logger.info(f"3' atom: {self.three_prime}")
+                # If no nucleic residues found, try to use all atoms as fallback
+                logger.warning("No nucleic acid residues found, trying all atoms")
+                all_atoms = self.universe.atoms
+                if len(all_atoms) == 0:
+                    raise ValueError("No atoms found in the structure")
+                # Use first and last atom as ultimate fallback
+                self.five_prime = all_atoms[[0]]  # Use first atom
+                self.three_prime = all_atoms[[-1]]  # Use last atom
+                logger.warning(f"Using first atom as 5' end: {self.five_prime[0]}")
+                logger.warning(f"Using last atom as 3' end: {self.three_prime[0]}")
+            else:
+                # First residue - 5' end (use specified atom)
+                first_res = residues[0]
+                self.five_prime = first_res.atoms.select_atoms(f"name {self.five_prime_atom_name}")
+                if len(self.five_prime) == 0:
+                    # Fallback: try the other common atom type
+                    fallback_atom = "P" if self.five_prime_atom_name == "C5'" else "C5'"
+                    self.five_prime = first_res.atoms.select_atoms(f"name {fallback_atom}")
+                
+                # Last residue - 3' end (use specified atom)
+                last_res = residues[-1]
+                self.three_prime = last_res.atoms.select_atoms(f"name {self.three_prime_atom_name}")
+                if len(self.three_prime) == 0:
+                    # Fallback: try the other common atom type
+                    fallback_atom = "P" if self.three_prime_atom_name == "C3'" else "C3'"
+                    self.three_prime = last_res.atoms.select_atoms(f"name {fallback_atom}")
+                
+                # Fallback to first/last atoms if specific atoms not found
+                if len(self.five_prime) == 0:
+                    logger.warning(f"Could not find 5' atom (C5' or P) in first residue, using first atom as fallback")
+                    self.five_prime = first_res.atoms[[0]]  # Use first atom of first residue
+                
+                if len(self.three_prime) == 0:
+                    logger.warning(f"Could not find 3' atom (C3' or P) in last residue, using last atom as fallback")
+                    self.three_prime = last_res.atoms[[-1]]  # Use last atom of last residue
+                
+                logger.info(f"5' atom: {self.five_prime[0]} (residue {first_res.resname}{first_res.resid})")
+                logger.info(f"3' atom: {self.three_prime[0]} (residue {last_res.resname}{last_res.resid})")
             
             self.results.distances = []
         
@@ -404,15 +425,43 @@ def compute_end_to_end_distance(self, *args):
     # Load trajectory with MDAnalysis
     u = mda.Universe(topology_file, trajectory_file)
     
+    # Extract atom preferences from plot settings
+    five_prime_atom = plot_settings.get("five_prime_atom", "C5'")
+    three_prime_atom = plot_settings.get("three_prime_atom", "C3'")
+    logger.info(f"Using atom preferences: 5' = {five_prime_atom}, 3' = {three_prime_atom}")
+    
     try:
-        # Calculate end-to-end distance
-        logger.info("Computing end-to-end distances...")
-        end_to_end = EndToEndDistance(u)
-        end_to_end.run()
+        distances = None
         
-        distances = np.array(end_to_end.results.distances)
+        # Try primary method: EndToEndDistance class
+        try:
+            logger.info("Computing end-to-end distances...")
+            end_to_end = EndToEndDistance(u, five_prime_atom=five_prime_atom, three_prime_atom=three_prime_atom)
+            end_to_end.run()
+            distances = np.array(end_to_end.results.distances)
+            
+        except Exception as e:
+            # Ultimate fallback: simple distance calculation between first and last atom
+            logger.warning(f"EndToEndDistance class failed: {e}")
+            logger.warning("Using simple fallback: distance between first and last atom")
+            
+            # Get all atoms and calculate distance between first and last
+            all_atoms = u.atoms
+            if len(all_atoms) < 2:
+                raise ValueError("Not enough atoms to calculate end-to-end distance")
+                
+            first_atom = all_atoms[0]
+            last_atom = all_atoms[-1]
+            
+            distances = []
+            for ts in u.trajectory:
+                distance = np.linalg.norm(first_atom.position - last_atom.position)
+                distances.append(distance)
+            
+            distances = np.array(distances)
+            logger.info(f"Fallback calculation successful using atoms: {first_atom} to {last_atom}")
         
-        # Prepare result data
+        # Prepare result data (runs regardless of which calculation method succeeded)
         result_data = {
             'distances': distances.tolist(),
             'mean_distance': float(np.mean(distances)),
@@ -1363,10 +1412,10 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
             from src.plotting import energy_3dplot
             from src.plotting.create_plots import plot_landscapes_3D, plot_landscapes_2D
             
-            (probability_matrix, allframes_matrix, Qbin, RMSDbin) = energy_3dplot.make_matrix_probability(df, size, max_RMSD, max_Q)
+            metrics_to_calculate = [component1_name, component2_name]
+            (probability_matrix, allframes_matrix, Qbin, RMSDbin) = energy_3dplot.make_matrix_probability(df, size, max_RMSD, max_Q, metrics_to_calculate)
             energy_matrix, real_values = energy_3dplot.make_matrix_energy(probability_matrix, max_RMSD, size)
             
-            metrics_to_calculate = [component1_name, component2_name]
             fig = plot_landscapes_3D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate)
             fig2 = plot_landscapes_2D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate)
             
@@ -1526,13 +1575,13 @@ def generate_radius_of_gyration_plot(self, topology_file, trajectory_file, files
 
 @app.task(bind=True, max_retries=3)
 @log_task
-def generate_end_to_end_distance_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id):
+def generate_end_to_end_distance_plot(self, topology_file, trajectory_file, files_path, plot_dir, session_id, plot_settings=None):
     """Generate interactive plot for end-to-end distance analysis"""
     try:
         logger.info(f"Starting end-to-end distance plot generation for session {session_id}")
         
         # Load precomputed data
-        pickle_path = os.path.join("static", "uploads", session_id, 'end_to_end_distance.pkl')
+        pickle_path = os.path.join("static", "uploads", session_id, 'end_to_end_distance_data.pkl')
         if not os.path.exists(pickle_path):
             raise FileNotFoundError(f"End-to-end distance data not found: {pickle_path}")
         
@@ -1550,7 +1599,9 @@ def generate_end_to_end_distance_plot(self, topology_file, trajectory_file, file
         
         # Create plot using create_plots function
         logger.info(f"END_TO_END_DISTANCE: Calling plot_end_to_end_distance with {len(frames)} frames")
-        fig = plot_end_to_end_distance(frames, distances)
+        if plot_settings is None:
+            plot_settings = {}
+        fig = plot_end_to_end_distance(frames, distances, plot_settings)
         logger.info(f"END_TO_END_DISTANCE: Plot figure created, type: {type(fig)}")
         
         # Save data to CSV

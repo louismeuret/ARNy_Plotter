@@ -1716,8 +1716,6 @@ select {
             landscape: {
                 stride: 1,
                 grid_size: 65,
-                firstDimension: "RMSD",
-                secondDimension: "eRMSD",
                 title: "Conformational Landscape",
                 color_scheme: "viridis"
             }
@@ -1950,35 +1948,22 @@ select {
                             <p class="help">Resolution of the energy landscape grid (20-200)</p>
                         </div>
                         <div class="field">
-                            <label class="label">First Dimension</label>
-                            <div class="control">
-                                <div class="select">
-                                    <select id="firstDimension">
-                                        <option value="RMSD" ${settings.firstDimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
-                                        <option value="eRMSD" ${settings.firstDimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
-                                        <option value="Fraction of Contact Formed" ${settings.firstDimension === 'Fraction of Contact Formed' ? 'selected' : ''}>Fraction of Contact Formed</option>
-                                        <option value="Q" ${settings.firstDimension === 'Q' ? 'selected' : ''}>Q (Fraction of Native contacts)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Second Dimension</label>
-                            <div class="control">
-                                <div class="select">
-                                    <select id="secondDimension">
-                                        <option value="RMSD" ${settings.secondDimension === 'RMSD' ? 'selected' : ''}>RMSD</option>
-                                        <option value="eRMSD" ${settings.secondDimension === 'eRMSD' ? 'selected' : ''}>eRMSD</option>
-                                        <option value="Fraction of Contact Formed" ${settings.secondDimension === 'Fraction of Contact Formed' ? 'selected' : ''}>Fraction of Contact Formed</option>
-                                        <option value="Q" ${settings.secondDimension === 'Q' ? 'selected' : ''}>Q (Fraction of Native contacts)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field">
                             <label class="label">Plot Title</label>
                             <div class="control">
                                 <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Color Scheme</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="color_scheme">
+                                        <option value="viridis" ${settings.color_scheme === 'viridis' ? 'selected' : ''}>Viridis</option>
+                                        <option value="plasma" ${settings.color_scheme === 'plasma' ? 'selected' : ''}>Plasma</option>
+                                        <option value="blues" ${settings.color_scheme === 'blues' ? 'selected' : ''}>Blues</option>
+                                        <option value="reds" ${settings.color_scheme === 'reds' ? 'selected' : ''}>Reds</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     `;

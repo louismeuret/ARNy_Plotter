@@ -2,6 +2,7 @@ import os
 import mdtraj as md
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.figure_factory as ff
 import numpy as np
 import pandas as pd
 import barnaba as bb
@@ -105,6 +106,7 @@ def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
     )
     return fig
 
+### OLD VERSION 
 @handle_plot_errors
 def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.Figure:
     # Extract plot settings with defaults
@@ -183,6 +185,7 @@ def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.
 
     fig = go.Figure(data=traces, layout=layout)
     return fig
+
 
 def plot_torsion_time_series(angles: np.ndarray, res: List[str], torsionResidue: int, plot_settings: dict = {}) -> go.Figure:
     """Create time series plot for torsion angles"""
@@ -824,15 +827,14 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
     # Function to calculate pair frequencies from a list of dot-bracket structures
     def calculate_pair_frequencies(dot_bracket_list):
         pair_counts = defaultdict(int)
-        total_pairs = 0
+        total_frames = len(dot_bracket_list)
 
         for dot_bracket in dot_bracket_list:
             pairs = parse_dot_bracket(dot_bracket)
             for pair in pairs:
                 pair_counts[pair] += 1
-                total_pairs += 1
 
-        pair_frequencies = {pair: count / total_pairs for pair, count in pair_counts.items()}
+        pair_frequencies = {pair: count / total_frames for pair, count in pair_counts.items()}
         logging.debug(f"Pair frequencies: {pair_frequencies}")
         return pair_frequencies
 
@@ -1155,7 +1157,6 @@ def plot_end_to_end_distance(frames: List[int], distances: List[float], plot_set
     
     # Extract plot settings with defaults
     title = plot_settings.get('title', f"End-to-End Distance (5' to 3') vs Frame ({len(frames)} frames)")
-    color_scheme = plot_settings.get('color_scheme', 'purple')
     five_prime_atom = plot_settings.get('five_prime_atom', "P")
     three_prime_atom = plot_settings.get('three_prime_atom', "P")
     
@@ -1167,7 +1168,7 @@ def plot_end_to_end_distance(frames: List[int], distances: List[float], plot_set
         y=distances,
         mode='lines+markers',
         name='End-to-End Distance',
-        line=dict(color=color_scheme, width=2),
+        line=dict(color="purple", width=2),
         marker=dict(size=4),
         hovertemplate='Frame: %{x}<br>Distance: %{y:.2f} Å<extra></extra>'
     ))
