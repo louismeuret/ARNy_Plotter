@@ -561,11 +561,11 @@ def compute_q_value(self, *args):
     reference_traj, target_traj = load_cached_mdtraj_objects(session_id)
     
     if reference_traj is not None and target_traj is not None:
-        logger.info("🚀 Using cached MDTraj objects for Q-value computation")
+        logger.info("Using cached MDTraj objects for Q-value computation")
         q_values = best_hummer_q(target_traj, reference_traj)
     else:
         # Fallback to file loading
-        logger.info("⚠️  Using fallback file loading for Q-value")
+        logger.info("Using fallback file loading for Q-value")
         reference_traj = md.load(topology_file)
         target_traj = md.load(trajectory_file, top=topology_file)
         q_values = best_hummer_q(target_traj, reference_traj)
@@ -1313,7 +1313,7 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
                     q_value_data = best_hummer_q(target_traj, reference_traj).tolist()
             
             else:
-                logger.info("⚠️  Using file loading for landscape fallback computations")
+                logger.info("Using file loading for landscape fallback computations")
                 import mdtraj as md
                 
                 if "rmsd" in components_needed:
@@ -1359,12 +1359,12 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
         # Map dimension selections to actual metric names after data computation
         # Users select: 1 = RMSD, 2 = eRMSD, 3 = Q-value, 4 = Fraction of Contact Formed
         dimension_map = {
-            1: ("RMSD (Å)", rmsd_data),
-            2: ("eRMSD (Å)", ermsd_data),
+            1: ("RMSD (nm)", rmsd_data),
+            2: ("eRMSD", ermsd_data),
             3: ("Q-value", q_value_data),
             4: ("Fraction of Contact Formed", q_value_data),  # Using same Q-value calculation for now
-            "1": ("RMSD (Å)", rmsd_data),
-            "2": ("eRMSD (Å)", ermsd_data),
+            "1": ("RMSD (nm)", rmsd_data),
+            "2": ("eRMSD", ermsd_data),
             "3": ("Q-value", q_value_data),
             "4": ("Fraction of Contact Formed", q_value_data)  # Using same Q-value calculation for now
         }
@@ -1373,8 +1373,8 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
         first_dim = landscape_params[1] if len(landscape_params) > 1 else 1
         second_dim = landscape_params[2] if len(landscape_params) > 2 else 2
 
-        component1_name, component1_data = dimension_map.get(first_dim, ("RMSD (Å)", rmsd_data))
-        component2_name, component2_data = dimension_map.get(second_dim, ("eRMSD (Å)", ermsd_data))
+        component1_name, component1_data = dimension_map.get(first_dim, ("RMSD (nm)", rmsd_data))
+        component2_name, component2_data = dimension_map.get(second_dim, ("eRMSD", ermsd_data))
         
         # Check if required data is available
         if component1_data is None:

@@ -67,7 +67,7 @@ def plot_ermsd(ermsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
         layout=dict(
             title=title,
             xaxis_title="Frame",
-            yaxis_title="eRMSD Value (Å)" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
+            yaxis_title="eRMSD Value" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
             hovermode="closest"
         )
     )
@@ -100,7 +100,7 @@ def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
         layout=dict(
             title=title,
             xaxis_title="Frame",
-            yaxis_title="RMSD Value (Å)" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
+            yaxis_title="RMSD Value (nm)" + (" - Heavy Atoms" if heavy_atom else " - All Atoms"),
             hovermode="closest"
         )
     )
@@ -878,7 +878,6 @@ def plot_diagram_frequency(sequence, dot_bracket_list, dotbracket_native):
 
         min_frequency = min(frequencies)
         max_frequency = max(frequencies)
-
         if frequencies:
             norm_frequencies = [(f - min(frequencies)) / (max(frequencies) - min(frequencies)) for f in frequencies]
         else:
