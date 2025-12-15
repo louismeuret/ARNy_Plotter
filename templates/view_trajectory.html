@@ -615,6 +615,7 @@
 
             console.log('Success: MolStar: Trajectory loaded successfully');
             
+            LouisMolStarWrapper.coloring.applyNucleotideTheme();
             // Clean up blob URLs if they were created (not for fallback URLs)
             if (!structureResult.fallback && structureResult.url.startsWith('blob:')) {
                 console.log('Cache: Scheduling structure blob URL cleanup');
