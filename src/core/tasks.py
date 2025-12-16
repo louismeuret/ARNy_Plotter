@@ -1109,6 +1109,68 @@ def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, 
 
         return frames_dict, sequence
 
+    def process_barnaba_stackings(stackings, res):
+        """Process barnaba stackings and residue information into frames dictionary"""
+        import pandas as pd
+        frames_dict = {}
+        
+        # Create sequence from residue information
+        sequence = [r[0] for r in res]  # Assuming res contains nucleotide types
+        
+        print(f"Processing stackings data. Total frames: {len(stackings)}")
+        print(f"Sample stacking data structure: {stackings[:2] if stackings else 'Empty'}")
+        
+        # Process each frame
+        for frame_num, frame_data in enumerate(stackings):
+            stacking_interactions = []
+            
+            # Debug: print frame data structure
+            if frame_num < 2:  # Only print first 2 frames for debugging
+                print(f"Frame {frame_num} stacking data: {frame_data}")
+            
+            # Each frame contains a list of stackings and their annotations
+            if len(frame_data) == 2:
+                stack_indices = frame_data[0]
+                annotations = frame_data[1]
+                
+                if frame_num < 2:
+                    print(f"Frame {frame_num} - Indices: {stack_indices[:5] if stack_indices else 'Empty'}")
+                    print(f"Frame {frame_num} - Annotations: {annotations[:5] if annotations else 'Empty'}")
+                
+                for stack_idx, stack in enumerate(stack_indices):
+                    if not stack:
+                        continue
+                    
+                    res_i = stack[0] + 1  # Convert to 1-based indexing
+                    res_j = stack[1] + 1
+                    
+                    # Get residue names from the sequence
+                    if 0 <= res_i - 1 < len(sequence) and 0 <= res_j - 1 < len(sequence):
+                        res_i_name = f"{sequence[res_i - 1]}{res_i}"
+                        res_j_name = f"{sequence[res_j - 1]}{res_j}"
+                    else:
+                        res_i_name = f"N{res_i}"
+                        res_j_name = f"N{res_j}"
+                    
+                    anno = annotations[stack_idx] if stack_idx < len(annotations) else 'XXX'
+                    
+                    stacking_interactions.append({
+                        'res_i': res_i,
+                        'res_j': res_j,
+                        'res_i_name': res_i_name,
+                        'res_j_name': res_j_name,
+                        'anno': anno
+                    })
+            
+            # Always assign a DataFrame (even if empty)
+            frames_dict[frame_num] = pd.DataFrame(stacking_interactions)
+            
+            if frame_num < 2:
+                print(f"Frame {frame_num} processed: {len(stacking_interactions)} stacking interactions")
+        
+        print(f"Stacking processing complete. Processed {len(frames_dict)} frames")
+        return frames_dict, sequence
+
     try:
         # Load pre-computed annotate data if available
         annotate_path = os.path.join("static", "uploads", session_id, "annotate_data.pkl")
@@ -1126,15 +1188,21 @@ def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, 
 
         # Process barnaba results into our format
         frames_dict, sequence = process_barnaba_pairings(pairings, res)
+        stackings_frames_dict, stackings_sequence = process_barnaba_stackings(stackings, res)
         print(len(frames_dict))
         print(f"RNA length: {len(sequence)} nucleotides")
         print(f"Found {len(frames_dict)} frames in the data")
+        print(f"Found {len(stackings_frames_dict)} frames in stackings data")
         frame_num, frame_data = sorted(frames_dict.items())[0]
 
         # Save pairings to CSV
         import pandas as pd
         pairings_df = pd.DataFrame(pairings)
         pairings_df.to_csv(os.path.join(files_path, "pairings.csv"), index=False)
+        
+        # Save stackings to CSV
+        stackings_df = pd.DataFrame(stackings)
+        stackings_df.to_csv(os.path.join(files_path, "stackings.csv"), index=False)
 
         # Save frames_dict and sequence to pickle
         os.makedirs(generate_data_path, exist_ok=True)
@@ -1144,6 +1212,14 @@ def generate_contact_map_plot(self, topology_file, trajectory_file, files_path, 
         }
         with open(os.path.join(generate_data_path, "contact_map_data.pkl"), 'wb') as f:
             pickle.dump(data_to_save, f)
+            
+        # Save stackings data to pickle  
+        stackings_data_to_save = {
+            'frames_dict': stackings_frames_dict,
+            'sequence': stackings_sequence
+        }
+        with open(os.path.join(generate_data_path, "stacking_map_data.pkl"), 'wb') as f:
+            pickle.dump(stackings_data_to_save, f)
 
         try:
             from src.plotting.create_plots import plot_rna_contact_map
@@ -1486,6 +1562,36 @@ def update_contact_map_plot(self, generate_data_path, plot_path, frame_number, s
             
     except Exception as exc:
         logger.error(f"Contact map update failed: {str(exc)}")
+        raise exc
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def update_stacking_map_plot(self, generate_data_path, plot_path, frame_number, session_id):
+    """Update stacking map plot for a specific frame"""
+    try:
+        with open(os.path.join(generate_data_path, "stacking_map_data.pkl"), 'rb') as f:
+            loaded_data = pickle.load(f)
+
+        frames_dict = loaded_data['frames_dict']
+        sequence = loaded_data['sequence']
+
+        frame_num, frame_data = sorted(frames_dict.items())[frame_number]
+        print(f"Updating stacking map for frame {frame_num}")
+        
+        try:
+            # Ensure the plot directory exists
+            os.makedirs(plot_path, exist_ok=True)
+            
+            from src.plotting.create_plots import plot_rna_stacking_map
+            fig = plot_rna_stacking_map(frame_data, sequence, output_file=os.path.join(plot_path, "stacking_map.html"), frame_number=frame_num)
+            plotly_data = plotly_to_json(fig)
+            return plotly_data
+        except ImportError:
+            logger.warning("create_plots module not available for stacking update, using fallback")
+            return {"path": f"static/uploads/{session_id}/stacking_map_update.png", "status": "fallback"}
+            
+    except Exception as exc:
+        logger.error(f"Stacking map update failed: {str(exc)}")
         raise exc
 
 @app.task(bind=True, max_retries=3)

@@ -1748,6 +1748,18 @@ def update_contact_map_to_right_frame(data, second_arg):
     result = job.get()
     emit('contact_map_plot_update', {'plotData': result}, room=session)
 
+@socketio.on('update_stacking_map')
+def update_stacking_map_to_right_frame(data, second_arg):
+    print('Trying to update stacking map')
+    session = data['session_id']
+    slider_value = int(data['value'])
+    directory_path = os.path.join(uploads_dir, session)
+    generate_data_path = os.path.join(directory_path, "generated_data")
+    download_plot = os.path.join(directory_path, "download_plot", "STACKING_MAPS")
+    print(f"SESSION = {session}")
+    job = update_stacking_map_plot.apply_async(args=[generate_data_path, download_plot, slider_value, session])
+    result = job.get()
+    emit('stacking_map_plot_update', {'plotData': result}, room=session)
 
 def generate_image(value):
     # Create a simple image based on the slider value

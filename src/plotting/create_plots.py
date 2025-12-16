@@ -782,6 +782,186 @@ def plot_rna_contact_map(base_pairs_df: pd.DataFrame, sequence: List[str], outpu
         print(f"Contact map saved to {output_file}")
     
     return fig
+
+@handle_plot_errors
+def plot_rna_stacking_map(stacking_interactions_df: pd.DataFrame, sequence: List[str], output_file: Optional[str] = None, frame_number: Optional[int] = None, plot_settings: dict = {}) -> go.Figure:
+    """
+    Create an interactive stacking map visualization for RNA stacking interactions
+    using Plotly with different stacking type classifications
+    
+    Parameters:
+    -----------
+    stacking_interactions_df : pandas DataFrame
+        DataFrame with stacking interaction information
+    sequence : list
+        RNA sequence
+    output_file : str, optional
+        Path to save the HTML or image visualization
+    frame_number : int, optional
+        Frame number for multi-frame data
+    plot_settings : dict
+        Plot customization settings
+    
+    Returns:
+    --------
+    fig : plotly.graph_objects.Figure
+        Plotly figure object
+    """
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', "RNA Stacking Map")
+    colorscale = plot_settings.get('colorscale', 'default')
+    marker_size = plot_settings.get('marker_size', 15)
+    
+    fig = go.Figure()
+    if stacking_interactions_df.empty:
+        print("No stacking interactions to display")
+        fig.add_annotation(
+            text="No stacking interactions to display",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="red")
+        )
+        # Update layout to center the text
+        fig.update_layout(
+            title=title,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            width=800,
+            height=700
+        )
+        return fig
+    
+    # Define a color mapping for different stacking types based on directional symbols
+    stacking_color_map = {
+        '>>': '#E41A1C',       # Red - Both pointing right
+        '<<': '#FF7F00',       # Orange - Both pointing left  
+        '<>': '#4DAF4A',       # Green - Pointing outward
+        '><': '#377EB8',       # Blue - Pointing inward
+        'ss33': '#984EA3',     # Purple - 3'-3' stacking (fallback)
+        'ss35': '#FFFF33',     # Yellow - 3'-5' stacking (fallback)
+        'ss53': '#A65628',     # Brown - 5'-3' stacking (fallback)
+        'ss55': '#F781BF',     # Pink - 5'-5' stacking (fallback)
+        'XXX': '#C0C0C0',      # Silver - Not classified or undefined
+    }
+    
+    # Group by annotation type
+    annotations = stacking_interactions_df['anno'].unique()
+    
+    # Add stacking interactions as scatter points, grouped by annotation
+    for anno in annotations:
+        # Get subset of interactions with this annotation
+        subset = stacking_interactions_df[stacking_interactions_df['anno'] == anno]
+        
+        if not subset.empty:
+            # Determine marker symbol based on the stacking type
+            marker_symbol = 'circle'
+            
+            # Customize marker based on directional stacking type
+            if anno == '>>':
+                marker_symbol = 'triangle-right'
+            elif anno == '<<':
+                marker_symbol = 'triangle-left'
+            elif anno == '<>':
+                marker_symbol = 'diamond'
+            elif anno == '><':
+                marker_symbol = 'square'
+            elif 'ss' in anno.lower():
+                marker_symbol = 'pentagon'
+            
+            # Get the color for this annotation type
+            color = stacking_color_map.get(anno, '#C0C0C0')
+            
+            # Add points for this stacking type
+            fig.add_trace(go.Scatter(
+                x=subset['res_i'],
+                y=subset['res_j'],
+                mode='markers',
+                marker=dict(
+                    size=10,
+                    symbol=marker_symbol,
+                    color=color,
+                    line=dict(width=1, color='DarkSlateGrey')
+                ),
+                name=anno,  # Use anno directly as the trace name
+                hovertemplate=(
+                    'Stacking: %{customdata[0]} ↔ %{customdata[1]}<br>' +
+                    'Type: ' + anno + '<br>' +
+                    'Residue i: %{x}<br>' +
+                    'Residue j: %{y}<br>'
+                ),
+                customdata=list(zip(subset['res_i_name'], subset['res_j_name']))
+            ))
+            
+            # Add points for the symmetrical interactions (lower triangle)
+            fig.add_trace(go.Scatter(
+                x=subset['res_j'],
+                y=subset['res_i'],
+                mode='markers',
+                marker=dict(
+                    size=10,
+                    symbol=marker_symbol,
+                    color=color,
+                    line=dict(width=1, color='DarkSlateGrey')
+                ),
+                name=f"{anno} (sym)",
+                showlegend=False,
+                hovertemplate=(
+                    'Stacking: %{customdata[1]} ↔ %{customdata[0]}<br>' +
+                    'Type: ' + anno + '<br>' +
+                    'Residue j: %{x}<br>' +
+                    'Residue i: %{y}<br>'
+                ),
+                customdata=list(zip(subset['res_i_name'], subset['res_j_name']))
+            ))
+    
+    # Add sequence ticks if sequence is available
+    n_residues = len(sequence)
+    tick_vals = list(range(1, n_residues + 1))
+    tick_text = [f"{seq}{i}" for i, seq in enumerate(sequence, 1)]
+    
+    # Add diagonal line
+    fig.add_trace(go.Scatter(
+        x=[1, n_residues],
+        y=[1, n_residues],
+        mode='lines',
+        line=dict(color='black', width=1, dash='dash'),
+        showlegend=False
+    ))
+    
+    # Update layout with better titles and hover info
+    final_title = title
+    if frame_number is not None:
+        final_title += f" - Frame {frame_number}"
+        
+    fig.update_layout(
+        title=final_title,
+        xaxis=dict(
+            title="Nucleotide position",
+            tickvals=tick_vals,
+            ticktext=tick_text,
+            tickangle=45
+        ),
+        yaxis=dict(
+            title="Nucleotide position",
+            tickvals=tick_vals,
+            ticktext=tick_text
+        ),
+        width=800,
+        height=700,
+        legend_title="Stacking Types:",
+        hovermode="closest"
+    )
+    
+    # Save to file if specified
+    if output_file:
+        if output_file.endswith('.html'):
+            fig.write_html(output_file)
+        else:
+            fig.write_image(output_file)
+        print(f"Stacking map saved to {output_file}")
+    
+    return fig
     
 def plot_sec_structure(sec_structure):
     fig = go.Figure(data=go.Scattergl(y=sec_structure, mode="markers"))
