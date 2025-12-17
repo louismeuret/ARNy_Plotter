@@ -14,7 +14,8 @@
     </div>
     {% endif %}
   </div>
-  <script>
+
+    <script>
     var previousValue2 = 1;
     var dataLength = {{ trajectory_length }};
     var plotDataContact_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
@@ -30,7 +31,21 @@
     // Initialize plot with contact map data by default
     Plotly.newPlot('{{ plot_info[1] }}', plotDataContact_{{ plot_info[1] }}).then(() => {
       // Force a resize after plot is created to ensure it fills the container
-      setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
+      setTimeout(() => {
+        Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
+        console.log('Contact map initialized and resized');
+        
+        // Register contact map for frame updates using a custom approach
+        if (typeof window.contactMapFrameListeners === 'undefined') {
+          window.contactMapFrameListeners = [];
+        }
+        window.contactMapFrameListeners.push({
+          plotId: '{{ plot_info[1] }}',
+          sendSliderValue: sendSliderValue,
+          sendStackingSliderValue: sendStackingSliderValue
+        });
+        console.log('Contact map registered for frame updates');
+      }, 100);
       
       // Pre-load stacking data for the initial frame
       sendStackingSliderValue(previousValue2);
@@ -85,39 +100,61 @@
 
     // Send slider value to server
     function sendSliderValue(value) {
+      console.log('Contact map: Sending contact map update for frame', value);
       socket.emit("update_contact_map", {
         value: value,
         session_id: "{{ session_id }}",
       }, "{{ session_id }}");
     }
 
+
     function sendStackingSliderValue(value) {
+      console.log('Contact map: Sending stacking map update for frame', value);
       socket.emit("update_stacking_map", {
         value: value,
         session_id: "{{ session_id }}",
       }, "{{ session_id }}");
     }
 
-    // Add event listeners for slider and input
-    document.getElementById('frame-slider').addEventListener('input', 
-      debounce(function() {
-        var sliderValue = parseInt(this.value);
-        previousValue2 = sliderValue;
-        // Always request both contact and stacking data when frame changes
-        sendSliderValue(sliderValue);
-        sendStackingSliderValue(sliderValue);
-      }, 500)
-    );
+    // Add event listeners for slider and input with error handling
+    const frameSlider = document.getElementById('frame-slider');
+    const frameNumber = document.getElementById('frame-number');
+    
+    if (frameSlider) {
 
-    document.getElementById('frame-number').addEventListener('input',
-      debounce(function() {
-        var sliderValue = parseInt(this.value);
-        previousValue2 = sliderValue;
-        // Always request both contact and stacking data when frame changes
-        sendSliderValue(sliderValue);
-        sendStackingSliderValue(sliderValue);
-      }, 500)
-    );
+      const socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
+          query: "session_id={{ session_id }}"
+      });
+      frameSlider.addEventListener('input', 
+        debounce(function() {
+          var sliderValue = parseInt(this.value);
+          previousValue2 = sliderValue;
+          console.log('Contact map: Frame slider changed to', sliderValue);
+          // Always request both contact and stacking data when frame changes
+          sendSliderValue(sliderValue);
+          sendStackingSliderValue(sliderValue);
+        }, 500)
+      );
+      console.log('Contact map: Frame slider event listener added');
+    } else {
+      console.log('Contact map: Frame slider not found');
+    }
+
+    if (frameNumber) {
+      frameNumber.addEventListener('input',
+        debounce(function() {
+          var sliderValue = parseInt(this.value);
+          previousValue2 = sliderValue;
+          console.log('Contact map: Frame number input changed to', sliderValue);
+          // Always request both contact and stacking data when frame changes
+          sendSliderValue(sliderValue);
+          sendStackingSliderValue(sliderValue);
+        }, 500)
+      );
+      console.log('Contact map: Frame number input event listener added');
+    } else {
+      console.log('Contact map: Frame number input not found');
+    }
 
     // Update plot when receiving new data from server
     socket.on("contact_map_plot_update", function(data) {
@@ -129,6 +166,7 @@
       // Only update the display if currently in contact mode
       if (currentMode === 'contact') {
         Plotly.react(document.getElementById('{{ plot_info[1] }}'), plotData.data);
+        console.log('Contact map updated via socket for frame');
       }
     });
 
@@ -145,6 +183,7 @@
         document.getElementById('btnStackingMap').classList.add('is-active');
         document.getElementById('btnContactMap').classList.remove('is-active');
         currentMode = 'stacking';
+        console.log('Stacking map updated via socket for frame');
       }
     });
   </script>

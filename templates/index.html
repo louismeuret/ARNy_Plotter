@@ -724,6 +724,14 @@ select {
                         <div id="progress-markers"></div>
                     </div>
                     <div id="terminal"></div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button id="shareSessionBtn" class="button is-info is-small" onclick="shareSession()" style="display: none;">
+                            📋 Share Results Link
+                        </button>
+                        <p id="shareSessionText" style="font-size: 0.85em; color: #666; margin-top: 5px; display: none;">
+                            Copy link to retrieve results later
+                        </p>
+                    </div>
                 </div>
             </div>
             <link
@@ -1123,6 +1131,22 @@ select {
                     }
                 }
                 
+                // Share session function to copy results link
+                function shareSession() {
+                    const baseUrl = window.location.origin;
+                    const shareLink = `${baseUrl}/retrieve-results?session_id=${sessionId}`;
+                    navigator.clipboard.writeText(shareLink).then(
+                        () => {
+                            alert("Share link copied to clipboard: " + shareLink);
+                        },
+                        (err) => {
+                            console.error("Could not copy text: ", err);
+                            // Fallback for browsers that don't support clipboard API
+                            prompt("Copy this link:", shareLink);
+                        }
+                    );
+                }
+                
                 // Clear all cached files from this website when loading index page
                 if (window.trajectoryCache) {
                     console.log("Index: Clearing entire trajectory cache on page load...");
@@ -1219,6 +1243,12 @@ select {
                     // Show the overlay when the button is clicked
                     document.getElementById("overlay").style.display = "flex";
                     listenForUpdates();
+                    
+                    // Show the share button once calculations start
+                    setTimeout(() => {
+                        document.getElementById("shareSessionBtn").style.display = "inline-block";
+                        document.getElementById("shareSessionText").style.display = "block";
+                    }, 2000); // Show after 2 seconds to ensure session is established
                 }
 
                 function initializeProgressBar() {

@@ -108,6 +108,14 @@
                     >
                         Show/Hide Sidechains
                     </button>
+                    <button
+                        id="viewerDocsButton"
+                        class="control-button"
+                        onclick="window.open('{{ url_for('documentation') }}#viewer', '_blank')"
+                        title="Open viewer documentation"
+                    >
+                        📖 Viewer Help
+                    </button>
                 </div>
                 
                 <!-- Cache Controls (Disabled for production) -->
@@ -773,6 +781,15 @@
         elements_doc.frameSlider.value = frame;
         elements_doc.frameNumber.value = frame;
         frameMarkers.updateAll(frame);
+        
+        // Update contact maps (which don't use frameMarkers system)
+        if (window.contactMapFrameListeners) {
+          console.log('Updating contact map listeners for frame', frame, '(from updateFrameUI)');
+          window.contactMapFrameListeners.forEach(listener => {
+            listener.sendSliderValue(frame);
+            listener.sendStackingSliderValue(frame);
+          });
+        }
     }
 
     // Handle frame changes
@@ -786,6 +803,15 @@
 
         // Update all frame markers across all plots
         frameMarkers.updateAll(frame);
+        
+        // Update contact maps (which don't use frameMarkers system)
+        if (window.contactMapFrameListeners) {
+          console.log('Updating contact map listeners for frame', frame);
+          window.contactMapFrameListeners.forEach(listener => {
+            listener.sendSliderValue(frame);
+            listener.sendStackingSliderValue(frame);
+          });
+        }
     }
 
     
