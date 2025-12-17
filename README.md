@@ -87,7 +87,7 @@ ARNY_Plotter/
 │   ├── examples/          # Example datasets
 ├── scripts/               # Utility scripts
 └── tests/                 # Test suite
-
+```
 ## Plot Documentation
 
 ### 1. Contact Map Plot
