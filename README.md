@@ -1,5 +1,5 @@
 
-# ARNy Plotter — Trajectory Plotting Web Application for RNA
+# ARNy Plotter — Trajectory Plotting Web server for RNA
 
 **ARNy Plotter** is a web-based visualization and analysis tool designed for exploring RNA simulation trajectories. It supports a wide range of molecular dynamics (MD) formats, and provides publication-ready plots including contact maps, RMSD, eRMSD, torsions, dot-bracket transitions, and more.
 
@@ -34,7 +34,10 @@ There, type a, press enter, and see the servers starting up.
 After, just type in your browser http://127.0.0.1:4242
 You sould (hopefully) be able to access the webserver.
 
-Another way to start it is by using the scripts in 
+Another way to start it is by using the scripts in scripts folder:
+```bash
+./start_services.sh
+```
 ---
 
 ## How to Use the Web Interface
