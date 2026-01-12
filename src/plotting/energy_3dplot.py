@@ -101,7 +101,48 @@ def probability_plot(matrix_probability, bin_size_Q, bin_size_RMSD, maximal_RMSD
 	cbar.set_label('Probability', fontsize=14, rotation=90)
 #	plt.show()
 
-def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RMSD,maximal_Q, real_values, squares, names_axis):
+def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RMSD, maximal_Q, real_values, squares, names_axis, x_min=None, x_max=None, y_min=None, y_max=None):
+    """
+    Creates a 3D surface plot representation of energy landscape with annotated regions.
+
+    Parameters:
+    -----------
+    matrix_energy_rescaled : numpy.ndarray
+        The energy matrix with rescaled values
+    bin_size_Q : float
+        Bin size for Q axis (Frobenius distance)
+    bin_size_RMSD : float
+        Bin size for RMSD axis
+    maximal_RMSD : float
+        Maximum value for RMSD
+    maximal_Q : float
+        Maximum value for Q
+    real_values : numpy.ndarray
+        Original energy values for color scale reference
+    squares : list of tuples
+        List of (x0, x1, y0, y1) coordinates defining regions to highlight
+    names_axis : list
+        List of axis names [x_axis_name, y_axis_name]
+    x_min : float, optional
+        Minimum value for x-axis (default: None, uses 0)
+    x_max : float, optional
+        Maximum value for x-axis (default: None, uses maximal_Q)
+    y_min : float, optional
+        Minimum value for y-axis (default: None, uses 0)
+    y_max : float, optional
+        Maximum value for y-axis (default: None, uses maximal_RMSD)
+
+    Returns:
+    --------
+    plotly.graph_objects.Figure
+        A 3D surface plot figure of the energy landscape
+    """
+    # Use provided limits or default to full range
+    x_min = x_min if x_min is not None else 0
+    x_max = x_max if x_max is not None else maximal_Q
+    y_min = y_min if y_min is not None else 0
+    y_max = y_max if y_max is not None else maximal_RMSD
+
     # Calculate the bin centers from edges for plotting
     x_centers = np.linspace(0, maximal_Q, matrix_energy_rescaled.shape[0])
     y_centers = np.linspace(0, maximal_RMSD, matrix_energy_rescaled.shape[1])
@@ -110,10 +151,11 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     X, Y = np.meshgrid(x_centers, y_centers)
 
     # Check if we need to reverse any axes for Q-values
-    reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
-    reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
-
-    # Create the surface plot
+    # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
+    # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+    reverse_x = "RMSD" in names_axis[0]
+    reverse_y = "RMSD" in names_axis[1]
+     # Create the surface plot
     fig = go.Figure(data=[go.Surface(z=matrix_energy_rescaled.T, x=X, y=Y, colorscale='RdYlBu_r', cmin=0, cmax=np.amax(real_values))])
 
     # Add rectangles for the squares (as 3D boxes)
@@ -131,6 +173,14 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             name=labels[square]
         ))
 
+    # Determine if custom ranges are set
+    custom_x_range = x_min is not None or x_max is not None
+    custom_y_range = y_min is not None or y_max is not None
+
+    # Set autorange: False if custom range, 'reversed' if Q-value and no custom range, True otherwise
+    x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
+    y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
+
     # Update layout with potential axis reversal
     fig.update_layout(
         title='Conformational Landscape (3D)',
@@ -138,14 +188,19 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             xaxis_title=f"{names_axis[0]}",
             yaxis_title=f"{names_axis[1]}",
             zaxis_title='-ln(p)  (Frequency)',
-            xaxis=dict(autorange='reversed' if reverse_x else True),
-            yaxis=dict(autorange='reversed' if reverse_y else True),
+            xaxis=dict(
+                autorange=x_autorange,
+                range=[x_max, x_min] if reverse_x else [x_min, x_max]
+            ),
+            yaxis=dict(
+                autorange=y_autorange,
+                range=[y_max, y_min] if reverse_y else [y_min, y_max]
+            ),
             zaxis=dict(range=[0, np.amax(real_values)])
         ),
         width=800,
-        height=800
+        height=800,
     )
-
     return fig
 
 
@@ -242,10 +297,10 @@ def energy_plot(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RMSD,
 	#plt.show()
 	plt.savefig(path_landscape)
 
-def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RMSD, maximal_Q, real_values, squares, names_axis):
+def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RMSD, maximal_Q, real_values, squares, names_axis, x_min=None, x_max=None, y_min=None, y_max=None):
     """
     Creates a 2D heatmap representation of energy landscape with annotated regions.
-    
+
     Parameters:
     -----------
     matrix_energy_rescaled : numpy.ndarray
@@ -256,11 +311,23 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         Bin size for RMSD axis
     maximal_RMSD : float
         Maximum value for RMSD
+    maximal_Q : float
+        Maximum value for Q
     real_values : numpy.ndarray
         Original energy values for color scale reference
     squares : list of tuples
         List of (x0, x1, y0, y1) coordinates defining regions to highlight
-        
+    names_axis : list
+        List of axis names [x_axis_name, y_axis_name]
+    x_min : float, optional
+        Minimum value for x-axis (default: None, uses 0)
+    x_max : float, optional
+        Maximum value for x-axis (default: None, uses maximal_Q)
+    y_min : float, optional
+        Minimum value for y-axis (default: None, uses 0)
+    y_max : float, optional
+        Maximum value for y-axis (default: None, uses maximal_RMSD)
+
     Returns:
     --------
     plotly.graph_objects.Figure
@@ -270,15 +337,23 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     import plotly.graph_objects as go
     import plotly.express as px
     from string import ascii_uppercase
-    
+
+    # Use provided limits or default to full range
+    x_min = x_min if x_min is not None else 0
+    x_max = x_max if x_max is not None else maximal_Q
+    y_min = y_min if y_min is not None else 0
+    y_max = y_max if y_max is not None else maximal_RMSD
+
     # Calculate the bin centers from edges for plotting
     x_centers = np.linspace(0, maximal_Q, matrix_energy_rescaled.shape[0])
     y_centers = np.linspace(0, maximal_RMSD, matrix_energy_rescaled.shape[1])
     
     # Check if we need to reverse any axes for Q-values
-    reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
-    reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+    # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
+    # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
     
+    reverse_x = "RMSD" in names_axis[0]
+    reverse_y = "RMSD" in names_axis[1]
     # Create the heatmap
     fig = go.Figure()
     
@@ -296,6 +371,14 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         )
     ))
     
+    # Determine if custom ranges are set
+    custom_x_range = x_min is not None or x_max is not None
+    custom_y_range = y_min is not None or y_max is not None
+
+    # Set autorange: False if custom range, 'reversed' if RMSD and no custom range, True otherwise
+    x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
+    y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
+
     # Update layout with a cleaner modern theme and potential axis reversal
     fig.update_layout(
         title=dict(
@@ -310,7 +393,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             showgrid=True,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
-            autorange='reversed' if reverse_x else True,
+            autorange=x_autorange,
         ),
         yaxis=dict(
             title=f'{names_axis[1]}',
@@ -318,8 +401,10 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             showgrid=True,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
-            autorange='reversed' if reverse_y else True,
+            autorange=y_autorange,
         ),
+        xaxis_range=[x_max, x_min] if reverse_x else [x_min, x_max],
+        yaxis_range=[y_max, y_min] if reverse_y else [y_min, y_max],
         width=900,
         height=700,
         plot_bgcolor='rgba(240, 240, 240, 0.7)',

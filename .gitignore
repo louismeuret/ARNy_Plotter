@@ -2,3 +2,11 @@
 *.xtc
 
 static/uploads/
+
+logs/
+
+docs/notebooks/
+
+data/examples/ORF50_nattraj.pdb/
+
+data/examples/NMR/

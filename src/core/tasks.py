@@ -1487,13 +1487,25 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
         try:
             from src.plotting import energy_3dplot
             from src.plotting.create_plots import plot_landscapes_3D, plot_landscapes_2D
-            
+
             metrics_to_calculate = [component1_name, component2_name]
             (probability_matrix, allframes_matrix, Qbin, RMSDbin) = energy_3dplot.make_matrix_probability(df, size, max_RMSD, max_Q, metrics_to_calculate)
             energy_matrix, real_values = energy_3dplot.make_matrix_energy(probability_matrix, max_RMSD, size)
-            
-            fig = plot_landscapes_3D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate)
-            fig2 = plot_landscapes_2D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate)
+
+            # Extract axis limits from plot settings if available
+            x_min = plot_settings.get('x_min', None)
+            x_max = plot_settings.get('x_max', None)
+            y_min = plot_settings.get('y_min', None)
+            y_max = plot_settings.get('y_max', None)
+
+            # Convert empty strings to None
+            x_min = None if x_min == '' or x_min is None else float(x_min)
+            x_max = None if x_max == '' or x_max is None else float(x_max)
+            y_min = None if y_min == '' or y_min is None else float(y_min)
+            y_max = None if y_max == '' or y_max is None else float(y_max)
+
+            fig = plot_landscapes_3D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate, x_min, x_max, y_min, y_max)
+            fig2 = plot_landscapes_2D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate, x_min, x_max, y_min, y_max)
             
             fig.write_html(os.path.join(plot_dir, "landscape.html"))
             

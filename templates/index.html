@@ -1740,6 +1740,10 @@ select {
             landscape: {
                 stride: 1,
                 grid_size: 65,
+                x_min: null,
+                x_max: null,
+                y_min: null,
+                y_max: null,
                 title: "Conformational Landscape",
                 color_scheme: "viridis"
             }
@@ -1970,6 +1974,33 @@ select {
                                 <input class="input" type="number" id="grid_size" value="${settings.grid_size}" min="20" max="200" placeholder="Grid size">
                             </div>
                             <p class="help">Resolution of the energy landscape grid (20-200)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Axis Limits</label>
+                            <div class="columns">
+                                <div class="column">
+                                    <label class="label is-small">X-axis Min</label>
+                                    <input class="input" type="number" id="x_min" value="${settings.x_min || ''}" step="0.01" placeholder="Auto">
+                                    <p class="help">Leave empty for auto</p>
+                                </div>
+                                <div class="column">
+                                    <label class="label is-small">X-axis Max</label>
+                                    <input class="input" type="number" id="x_max" value="${settings.x_max || ''}" step="0.01" placeholder="Auto">
+                                    <p class="help">Leave empty for auto</p>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column">
+                                    <label class="label is-small">Y-axis Min</label>
+                                    <input class="input" type="number" id="y_min" value="${settings.y_min || ''}" step="0.01" placeholder="Auto">
+                                    <p class="help">Leave empty for auto</p>
+                                </div>
+                                <div class="column">
+                                    <label class="label is-small">Y-axis Max</label>
+                                    <input class="input" type="number" id="y_max" value="${settings.y_max || ''}" step="0.01" placeholder="Auto">
+                                    <p class="help">Leave empty for auto</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="field">
                             <label class="label">Plot Title</label>
