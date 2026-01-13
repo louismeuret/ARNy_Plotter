@@ -153,10 +153,18 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     # Check if we need to reverse any axes for Q-values
     # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
     # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
-    reverse_x = "RMSD" in names_axis[0]
-    reverse_y = "RMSD" in names_axis[1]
+    reverse_x = "RMSDirfjirf" in names_axis[0]
+    reverse_y = "RMSDjfkrijf" in names_axis[1]
      # Create the surface plot
-    fig = go.Figure(data=[go.Surface(z=matrix_energy_rescaled.T, x=X, y=Y, colorscale='RdYlBu_r', cmin=0, cmax=np.amax(real_values))])
+    fig = go.Figure(data=[go.Surface(
+        z=matrix_energy_rescaled.T,
+        x=X,
+        y=Y,
+        colorscale='RdYlBu_r',
+        cmin=0,
+        cmax=np.amax(real_values),
+        connectgaps=True
+    )])
 
     # Add rectangles for the squares (as 3D boxes)
     colours = dict(zip(squares, px.colors.qualitative.T10[:len(squares)]))
@@ -352,8 +360,8 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
     # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
     
-    reverse_x = "RMSD" in names_axis[0]
-    reverse_y = "RMSD" in names_axis[1]
+    reverse_x = "RMSDrijfirj" in names_axis[0]
+    reverse_y = "RMSDkrikfri" in names_axis[1]
     # Create the heatmap
     fig = go.Figure()
     
@@ -365,6 +373,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         colorscale='RdYlBu_r',
         zmin=0,
         zmax=np.amax(real_values),
+        connectgaps=True,
         colorbar=dict(
             title='-ln(p)',
             thickness=20,
@@ -390,7 +399,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         xaxis=dict(
             title=f'{names_axis[0]}',
             tickfont=dict(size=12),
-            showgrid=True,
+            showgrid=False,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
             autorange=x_autorange,
@@ -398,7 +407,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         yaxis=dict(
             title=f'{names_axis[1]}',
             tickfont=dict(size=12),
-            showgrid=True,
+            showgrid=False,
             gridcolor='rgba(211, 211, 211, 0.4)',
             zeroline=False,
             autorange=y_autorange,
@@ -407,7 +416,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         yaxis_range=[y_max, y_min] if reverse_y else [y_min, y_max],
         width=900,
         height=700,
-        plot_bgcolor='rgba(240, 240, 240, 0.7)',
+        plot_bgcolor='#a50026',  # Dark blue matching the 0 value in RdYlBu_r colorscale
         paper_bgcolor='white',
         margin=dict(l=80, r=80, t=100, b=80),
         hoverlabel=dict(
