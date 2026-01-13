@@ -385,8 +385,10 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     custom_y_range = y_min is not None or y_max is not None
 
     # Set autorange: False if custom range, 'reversed' if RMSD and no custom range, True otherwise
-    x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
-    y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
+    # x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
+    # y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
+    x_autorange = False if custom_x_range else True
+    y_autorange = False if custom_y_range else True
 
     # Update layout with a cleaner modern theme and potential axis reversal
     fig.update_layout(
