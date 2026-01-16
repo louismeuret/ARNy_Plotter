@@ -360,8 +360,8 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
     # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
     
-    reverse_x = "RMSDrijfirj" in names_axis[0]
-    reverse_y = "RMSDkrikfri" in names_axis[1]
+    reverse_x = False
+    reverse_y = False
     # Create the heatmap
     fig = go.Figure()
     
@@ -414,8 +414,8 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             zeroline=False,
             autorange=y_autorange,
         ),
-        xaxis_range=[x_max, x_min] if reverse_x else [x_min, x_max],
-        yaxis_range=[y_max, y_min] if reverse_y else [y_min, y_max],
+        xaxis_range=[x_min, x_max],
+        yaxis_range=[y_min, y_max],
         width=900,
         height=700,
         plot_bgcolor='#a50026',  # Dark blue matching the 0 value in RdYlBu_r colorscale

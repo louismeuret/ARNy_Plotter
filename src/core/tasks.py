@@ -999,11 +999,21 @@ def generate_dotbracket_plot(self, topology_file, trajectory_file, files_path, p
             stackings, pairings, res = bb.annotate(trajectory_file, topology=topology_file)
         
         dotbracket_data = bb.dot_bracket(pairings, res)[0]
-        
+
         try:
+            # Save data to CSV
+            import pandas as pd
+            os.makedirs(files_path, exist_ok=True)
+            dotbracket_df = pd.DataFrame(dotbracket_data, columns=["DotBracket"])
+            dotbracket_df.to_csv(os.path.join(files_path, "dotbracket_data.csv"), index=False)
+
             from src.plotting.create_plots import plot_dotbracket
             fig = plot_dotbracket(dotbracket_data)
+
+            # Save plot to HTML
+            os.makedirs(plot_dir, exist_ok=True)
             fig.write_html(os.path.join(plot_dir, "dotbracket_timeline_plot.html"))
+
             plotly_data = plotly_to_json(fig)
             return plotly_data
         except ImportError:
@@ -1506,9 +1516,16 @@ def generate_landscape_plot(self, topology_file, trajectory_file, files_path, pl
 
             fig = plot_landscapes_3D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate, x_min, x_max, y_min, y_max)
             fig2 = plot_landscapes_2D(energy_matrix, Qbin, RMSDbin, max_RMSD, max_Q, real_values, selected_regions, metrics_to_calculate, x_min, x_max, y_min, y_max)
-            
-            fig.write_html(os.path.join(plot_dir, "landscape.html"))
-            
+
+            # Save raw data as CSV to download_data folder
+            os.makedirs(files_path, exist_ok=True)
+            df.to_csv(os.path.join(files_path, "landscape_data.csv"), index=False)
+
+            # Save both plots as HTML to download_plot folder
+            os.makedirs(plot_dir, exist_ok=True)
+            fig.write_html(os.path.join(plot_dir, "landscape_3D.html"))
+            fig2.write_html(os.path.join(plot_dir, "landscape_2D.html"))
+
             plotly_data = plotly_to_json(fig)
             plotly_data2 = plotly_to_json(fig2)
             return [plotly_data, plotly_data2]
@@ -1534,11 +1551,21 @@ def generate_2Dpairing_plot(self, topology_file, trajectory_file, files_path, pl
         rvecs_traj, res_traj = bb.dump_rvec(trajectory_file, topology=topology_file, cutoff=100.0)
         nonzero = np.where(np.sum(rvecs_traj**2, axis=3) > 0.01)
         rr = rvecs_traj[nonzero]
-        
+
         try:
+            # Save rvec data to CSV
+            import pandas as pd
+            os.makedirs(files_path, exist_ok=True)
+            rvec_df = pd.DataFrame(rr, columns=['x', 'y', 'z'])
+            rvec_df.to_csv(os.path.join(files_path, "rvec_data.csv"), index=False)
+
             from src.plotting.create_plots import base_pairs_visualisation
             fig = base_pairs_visualisation(rr)
+
+            # Save plot to HTML
+            os.makedirs(plot_dir, exist_ok=True)
             fig.write_html(os.path.join(plot_dir, "2D_pairing.html"))
+
             plotly_data = plotly_to_json(fig)
             return plotly_data
         except ImportError:
