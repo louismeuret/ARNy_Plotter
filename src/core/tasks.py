@@ -39,6 +39,8 @@ app.conf.update(
     broker_url='redis://localhost:6379/0',
     result_backend='redis://localhost:6379/0',
     task_serializer='orjson',
+    task_compression="gzip",
+    task_time_limit=360,
     result_serializer='orjson',
     accept_content=['orjson', 'json'],  # Accept both orjson and json for compatibility
     task_acks_late=False,
@@ -121,7 +123,7 @@ def load_cached_mdtraj_objects(session_id):
             with open(mdtraj_traj_path, 'rb') as f:
                 target_traj = pickle.load(f)
             
-            logger.info(f"🚀 Loaded cached MDTraj objects: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
+            logger.info(f"Loaded cached MDTraj objects: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
             return reference_traj, target_traj
         except Exception as e:
             logger.warning(f"Failed to load cached MDTraj objects: {e}")
@@ -139,14 +141,14 @@ def log_task(func):
         start_time = time.time()
         
         try:
-            logger.info(f"🚀 Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}]")
+            logger.info(f"Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}]")
             result = func(self, *args, **kwargs)
             duration = time.time() - start_time
-            logger.info(f"✅ Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}]")
+            logger.info(f"Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}]")
             return result
         except Exception as exc:
             duration = time.time() - start_time
-            logger.error(f"❌ Failed {task_name} [Task ID: {task_id}] after {duration:.2f}s [Worker: {os.getpid()}]: {exc}")
+            logger.error(f"Failed {task_name} [Task ID: {task_id}] after {duration:.2f}s [Worker: {os.getpid()}]: {exc}")
             raise
     return wrapper
 
@@ -174,7 +176,7 @@ def compute_rmsd(self, *args):
         rmsd_result = bb.rmsd_traj(reference_traj, target_traj, heavy_atom=True)
     else:
         # Fallback to file loading
-        logger.info("⚠️  Using fallback file loading for RMSD")
+        logger.info("Using fallback file loading for RMSD")
         rmsd_result = bb.rmsd(topology_file, trajectory_file, topology=topology_file, heavy_atom=True)
     
     # Save to session directory
@@ -211,7 +213,7 @@ def compute_ermsd(self, *args):
         ermsd_result = bb.ermsd_traj(reference_traj, target_traj)
     else:
         # Fallback to file loading
-        logger.info("⚠️  Using fallback file loading for eRMSD")
+        logger.info("Using fallback file loading for eRMSD")
         ermsd_result = bb.ermsd(topology_file, trajectory_file, topology=topology_file)
     
     # Save to session directory
@@ -248,7 +250,7 @@ def compute_annotate(self, *args):
         annotate_result = bb.annotate_traj(target_traj)
     else:
         # Fallback to file loading
-        logger.info("⚠️  Using fallback file loading for annotate")
+        logger.info("Using fallback file loading for annotate")
         annotate_result = bb.annotate(trajectory_file, topology=topology_file)
     
     # Save to session directory
