@@ -85,3 +85,58 @@
     border-radius: 8px;
     text-align: left;
 }
+
+/* Terminal error message styles */
+#terminal p[data-error="true"] {
+    padding: 5px 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    border-left: 3px solid currentColor;
+    background-color: rgba(255, 68, 68, 0.15);
+    animation: errorFlash 0.5s ease-out;
+}
+
+/* Error type specific styling via data attributes */
+#terminal p[data-error-type="error"] {
+    border-left-color: #ff4444;
+    background-color: rgba(255, 68, 68, 0.15);
+}
+
+#terminal p[data-error-type="warning"] {
+    border-left-color: #ffaa00;
+    background-color: rgba(255, 170, 0, 0.12);
+}
+
+#terminal p[data-error-type="network"] {
+    border-left-color: #ff6666;
+    background-color: rgba(255, 102, 102, 0.12);
+}
+
+#terminal p[data-error-type="processing"] {
+    border-left-color: #ff8844;
+    background-color: rgba(255, 136, 68, 0.12);
+}
+
+/* Animations for error messages */
+@keyframes errorFlash {
+    0% { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Scrollbar styling for terminal */
+#terminal::-webkit-scrollbar {
+    width: 6px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}

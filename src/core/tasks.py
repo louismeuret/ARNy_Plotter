@@ -1009,15 +1009,25 @@ def generate_dotbracket_plot(self, topology_file, trajectory_file, files_path, p
             dotbracket_df = pd.DataFrame(dotbracket_data, columns=["DotBracket"])
             dotbracket_df.to_csv(os.path.join(files_path, "dotbracket_data.csv"), index=False)
 
-            from src.plotting.create_plots import plot_dotbracket
-            fig = plot_dotbracket(dotbracket_data)
+            from src.plotting.create_plots import plot_dotbracket, plot_dotbracket_pie
+            logger.info(f"Generating dotbracket plot with settings: {plot_settings}")
 
-            # Save plot to HTML
+            # Generate timeline plot
+            fig_timeline = plot_dotbracket(dotbracket_data, plot_settings)
+
+            # Generate pie chart plot with same settings for consistent colors
+            pie_settings = plot_settings.copy()
+            pie_settings['title'] = plot_settings.get('pie_title', "Population of RNA Structures")
+            fig_pie = plot_dotbracket_pie(dotbracket_data, pie_settings)
+
+            # Save plots to HTML
             os.makedirs(plot_dir, exist_ok=True)
-            fig.write_html(os.path.join(plot_dir, "dotbracket_timeline_plot.html"))
+            fig_timeline.write_html(os.path.join(plot_dir, "dotbracket_timeline_plot.html"))
+            fig_pie.write_html(os.path.join(plot_dir, "dotbracket_pie_plot.html"))
 
-            plotly_data = plotly_to_json(fig)
-            return plotly_data
+            plotly_data_timeline = plotly_to_json(fig_timeline)
+            plotly_data_pie = plotly_to_json(fig_pie)
+            return [plotly_data_timeline, plotly_data_pie]
         except ImportError:
             return {"path": f"static/uploads/{session_id}/dotbracket_plot.png", "status": "fallback"}
             
@@ -1849,6 +1859,63 @@ def generate_dimensionality_reduction_plot(self, topology_file, trajectory_file,
         
     except Exception as exc:
         logger.error(f"{method.upper()} plot generation failed for session {session_id}: {str(exc)}")
+        raise exc
+
+
+@app.task(bind=True, max_retries=3)
+@log_task
+def extract_frame_as_pdb(self, topology_file, trajectory_file, frame_number, session_id):
+    """
+    Extract a specific frame from the trajectory and save it as a PDB file.
+
+    Args:
+        topology_file: Path to the topology file (PDB/GRO)
+        trajectory_file: Path to the trajectory file (XTC/DCD/etc)
+        frame_number: The frame index to extract (0-based)
+        session_id: Session ID for file naming
+
+    Returns:
+        dict with path to the generated PDB file and status
+    """
+    try:
+        import MDAnalysis as mda
+
+        logger.info(f"Extracting frame {frame_number} from trajectory for session {session_id}")
+
+        # Load the universe
+        u = mda.Universe(topology_file, trajectory_file)
+
+        # Validate frame number
+        n_frames = len(u.trajectory)
+        if frame_number < 0 or frame_number >= n_frames:
+            raise ValueError(f"Frame {frame_number} is out of range. Trajectory has {n_frames} frames (0-{n_frames-1}).")
+
+        # Go to the specified frame
+        u.trajectory[frame_number]
+
+        # Create output directory if needed
+        output_dir = os.path.join("static", "uploads", session_id, "frames")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Generate output filename
+        output_filename = f"frame_{frame_number}.pdb"
+        output_path = os.path.join(output_dir, output_filename)
+
+        # Select all atoms and write to PDB
+        all_atoms = u.select_atoms("all")
+        all_atoms.write(output_path)
+
+        logger.info(f"Successfully extracted frame {frame_number} to {output_path}")
+
+        return {
+            "status": "success",
+            "path": output_path,
+            "frame": frame_number,
+            "filename": output_filename
+        }
+
+    except Exception as exc:
+        logger.error(f"Failed to extract frame {frame_number}: {str(exc)}")
         raise exc
 
 

@@ -106,13 +106,28 @@ def plot_rmsd(rmsd: np.ndarray, plot_settings: dict = {}) -> go.Figure:
     )
     return fig
 
-### OLD VERSION 
-@handle_plot_errors
-def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.Figure:
-    # Extract plot settings with defaults
-    title = plot_settings.get('title', "Timeline of RNA Structures")
-    line_width = plot_settings.get('line_width', 8)
-    
+def calculate_structuredness(dotbracket: str) -> int:
+    """
+    Calculate structuredness score for a dot-bracket notation.
+    Counts the number of non-dot characters (base pairs and other structural elements).
+
+    Args:
+        dotbracket: A string in dot-bracket notation (e.g., "(((...)))")
+
+    Returns:
+        Number of non-dot characters (higher = more structured)
+    """
+    return sum(1 for char in dotbracket if char != '.')
+
+
+def _get_dotbracket_colors_and_filtered_data(dotbracket_data: List[str], plot_settings: dict = {}):
+    """
+    Helper function to compute consistent colors and filtered data for dotbracket plots.
+    Returns unique_structures, color_dict, reverse_mapping, and structure_frequencies.
+    """
+    filter_mode = plot_settings.get('filter_mode', 'frequency')
+    max_structures = plot_settings.get('max_structures', 10)
+
     reverse_mapping = {}
     for frame, dotbracket in enumerate(dotbracket_data, start=1):
         reverse_mapping.setdefault(dotbracket, []).append(frame)
@@ -120,13 +135,52 @@ def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.
     # Count frequency of each structure
     structure_frequencies = {dotbracket: len(frames) for dotbracket, frames in reverse_mapping.items()}
 
-    # If more than 20 structures, keep only the top 20 most frequent
-    if len(structure_frequencies) > 20:
-        sorted_structures = sorted(structure_frequencies.items(), key=lambda x: x[1], reverse=True)
-        top_20_structures = {struct for struct, _ in sorted_structures[:20]}
-        # Filter reverse_mapping to keep only top 20
-        reverse_mapping = {k: v for k, v in reverse_mapping.items() if k in top_20_structures}
-        print(f"Filtered dotbracket structures: showing top 20 out of {len(structure_frequencies)} total structures")
+    # Apply filtering based on mode
+    total_structures = len(structure_frequencies)
+    if total_structures > max_structures:
+        if filter_mode == 'structured':
+            structure_scores = {
+                dotbracket: (calculate_structuredness(dotbracket), freq)
+                for dotbracket, freq in structure_frequencies.items()
+            }
+            sorted_structures = sorted(
+                structure_scores.items(),
+                key=lambda x: (x[1][0], x[1][1]),
+                reverse=True
+            )
+            top_structures = {struct for struct, _ in sorted_structures[:max_structures]}
+            print(f"Filtered dotbracket structures by STRUCTUREDNESS: showing top {max_structures} most structured out of {total_structures}")
+        else:
+            sorted_structures = sorted(structure_frequencies.items(), key=lambda x: x[1], reverse=True)
+            top_structures = {struct for struct, _ in sorted_structures[:max_structures]}
+            print(f"Filtered dotbracket structures by FREQUENCY: showing top {max_structures} most frequent out of {total_structures}")
+
+        reverse_mapping = {k: v for k, v in reverse_mapping.items() if k in top_structures}
+        structure_frequencies = {k: v for k, v in structure_frequencies.items() if k in top_structures}
+
+    # Sort structures by frequency for consistent ordering
+    sorted_by_freq = sorted(structure_frequencies.items(), key=lambda x: x[1], reverse=True)
+    unique_structures = [s[0] for s in sorted_by_freq]
+
+    # Generate colors using tab20b colormap
+    structure_colors = [
+        f"rgb{tuple(int(255 * x) for x in plt.cm.tab20b(i)[:3])}"
+        for i in np.linspace(0, 1, len(unique_structures))
+    ]
+    color_dict = dict(zip(unique_structures, structure_colors))
+
+    return unique_structures, color_dict, reverse_mapping, structure_frequencies
+
+
+@handle_plot_errors
+def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.Figure:
+    # Extract plot settings with defaults
+    title = plot_settings.get('title', "Timeline of RNA Structures")
+    line_width = plot_settings.get('line_width', 8)
+
+    print(f"Dotbracket plot settings: filter_mode={plot_settings.get('filter_mode', 'frequency')}, max_structures={plot_settings.get('max_structures', 10)}")
+
+    unique_structures, color_dict, reverse_mapping, _ = _get_dotbracket_colors_and_filtered_data(dotbracket_data, plot_settings)
 
     structures_data = []
     for dotbracket, frames in reverse_mapping.items():
@@ -136,15 +190,11 @@ def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.
     structures_df = pd.DataFrame(structures_data)
     structures_df.sort_values(by=["DotBracket", "Frame"], inplace=True)
 
-    unique_structures = structures_df["DotBracket"].unique()
-    structure_colors = [
-        f"rgb{tuple(int(255 * x) for x in plt.cm.tab20b(i)[:3])}"
-        for i in np.linspace(0, 1, len(unique_structures))
-    ]
-    color_dict = dict(zip(unique_structures, structure_colors))
+    # Reorder unique_structures to match the original order from helper
+    unique_structures_ordered = unique_structures
 
     traces = []
-    for i, dotbracket in enumerate(unique_structures):
+    for i, dotbracket in enumerate(unique_structures_ordered):
         structure_df = structures_df[structures_df["DotBracket"] == dotbracket]
         x_values = []
         y_values = []
@@ -172,8 +222,8 @@ def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.
         yaxis=dict(
             title="Dot-Bracket Structure",
             tickmode="array",
-            tickvals=list(range(1, len(unique_structures) + 1)),
-            ticktext=unique_structures,
+            tickvals=list(range(1, len(unique_structures_ordered) + 1)),
+            ticktext=unique_structures_ordered,
             showgrid=False,
             zeroline=False,
             showline=False,
@@ -184,6 +234,55 @@ def plot_dotbracket(dotbracket_data: List[str], plot_settings: dict = {}) -> go.
     )
 
     fig = go.Figure(data=traces, layout=layout)
+    return fig
+
+
+@handle_plot_errors
+def plot_dotbracket_pie(dotbracket_data: List[str], plot_settings: dict = {}) -> go.Figure:
+    """
+    Create a pie chart showing the population (frequency) of each dotbracket structure.
+    Uses the same colors as the dotbracket timeline plot for consistency.
+    """
+    title = plot_settings.get('title', "Population of RNA Structures")
+
+    unique_structures, color_dict, _, structure_frequencies = _get_dotbracket_colors_and_filtered_data(dotbracket_data, plot_settings)
+
+    # Calculate percentages
+    total_frames = sum(structure_frequencies.values())
+    labels = unique_structures
+    values = [structure_frequencies[s] for s in unique_structures]
+    colors = [color_dict[s] for s in unique_structures]
+
+    # Calculate percentages for hover text
+    percentages = [(v / total_frames) * 100 for v in values]
+
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=values,
+        marker=dict(colors=colors),
+        textinfo='percent',
+        textposition='inside',
+        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>',
+        showlegend=True,
+        hole=0.3,  # Make it a donut chart for better aesthetics
+    )])
+
+    fig.update_layout(
+        title=title,
+        showlegend=True,
+        legend=dict(
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.05,
+            font=dict(size=10),
+        ),
+        plot_bgcolor="rgba(255, 255, 255, 0)",
+        paper_bgcolor="rgba(255, 255, 255, 0)",
+        margin=dict(l=20, r=150, t=50, b=20),
+    )
+
     return fig
 
 

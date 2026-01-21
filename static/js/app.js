@@ -10,7 +10,6 @@ const Engine = Matter.Engine,
 
 let engine, world;
 
-// Atom types and their properties with pastel colors
 const atomTypes = {
   H: { color: '#FFB3BA', radius: 3, bonds: 1 },  // Pastel pink
   C: { color: '#C2C2A3', radius: 6, bonds: 4 },  // Pastel grey
@@ -126,7 +125,6 @@ function displayBond(bond) {
 }
 
 function moveAtom(atom) {
-  // Smaller random movement
   let randomForce = Vector.create((Math.random() - 0.5) * 0.0001, (Math.random() - 0.5) * 0.0001);
   Body.applyForce(atom, atom.position, randomForce);
 

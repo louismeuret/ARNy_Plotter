@@ -17,29 +17,57 @@
   <script>
     var previousValue2 = 1;
     var dataLength = {{ trajectory_length }};
-    var plotData_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
-    
+    var plotDataTimeline_{{ plot_info[1] }} = {{ plot_info[2][0] | safe }};
+    var plotDataPie_{{ plot_info[1] }} = {{ plot_info[2][1] | safe }};
+    var currentDotbracketMode_{{ plot_info[1] }} = 'timeline';  // Track the current display mode
+
     // Initial plot with the main data
     var config = {
       responsive: true,
       autosize: true
     };
-    
+
     // Create layout options to better fit the container
     var layout = {
       margin: { t: 10, r: 10, l: 50, b: 50 },
       autosize: true
     };
-    
-    // Initialize plot and ensure it's properly sized
-    Plotly.newPlot('{{ plot_info[1] }}', plotData_{{ plot_info[1] }}, layout, config).then(() => {
+
+    // Initialize plot with timeline data by default
+    Plotly.newPlot('{{ plot_info[1] }}', plotDataTimeline_{{ plot_info[1] }}, layout, config).then(() => {
       // Force a resize after plot is created to ensure it fills the container
       setTimeout(() => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')), 100);
     });
 
+    // Function to switch between Timeline and Pie chart modes
+    function switchDotbracketMode_{{ plot_info[1] }}(mode) {
+      const plotDiv = document.getElementById('{{ plot_info[1] }}');
+
+      if (mode === 'timeline') {
+        Plotly.react(plotDiv, plotDataTimeline_{{ plot_info[1] }}, layout, config);
+        document.getElementById('btnTimeline_{{ plot_info[1] }}').classList.add('is-active');
+        document.getElementById('btnPie_{{ plot_info[1] }}').classList.remove('is-active');
+        currentDotbracketMode_{{ plot_info[1] }} = 'timeline';
+      } else {
+        Plotly.react(plotDiv, plotDataPie_{{ plot_info[1] }}, {
+          margin: { t: 50, r: 150, l: 20, b: 20 },
+          autosize: true
+        }, config);
+        document.getElementById('btnPie_{{ plot_info[1] }}').classList.add('is-active');
+        document.getElementById('btnTimeline_{{ plot_info[1] }}').classList.remove('is-active');
+        currentDotbracketMode_{{ plot_info[1] }} = 'pie';
+      }
+
+      // Force resize after mode switch
+      setTimeout(() => Plotly.Plots.resize(plotDiv), 100);
+    }
+
     // Add click handler for dotbracket timeline
     var currentPlot_{{ plot_info[1] }} = document.getElementById('{{ plot_info[1] }}');
     currentPlot_{{ plot_info[1] }}.on('plotly_click', function(data) {
+        // Only handle click on timeline mode (pie chart click doesn't have meaningful frame data)
+        if (currentDotbracketMode_{{ plot_info[1] }} !== 'timeline') return;
+
         const frameNumber = data.points[0].x;
         console.log('Clicked on dotbracket timeline at frame:', frameNumber);
 
@@ -80,18 +108,25 @@
         timeout = setTimeout(() => func.apply(context, args), wait);
       };
     }
-    
+
     // Add debounced resize event listener
     window.addEventListener('resize', debounce(() => {
       Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'))
     }, 250));
-    
+
     // Handle expand button click
     document.querySelector(".expand-icon").addEventListener('click', () => {
       Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
     });
 
   </script>
+
+  <!-- Toggle buttons for Timeline/Pie chart -->
+  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
+    <button id="btnTimeline_{{ plot_info[1] }}" class="button is-link is-active" onclick="switchDotbracketMode_{{ plot_info[1] }}('timeline')">Timeline</button>
+    <button id="btnPie_{{ plot_info[1] }}" class="button is-link" onclick="switchDotbracketMode_{{ plot_info[1] }}('pie')">Population</button>
+  </div>
+
   <div
     style="
     display: flex;

@@ -24,7 +24,7 @@ select {
   -webkit-appearance: none; /* Chrome, Safari */
   -moz-appearance: none;    /* Firefox */
   background: none;
-  background-color: white;  /* Optional: your desired background */
+  background-color: white;
   border: 1px solid #ccc;   /* Optional styling */
   padding-right: 1rem;      /* Space for custom icon if needed */
 }
@@ -376,6 +376,14 @@ select {
                                         data-tooltip="Dot-Bracket Notation"
                                     >
                                         <i class="fas fa-info-circle"></i>
+                                    </span> </a>
+                                    <a href="#" onclick="openPlotSettings('dotbracket'); return false;">
+                                    <span
+                                        class="icon has-tooltip"
+                                        data-tooltip="Configure dotbracket settings"
+                                        style="margin-left: 5px;"
+                                    >
+                                        <i class="fas fa-cog"></i>
                                     </span> </a>
                                 </label><br />
                                 <label class="checkbox">
@@ -950,9 +958,9 @@ select {
         ></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                document
-                    .getElementById("exampleButton")
-                    .addEventListener("click", function () {
+                const exampleButton = document.getElementById("exampleButton");
+                if (exampleButton) {
+                    exampleButton.addEventListener("click", function () {
                         // Option 1: Auto-fill the form with example values
                         document.getElementById("nativePdb").value =
                             "example_native.pdb";
@@ -970,6 +978,7 @@ select {
                         // Option 2: Redirect to a precomputed results page
                         // window.location.href = "path_to_precomputed_results_page";
                     });
+                }
             });
         </script>
 
@@ -1088,6 +1097,35 @@ select {
                 const sessionId = "{{ session_id }}";
                 console.log("SESSION ID:");
                 console.log(sessionId);
+
+                // Error display function for terminal
+                function displayError(message, errorType = 'error') {
+                    const terminal = document.getElementById("terminal");
+                    if (!terminal) return;
+
+                    const errorElement = document.createElement("p");
+                    errorElement.setAttribute('data-error', 'true');
+                    errorElement.setAttribute('data-error-type', errorType);
+
+                    // Style based on error type
+                    if (errorType === 'error') {
+                        errorElement.style.color = "#ff4444";
+                        errorElement.innerHTML = `<strong>ERROR:</strong> ${message}`;
+                    } else if (errorType === 'warning') {
+                        errorElement.style.color = "#ffaa00";
+                        errorElement.innerHTML = `<strong>WARNING:</strong> ${message}`;
+                    } else if (errorType === 'network') {
+                        errorElement.style.color = "#ff6666";
+                        errorElement.innerHTML = `<strong>NETWORK ERROR:</strong> ${message}`;
+                    } else if (errorType === 'processing') {
+                        errorElement.style.color = "#ff8844";
+                        errorElement.innerHTML = `<strong>PROCESSING ERROR:</strong> ${message}`;
+                    }
+
+                    terminal.appendChild(errorElement);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    console.error(`[Terminal ${errorType}]`, message);
+                }
 
                 // Chunked upload functionality
                 async function uploadFileInChunks(file, fileType) {
@@ -1211,7 +1249,7 @@ select {
                 }
                 
                 // Share session function to copy results link
-                function shareSession() {
+                async function shareSession() {
                     const baseUrl = window.location.origin;
                     const shareLink = `${baseUrl}/retrieve-results?session_id=${sessionId}`;
                     navigator.clipboard.writeText(shareLink).then(
@@ -1266,6 +1304,19 @@ select {
 
                 socket.on("connect_error", (error) => {
                     console.error("Socket connection error:", error);
+                    displayError(`Connection to server failed: ${error.message}`, 'network');
+                });
+
+                socket.on("disconnect", (reason) => {
+                    if (reason === "io server disconnect" || reason === "transport close") {
+                        displayError(`Disconnected from server: ${reason}`, 'network');
+                    }
+                });
+
+                // Listen for error events from backend
+                socket.on("update_error", function(data) {
+                    console.error("Received error from server:", data);
+                    displayError(data.message, data.error_type || 'error');
                 });
 
                 // Handle form submission with chunked upload
@@ -1280,7 +1331,12 @@ select {
                     const trajXtcFile = document.getElementById("trajXtc").files[0];
 
                     if (!nativePdbFile || !trajXtcFile) {
-                        alert("Please select both topology and trajectory files");
+                        // Show overlay and display error in terminal
+                        document.getElementById("overlay").style.display = "flex";
+                        displayError("Please select both topology and trajectory files before uploading.", 'error');
+                        setTimeout(() => {
+                            document.getElementById("overlay").style.display = "none";
+                        }, 4000);
                         return;
                     }
 
@@ -1304,10 +1360,39 @@ select {
 
                     } catch (error) {
                         console.error("Upload error:", error);
-                        alert("Upload failed: " + error.message);
+
+                        // Determine error type based on the error message
+                        let errorType = 'error';
+                        let errorMessage = error.message;
+
+                        if (error.message.includes('500') || error.message.includes('502') ||
+                            error.message.includes('503') || error.message.includes('504')) {
+                            errorType = 'network';
+                            errorMessage = `Server error (${error.message}). The server may be overloaded or experiencing issues.`;
+                        } else if (error.message.includes('fetch') || error.message.includes('network') ||
+                                   error.message.includes('Failed to fetch')) {
+                            errorType = 'network';
+                            errorMessage = `Network error: ${error.message}. Check your connection.`;
+                        } else if (error.message.includes('Upload failed')) {
+                            errorType = 'processing';
+                        } else if (error.message.includes('Form submission failed')) {
+                            errorType = 'processing';
+                            errorMessage = `Failed to process files: ${error.message}`;
+                        }
+
+                        displayError(errorMessage, errorType);
+
+                        // Keep overlay open for a few seconds so user can read the error
                         submitBtn.disabled = false;
-                        submitBtn.textContent = "Upload";
-                        document.getElementById("overlay").style.display = "none";
+                        submitBtn.textContent = "Retry Upload";
+
+                        // Auto-hide overlay after 5 seconds if user doesn't interact
+                        setTimeout(() => {
+                            // Only hide if button still says "Retry Upload" (no new upload started)
+                            if (submitBtn.textContent === "Retry Upload") {
+                                document.getElementById("overlay").style.display = "none";
+                            }
+                        }, 20000);
                     }
                 });
 
@@ -1469,7 +1554,24 @@ select {
                     torsionCheckbox.dispatchEvent(new Event('change'));
                 }
             }
-            
+
+
+            function shareSession() {
+                const baseUrl = window.location.origin;
+                const sessionId = "{{ session_id }}";
+                const shareLink = `${baseUrl}/retrieve-results?session_id=${sessionId}`;
+                navigator.clipboard.writeText(shareLink).then(
+                    () => {
+                        alert("Share link copied to clipboard: " + shareLink);
+                    },
+                    (err) => {
+                        console.error("Could not copy text: ", err);
+                        // Fallback for browsers that don't support clipboard API
+                        prompt("Copy this link:", shareLink);
+                    }
+                );
+            }
+                        
             function initializeTorsionControls() {
                 const torsionCheckbox = document.getElementById('torsion');
                 const torsionOptions = document.getElementById('torsionOptions');
@@ -1580,7 +1682,7 @@ select {
                     checkbox.checked = selectAllCheckbox.checked;
                 });
             }
-            
+
             // File caching functionality
             let cacheStatus = {
                 topology: { cached: false, caching: false, file: null },
@@ -1825,6 +1927,11 @@ select {
                 y_max: null,
                 title: "Conformational Landscape",
                 color_scheme: "viridis"
+            },
+            dotbracket: {
+                filter_mode: "frequency",
+                max_structures: 10,
+                title: "Timeline of RNA Structures"
             }
         };
 
@@ -2098,6 +2205,43 @@ select {
                                         <option value="reds" ${settings.color_scheme === 'reds' ? 'selected' : ''}>Reds</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'dotbracket':
+                    html = `
+                        <div class="field">
+                            <label class="label">Selection Mode</label>
+                            <div class="control">
+                                <label class="radio">
+                                    <input type="radio" name="filter_mode_radio" value="frequency" ${settings.filter_mode === 'frequency' ? 'checked' : ''} onchange="document.getElementById('filter_mode').value='frequency'">
+                                    Most Frequent
+                                </label>
+                                <br>
+                                <label class="radio">
+                                    <input type="radio" name="filter_mode_radio" value="structured" ${settings.filter_mode === 'structured' ? 'checked' : ''} onchange="document.getElementById('filter_mode').value='structured'">
+                                    Most Structured
+                                </label>
+                                <input type="hidden" id="filter_mode" value="${settings.filter_mode}">
+                            </div>
+                            <p class="help">
+                                <strong>Most Frequent:</strong> Show structures that appear most often in the trajectory<br>
+                                <strong>Most Structured:</strong> Show structures with most base pairs (non-dot characters)
+                            </p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Number of Structures</label>
+                            <div class="control">
+                                <input class="input" type="number" id="max_structures" value="${settings.max_structures}" min="1" max="50" placeholder="Number of structures to show">
+                            </div>
+                            <p class="help">Maximum number of different structures to display (1-50)</p>
+                        </div>
+                        <div class="field">
+                            <label class="label">Plot Title</label>
+                            <div class="control">
+                                <input class="input" type="text" id="title" value="${settings.title}" placeholder="Enter plot title">
                             </div>
                         </div>
                     `;

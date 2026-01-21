@@ -366,6 +366,8 @@ def convert_trajectory_to_xtc(topology_path: str, trajectory_path: str, session_
         
     except Exception as e:
         logger.error(f"Failed to convert trajectory to XTC: {e}")
+        # Emit error to user via socket if possible
+        emit_error(session_id, f"Trajectory conversion failed: {e}. Using original format.", 'warning')
         # If conversion fails, try to return original path and let downstream handle the error
         return trajectory_path
 
@@ -502,6 +504,40 @@ socketio = SocketIO(
 )
 redis_conn = Redis()
 plot_queue = Queue('plot_queue', connection=redis_conn)
+
+
+def emit_error(session_id: str, message: str, error_type: str = 'error'):
+    """
+    Emit an error message to the frontend terminal.
+
+    Args:
+        session_id: The session ID to emit to
+        message: The error message to display
+        error_type: Type of error ('error', 'warning', 'network', 'processing')
+    """
+    if session_id:
+        socketio.emit('update_error', {
+            'message': message,
+            'error_type': error_type
+        }, to=session_id)
+        logger.error(f"[Session {session_id}] {error_type.upper()}: {message}")
+
+
+def emit_progress_with_error_check(session_id: str, progress: int, message: str, is_error: bool = False, error_type: str = 'error'):
+    """
+    Emit progress update, with optional error flagging.
+
+    Args:
+        session_id: The session ID to emit to
+        progress: Progress percentage (0-100)
+        message: The message to display
+        is_error: If True, also emit as error
+        error_type: Type of error if is_error is True
+    """
+    socketio.emit('update_progress', {"progress": progress, "message": message}, to=session_id)
+    if is_error:
+        emit_error(session_id, message, error_type)
+
 
 @socketio.on("connect")
 def handle_connect():
@@ -785,6 +821,9 @@ def upload_chunk():
 
     except Exception as e:
         logger.error(f"Error in chunked upload: {str(e)}")
+        # Try to emit error if session_id is available
+        if session_id:
+            emit_error(session_id, f"Upload failed: {str(e)}", 'error')
         return jsonify({"error": str(e)}), 500
 
 @app.route("/upload-files", methods=["POST"])
@@ -813,6 +852,7 @@ def upload_files():
 
         if not native_pdb_filename or not traj_xtc_filename:
             logger.error("Missing file information for chunked upload")
+            emit_error(session_id, "Missing file information for chunked upload. Please try again.", 'error')
             return "Missing file information for chunked upload", 400
 
         native_pdb_path = os.path.join(session_dir, secure_filename(native_pdb_filename))
@@ -825,8 +865,10 @@ def upload_files():
         logger.info(f"File existence check: topology={topology_exists}, trajectory={trajectory_exists}")
 
         if not topology_exists or not trajectory_exists:
-            logger.error(f"Uploaded files not found. Topology exists: {topology_exists}, Trajectory exists: {trajectory_exists}")
-            return f"Uploaded files not found. Topology: {topology_exists}, Trajectory: {trajectory_exists}", 404
+            error_msg = f"Uploaded files not found after upload. Topology: {topology_exists}, Trajectory: {trajectory_exists}"
+            logger.error(error_msg)
+            emit_error(session_id, error_msg, 'error')
+            return error_msg, 404
 
         native_pdb_name = native_pdb_filename
         traj_xtc_name = traj_xtc_filename
@@ -1065,6 +1107,82 @@ def download_plot(plot_id, session_id):
     # Send the zip file as a response
     return send_file(memory_file, download_name=download_filename, as_attachment=True)
 
+
+@app.route("/download/frame/<session_id>/<int:frame_number>", methods=["GET"])
+def download_frame(session_id, frame_number):
+    """
+    Extract and download a specific frame from the trajectory as a PDB file.
+
+    Args:
+        session_id: The session ID
+        frame_number: The frame index to extract (0-based)
+
+    Returns:
+        PDB file as download
+    """
+    from src.core.tasks import extract_frame_as_pdb
+
+    logger.info(f"Download frame request: session={session_id}, frame={frame_number}")
+
+    # Get session data to find trajectory files
+    directory_path = os.path.join(uploads_dir, session_id)
+    session_data_path = os.path.join(directory_path, "session_data.json")
+
+    if not os.path.exists(session_data_path):
+        emit_error(session_id, f"Session data not found for session {session_id}", 'error')
+        return jsonify({"error": "Session not found"}), 404
+
+    try:
+        with open(session_data_path, "r") as f:
+            session_data = json.load(f)
+
+        native_pdb = session_data['files']['nativePdb']
+        traj_xtc = session_data['files']['trajXtc']
+
+        native_pdb_path = os.path.join(directory_path, native_pdb)
+        traj_xtc_path = os.path.join(directory_path, traj_xtc)
+
+        # Check if files exist
+        if not os.path.exists(native_pdb_path) or not os.path.exists(traj_xtc_path):
+            emit_error(session_id, "Trajectory files not found", 'error')
+            return jsonify({"error": "Trajectory files not found"}), 404
+
+        # Run the Celery task synchronously (blocking)
+        result = extract_frame_as_pdb.apply_async(
+            args=[native_pdb_path, traj_xtc_path, frame_number, session_id]
+        )
+
+        # Wait for result with timeout
+        try:
+            task_result = result.get(timeout=30)
+        except Exception as e:
+            logger.error(f"Frame extraction task failed: {e}")
+            emit_error(session_id, f"Failed to extract frame: {str(e)}", 'processing')
+            return jsonify({"error": f"Failed to extract frame: {str(e)}"}), 500
+
+        if task_result.get("status") == "success":
+            pdb_path = "../../"+task_result["path"]
+            filename = task_result["filename"]
+            # if os.path.exists(pdb_path):
+            return send_file(
+                pdb_path,
+                download_name=filename,
+                as_attachment=True,
+                mimetype='chemical/x-pdb'
+            )
+            # else:
+                # emit_error(session_id, "Generated PDB file not found", 'error')
+                # return jsonify({"error": "Generated PDB file not found"}), 500
+        else:
+            emit_error(session_id, "Frame extraction failed", 'processing')
+            return jsonify({"error": "Frame extraction failed"}), 500
+
+    except Exception as e:
+        logger.error(f"Error downloading frame: {e}")
+        emit_error(session_id, f"Error downloading frame: {str(e)}", 'error')
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/view-trajectory/<session_id>')
 def view_trajectory(session_id):
     start_time = time.time()
@@ -1144,19 +1262,38 @@ def view_trajectory(session_id):
     try:
         with open(os.path.join(directory_path, "session_data.json"), "r") as file:
             session_data_json = json.load(file)
-        
+
         native_pdb = session_data_json['files']['nativePdb']
         traj_xtc = session_data_json['files']['trajXtc']
-    except (FileNotFoundError, KeyError) as e:
-        socketio.emit('update_progress', {"progress": 100, "message": f"Error: Session data not found - {e}"}, to=session_id)
-        return
+    except FileNotFoundError as e:
+        error_msg = f"Session data file not found. Please re-upload your files."
+        emit_error(session_id, error_msg, 'error')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        return render_template("error.html", error=error_msg), 404
+    except KeyError as e:
+        error_msg = f"Session data is corrupted or incomplete. Missing key: {e}"
+        emit_error(session_id, error_msg, 'error')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        return render_template("error.html", error=error_msg), 400
+    except json.JSONDecodeError as e:
+        error_msg = f"Session data file is corrupted: {e}"
+        emit_error(session_id, error_msg, 'error')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        return render_template("error.html", error=error_msg), 500
 
     # Validate paths and session data
     native_pdb_path = os.path.join(directory_path, native_pdb)
     traj_xtc_path = os.path.join(directory_path, traj_xtc)
-    if not os.path.exists(native_pdb_path) or not os.path.exists(traj_xtc_path):
-        socketio.emit('update_progress', {"progress": 100, "message": "Error: File not found."}, to=session_id)
-        return
+    if not os.path.exists(native_pdb_path):
+        error_msg = f"Topology file not found: {native_pdb}. Please re-upload your files."
+        emit_error(session_id, error_msg, 'error')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        return render_template("error.html", error=error_msg), 404
+    if not os.path.exists(traj_xtc_path):
+        error_msg = f"Trajectory file not found: {traj_xtc}. Please re-upload your files."
+        emit_error(session_id, error_msg, 'error')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        return render_template("error.html", error=error_msg), 404
 
     # Check if trajectory needs conversion to XTC format
     socketio.emit('update_progress', {"progress": 15, "message": "Checking trajectory format..."}, to=session_id)
@@ -1214,13 +1351,34 @@ def view_trajectory(session_id):
         return u, ref, r_matrix, residue_names
     
     # Load with optimization
-    u, ref, r_matrix, residue_names = load_and_preprocess_trajectory()
-    logger.info(f"Computed the rotation matrix: {r_matrix}")
+    try:
+        u, ref, r_matrix, residue_names = load_and_preprocess_trajectory()
+        logger.info(f"Computed the rotation matrix: {r_matrix}")
+    except Exception as e:
+        error_msg = f"Failed to load trajectory files. "
+        if "coordinate" in str(e).lower():
+            error_msg += f"Bad coordinates detected: {e}"
+            emit_error(session_id, error_msg, 'processing')
+        elif "atom" in str(e).lower() or "residue" in str(e).lower():
+            error_msg += f"Topology/trajectory mismatch: {e}"
+            emit_error(session_id, error_msg, 'processing')
+        elif "file" in str(e).lower() or "read" in str(e).lower():
+            error_msg += f"File reading error: {e}"
+            emit_error(session_id, error_msg, 'error')
+        else:
+            error_msg += f"Error: {e}"
+            emit_error(session_id, error_msg, 'processing')
+        socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
+        logger.error(f"Trajectory loading failed: {e}")
+        return render_template("error.html", error=error_msg), 500
+
     file_name, file_extension = os.path.splitext(traj_xtc_path)
     try:
         r_matrix_str = str(r_matrix.tolist())
-    except:
-        logger.warning("Got an issue with r_matrix computation")     
+    except Exception as e:
+        logger.warning(f"Got an issue with r_matrix computation: {e}")
+        emit_error(session_id, f"Warning: Could not compute rotation matrix: {e}", 'warning')
+        r_matrix_str = "[[1,0,0],[0,1,0],[0,0,1]]"  # Identity matrix fallback     
     logger.info(f"Loaded trajectory: {residue_names}")
     logger.info(f"Nucleic backbone atoms: {len(u.select_atoms('nucleicbackbone').positions)}")
     logger.info(f"Reference backbone atoms: {len(ref.select_atoms('nucleicbackbone').positions)}")
@@ -1263,6 +1421,7 @@ def view_trajectory(session_id):
             traj_xtc_path = traj_future.result()
     except Exception as e:
         logger.error(f"Error in trajectory writing: {e}")
+        emit_error(session_id, f"Warning: Could not write trajectory subset: {e}. Using original file.", 'warning')
         # Fallback: construct the expected path
         if frame_range != "all":
             start, end_stride = frame_range.split("-")
@@ -1382,15 +1541,27 @@ def view_trajectory(session_id):
                 # Try to get partial results and continue
                 successful_results = []
                 failed_results = []
+                failed_metric_names = []
+                metric_names = metrics_needed[:len(metrics_result.results)]  # Map indices to names
                 for i, task_result in enumerate(metrics_result.results):
                     try:
                         if task_result.successful():
                             successful_results.append(task_result.get())
                         else:
-                            failed_results.append(str(task_result.results))
+                            error_detail = str(task_result.result) if hasattr(task_result, 'result') else str(task_result.results)
+                            failed_results.append(error_detail)
+                            if i < len(metric_names):
+                                failed_metric_names.append(metric_names[i])
                     except Exception as e:
                         failed_results.append(str(e))
-                
+                        if i < len(metric_names):
+                            failed_metric_names.append(metric_names[i])
+
+                # Emit detailed error for failed metrics
+                if failed_metric_names:
+                    error_msg = f"Failed metrics: {', '.join(failed_metric_names)}. {'; '.join(failed_results[:3])}"
+                    emit_error(session_id, error_msg, 'processing')
+
                 logger.info(f"Metrics: {len(successful_results)} successful, {len(failed_results)} failed")
                 socketio.emit('update_progress', {"progress": 55, "message": f"Metrics computed: {len(successful_results)} successful, {len(failed_results)} failed"}, to=session_id)
 
@@ -1562,50 +1733,68 @@ def view_trajectory(session_id):
             logger.info("Independent plots completed successfully")
         except Exception as e:
             logger.error(f"Some independent plots failed: {str(e)}")
+            emit_error(session_id, f"Some independent plots failed: {str(e)}", 'processing')
             socketio.emit('update_progress', {"progress": 75, "message": "Some independent plots failed, continuing..."}, to=session_id)
             # Try to get partial results
             try:
                 phase2_results = []
+                failed_plots = []
                 for i, task_result in enumerate(phase2_result.results if hasattr(phase2_result, 'results') else []):
                     try:
                         if task_result.ready():
                             if task_result.successful():
                                 phase2_results.append(task_result.get())
                             else:
-                                logger.error(f"Independent plot {i} failed: {task_result.result}")
+                                plot_name = execution_tree['phase_2_independent'][i] if i < len(execution_tree['phase_2_independent']) else f"Plot {i}"
+                                error_detail = str(task_result.result) if hasattr(task_result, 'result') else "Unknown error"
+                                failed_plots.append(f"{plot_name}: {error_detail}")
+                                logger.error(f"Independent plot {plot_name} failed: {task_result.result}")
                                 phase2_results.append(None)  # Placeholder for failed task
                         else:
                             phase2_results.append(None)
                     except Exception as task_err:
-                        logger.error(f"Error getting result for independent plot {i}: {task_err}")
+                        plot_name = execution_tree['phase_2_independent'][i] if i < len(execution_tree['phase_2_independent']) else f"Plot {i}"
+                        failed_plots.append(f"{plot_name}: {task_err}")
+                        logger.error(f"Error getting result for independent plot {plot_name}: {task_err}")
                         phase2_results.append(None)
+                if failed_plots:
+                    emit_error(session_id, f"Failed plots: {'; '.join(failed_plots[:3])}", 'processing')
             except Exception:
                 phase2_results = None
     
-    # Handle Phase 3 (Dependent plots) with error handling  
+    # Handle Phase 3 (Dependent plots) with error handling
     if 'phase3_result' in locals():
         try:
             phase3_results = phase3_result.get()
             logger.info("Dependent plots completed successfully")
         except Exception as e:
             logger.error(f"Some dependent plots failed: {str(e)}")
+            emit_error(session_id, f"Some dependent plots failed: {str(e)}", 'processing')
             socketio.emit('update_progress', {"progress": 80, "message": "Some dependent plots failed, continuing..."}, to=session_id)
             # Try to get partial results
             try:
                 phase3_results = []
+                failed_plots = []
                 for i, task_result in enumerate(phase3_result.results if hasattr(phase3_result, 'results') else []):
                     try:
                         if task_result.ready():
                             if task_result.successful():
                                 phase3_results.append(task_result.get())
                             else:
-                                logger.error(f"Dependent plot {i} failed: {task_result.result}")
+                                plot_name = execution_tree['phase_3_dependent'][i] if i < len(execution_tree['phase_3_dependent']) else f"Plot {i}"
+                                error_detail = str(task_result.result) if hasattr(task_result, 'result') else "Unknown error"
+                                failed_plots.append(f"{plot_name}: {error_detail}")
+                                logger.error(f"Dependent plot {plot_name} failed: {task_result.result}")
                                 phase3_results.append(None)  # Placeholder for failed task
                         else:
                             phase3_results.append(None)
                     except Exception as task_err:
-                        logger.error(f"Error getting result for dependent plot {i}: {task_err}")
+                        plot_name = execution_tree['phase_3_dependent'][i] if i < len(execution_tree['phase_3_dependent']) else f"Plot {i}"
+                        failed_plots.append(f"{plot_name}: {task_err}")
+                        logger.error(f"Error getting result for dependent plot {plot_name}: {task_err}")
                         phase3_results.append(None)
+                if failed_plots:
+                    emit_error(session_id, f"Failed dependent plots: {'; '.join(failed_plots[:3])}", 'processing')
             except Exception:
                 phase3_results = None
 

@@ -116,6 +116,14 @@
                     >
                         Viewer Help
                     </button>
+                    <button
+                        id="downloadFrameBtn"
+                        class="control-button"
+                        onclick="downloadCurrentFrame()"
+                        title="Download current frame as PDB"
+                    >
+                        <i class="fas fa-download"></i> Download PDB
+                    </button>
                 </div>
                 
                 <!-- Cache Controls (Disabled for production) -->
@@ -872,6 +880,77 @@
         }
         state.sideChainsVisible = !state.sideChainsVisible;
     }
+
+    // Download current frame as PDB
+    function downloadCurrentFrame() {
+        // Get current frame number from the input field
+        const frameInput = document.getElementById("frame-number");
+        const currentFrame = parseInt(frameInput.value) || 0;
+        const sessionId = CONFIG.sessionId;
+
+        // Update button to show loading state
+        const downloadBtn = document.getElementById("downloadFrameBtn");
+        const originalText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
+        downloadBtn.disabled = true;
+
+        // Construct the download URL
+        const downloadUrl = `/download/frame/${sessionId}/${currentFrame}`;
+
+        // Create a temporary link to trigger download
+        fetch(downloadUrl)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Download failed');
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `frame_${currentFrame}.pdb`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Show success notification
+                showNotification(`Frame ${currentFrame} downloaded successfully`, 'success');
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                showNotification(`Failed to download frame: ${error.message}`, 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            });
+    }
+
+    // Show notification helper
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification is-${type === 'error' ? 'danger' : 'success'} is-light`;
+        notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+        notification.innerHTML = `
+            <button class="delete" onclick="this.parentElement.remove()"></button>
+            ${message}
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
     function changeColor(number) {
         LouisMolStarWrapper.interactivity.highlightOn(number, 0xFF00FF);
     }
