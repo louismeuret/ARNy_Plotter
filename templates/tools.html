@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ARNy Plotter - Trajectory Tools</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}"
+        />
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                background-color: #f0f0f0;
+                position: relative;
+                transition: background 0.3s ease;
+            }
+            .container {
+                position: relative;
+                z-index: 2;
+            }
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+
+            /* Background toggle */
+            .bg-toggle {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(6px);
+                padding: 6px 14px;
+                border-radius: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+                font-size: 0.8em;
+                color: #555;
+                user-select: none;
+            }
+            .bg-toggle .switch {
+                position: relative;
+                width: 40px;
+                height: 22px;
+            }
+            .bg-toggle .switch input { opacity: 0; width: 0; height: 0; }
+            .bg-toggle .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background-color: #ccc;
+                border-radius: 22px;
+                transition: 0.3s;
+            }
+            .bg-toggle .slider::before {
+                content: "";
+                position: absolute;
+                height: 16px; width: 16px;
+                left: 3px; bottom: 3px;
+                background-color: white;
+                border-radius: 50%;
+                transition: 0.3s;
+            }
+            .bg-toggle .switch input:checked + .slider { background-color: #3273dc; }
+            .bg-toggle .switch input:checked + .slider::before { transform: translateX(18px); }
+
+            /* Tool row */
+            .tool-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            .tool-row:last-child { border-bottom: none; }
+            .tool-row code {
+                font-size: 0.9em;
+                font-weight: 600;
+                color: #3273dc;
+                white-space: nowrap;
+            }
+            .tool-row .desc {
+                color: #555;
+                font-size: 0.95em;
+                flex: 1;
+            }
+            .tool-row .usage {
+                background: #1a1a2e;
+                color: #e0e0e0;
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-family: "Courier New", monospace;
+                font-size: 0.8em;
+                white-space: nowrap;
+                overflow-x: auto;
+                max-width: 100%;
+                margin-top: 4px;
+            }
+            .tool-row .usage .prompt { color: #48c774; }
+
+            .category-title {
+                font-size: 1.1em;
+                font-weight: 600;
+                margin: 0 0 5px 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .category-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                flex-shrink: 0;
+            }
+            .dl-btn {
+                flex-shrink: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Background toggle -->
+        <div class="bg-toggle">
+            <span>Background</span>
+            <label class="switch">
+                <input type="checkbox" id="bgToggle" checked />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div style="height: 20px"></div>
+        <div class="container mt-5">
+            <!-- Header -->
+            <div class="box">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 class="title" style="font-size: 2.5em; font-family: 'Arial', sans-serif; color: #333;">
+                            Trajectory Tools
+                        </h1>
+                        <p class="subtitle" style="font-size: 1.2em; font-family: 'Georgia', serif; color: #555;">
+                            Command-line Python scripts for manipulating MD trajectories.
+                        </p>
+                    </div>
+                    <a href="{{ url_for('index') }}" class="button is-link is-outlined">
+                        Back to ARNy Plotter
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info & Extraction -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #3273dc;"></span> Info &amp; Extraction</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>frame_info.py</code>
+                        <span class="desc"> &mdash; Print trajectory metadata (frame count, timestep, box, atoms).</span>
+                        <div class="usage"><span class="prompt">$</span> python frame_info.py --top structure.pdb --traj trajectory.xtc</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='frame_info.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>extract_frames.py</code>
+                        <span class="desc"> &mdash; Extract a frame range with optional stride.</span>
+                        <div class="usage"><span class="prompt">$</span> python extract_frames.py --top structure.pdb --traj trajectory.xtc --start 0 --stop 100 --stride 2 --output subset.xtc</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='extract_frames.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>extract_pdb.py</code>
+                        <span class="desc"> &mdash; Save a single frame as a PDB file.</span>
+                        <div class="usage"><span class="prompt">$</span> python extract_pdb.py --top structure.pdb --traj trajectory.xtc --frame 42 --output frame42.pdb</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='extract_pdb.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+            </div>
+
+            <!-- Selection & Filtering -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #48c774;"></span> Selection &amp; Filtering</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>select_by_rmsd.py</code>
+                        <span class="desc"> &mdash; Keep frames below/above an RMSD threshold.</span>
+                        <div class="usage"><span class="prompt">$</span> python select_by_rmsd.py --top structure.pdb --traj trajectory.xtc --ref native.pdb --threshold 3.0 --mode below --output filtered.xtc</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='select_by_rmsd.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>select_nucleic_trajectory.py</code>
+                        <span class="desc"> &mdash; Extract only nucleic acid atoms from a trajectory.</span>
+                        <div class="usage"><span class="prompt">$</span> python select_nucleic_trajectory.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='select_nucleic_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>find_closest_frames_all_trajectories.py</code>
+                        <span class="desc"> &mdash; Find frames closest to target Q-RMSD combinations across trajectories.</span>
+                        <div class="usage"><span class="prompt">$</span> python find_closest_frames_all_trajectories.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='find_closest_frames_all_trajectories.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+            </div>
+
+            <!-- Conversion & Re-encoding -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #f39c12;"></span> Conversion &amp; Re-encoding</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>convert_traj.py</code>
+                        <span class="desc"> &mdash; Convert trajectory format (e.g. TRR to XTC).</span>
+                        <div class="usage"><span class="prompt">$</span> python convert_traj.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='convert_traj.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>convert_traj_with_selection.py</code>
+                        <span class="desc"> &mdash; Convert format with atom selection filter.</span>
+                        <div class="usage"><span class="prompt">$</span> python convert_traj_with_selection.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='convert_traj_with_selection.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>reencode_trajectory.py</code>
+                        <span class="desc"> &mdash; Re-encode with new stride/selection to reduce file size.</span>
+                        <div class="usage"><span class="prompt">$</span> python reencode_trajectory.py --top structure.pdb --traj trajectory.xtc --stride 10 --output resampled.xtc</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='reencode_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>merge_trajectories.py</code>
+                        <span class="desc"> &mdash; Concatenate multiple trajectories (mdtraj).</span>
+                        <div class="usage"><span class="prompt">$</span> python merge_trajectories.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='merge_trajectories.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+            </div>
+
+            <!-- Alignment & Reordering -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #9b59b6;"></span> Alignment &amp; Reordering</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>align_trajectory.py</code>
+                        <span class="desc"> &mdash; Align all frames to a reference (least-squares fit).</span>
+                        <div class="usage"><span class="prompt">$</span> python align_trajectory.py --top structure.pdb --traj trajectory.xtc --ref native.pdb --output aligned.xtc</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='align_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>traj_reorder_index_atoms.py</code>
+                        <span class="desc"> &mdash; Reorder atoms in trajectory based on a mapping file.</span>
+                        <div class="usage"><span class="prompt">$</span> python traj_reorder_index_atoms.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='traj_reorder_index_atoms.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+            </div>
+
+            <!-- Structure Analysis -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #ff3860;"></span> Structure Analysis</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>extract_dotbracket.py</code>
+                        <span class="desc"> &mdash; Extract dot-bracket secondary structures from PDB files (x3dna-dssr).</span>
+                        <div class="usage"><span class="prompt">$</span> python extract_dotbracket.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='extract_dotbracket.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>mdtraj_select_nucleic_bases.py</code>
+                        <span class="desc"> &mdash; Select and filter specific nucleic base atoms from a PDB.</span>
+                        <div class="usage"><span class="prompt">$</span> python mdtraj_select_nucleic_bases.py</div>
+                    </div>
+                    <a href="{{ url_for('download_tool', filename='mdtraj_select_nucleic_bases.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+            </div>
+
+            <!-- Download All -->
+            <div class="box" style="text-align: center;">
+                <p style="margin-bottom: 10px; color: #555;">All scripts require <strong>MDAnalysis</strong> and/or <strong>mdtraj</strong>.</p>
+                <a href="{{ url_for('index') }}" class="button is-link">Back to ARNy Plotter</a>
+                <a href="{{ url_for('documentation') }}" class="button is-info is-outlined" style="margin-left: 10px;">Documentation</a>
+            </div>
+        </div>
+
+        <!-- Background animation with cookie persistence -->
+        <script>
+            (function() {
+                var COOKIE_NAME = 'arny_bg_enabled';
+                var bgLoaded = false;
+                var bgEnabled = true;
+                var toggle = document.getElementById('bgToggle');
+
+                function getCookie(name) {
+                    var m = document.cookie.match('(^|;)\\s*' + name + '=([^;]*)');
+                    return m ? m[2] : null;
+                }
+                function setCookie(name, val) {
+                    document.cookie = name + '=' + val + ';path=/;max-age=31536000';
+                }
+
+                function shouldEnableBackground() {
+                    if (navigator.deviceMemory && navigator.deviceMemory < 4) return false;
+                    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return false;
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) return false;
+                    var c = document.createElement('canvas'); c.width = 100; c.height = 100;
+                    var ctx = c.getContext('2d');
+                    var t = performance.now();
+                    for (var i = 0; i < 1000; i++) {
+                        ctx.fillStyle = 'rgb(' + (i%255) + ',' + (i%255) + ',' + (i%255) + ')';
+                        ctx.fillRect(Math.random()*100, Math.random()*100, 10, 10);
+                    }
+                    return (performance.now() - t) <= 50;
+                }
+
+                function loadBackground() {
+                    if (bgLoaded) return;
+                    bgLoaded = true;
+                    var p5 = document.createElement('script');
+                    p5.src = 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js';
+                    document.body.appendChild(p5);
+                    var matter = document.createElement('script');
+                    matter.src = 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js';
+                    document.body.appendChild(matter);
+                    matter.onload = function() {
+                        var app = document.createElement('script');
+                        app.src = "{{ url_for('static', filename='js/app.js') }}";
+                        document.body.appendChild(app);
+                    };
+                }
+
+                function setCanvasVisible(show) {
+                    var c = document.querySelector('canvas');
+                    if (c) c.style.display = show ? 'block' : 'none';
+                }
+
+                var saved = getCookie(COOKIE_NAME);
+                if (saved !== null) {
+                    bgEnabled = saved === '1';
+                } else {
+                    bgEnabled = shouldEnableBackground();
+                    setCookie(COOKIE_NAME, bgEnabled ? '1' : '0');
+                }
+
+                toggle.checked = bgEnabled;
+                if (bgEnabled) {
+                    loadBackground();
+                } else {
+                    document.body.style.background = '#f0f0f0';
+                }
+
+                toggle.addEventListener('change', function() {
+                    bgEnabled = this.checked;
+                    setCookie(COOKIE_NAME, bgEnabled ? '1' : '0');
+                    if (bgEnabled) {
+                        if (!bgLoaded) loadBackground();
+                        else setCanvasVisible(true);
+                    } else {
+                        setCanvasVisible(false);
+                        document.body.style.background = '#f0f0f0';
+                    }
+                });
+
+                new MutationObserver(function(muts) {
+                    muts.forEach(function(m) {
+                        m.addedNodes.forEach(function(n) {
+                            if (n.tagName === 'CANVAS' && !bgEnabled) n.style.display = 'none';
+                        });
+                    });
+                }).observe(document.body, { childList: true });
+            })();
+        </script>
+
+        <div style="height: 20px"></div>
+    </body>
+</html>

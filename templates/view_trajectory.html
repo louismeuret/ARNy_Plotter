@@ -846,13 +846,17 @@
         } else {
             LouisMolStarWrapper.mdPlayer.stop();
             elements_doc.playPauseButton.textContent = "Play";
-            
+
             // Stop frame monitoring
             if (state.frameUpdateInterval) {
                 clearInterval(state.frameUpdateInterval);
                 state.frameUpdateInterval = null;
                 state.frameCounter = 0;
             }
+
+            // Get current frame and update UI + plots
+            const currentFrame = LouisMolStarWrapper.plugin.managers.structure.hierarchy.current.models[1].cell.transform.params.modelIndex || 0;
+            updateFrameUI(currentFrame);
         }
         state.isRunning = !state.isRunning;
     }

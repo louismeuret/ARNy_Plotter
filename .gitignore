@@ -3,10 +3,16 @@
 
 static/uploads/
 
-logs/
+logs/*.log
 
 docs/notebooks/
 
 data/examples/ORF50_nattraj.pdb/
 
 data/examples/NMR/
+
+data/examples/
+
+src/plotting/__pycache__/
+
+src/core/__pycache__/

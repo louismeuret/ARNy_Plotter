@@ -73,6 +73,50 @@ select {
                 margin: auto;
                 display: none;
             }
+            /* Background toggle */
+            .bg-toggle {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(6px);
+                padding: 6px 14px;
+                border-radius: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+                font-size: 0.8em;
+                color: #555;
+                user-select: none;
+            }
+            .bg-toggle .switch {
+                position: relative;
+                width: 40px;
+                height: 22px;
+            }
+            .bg-toggle .switch input { opacity: 0; width: 0; height: 0; }
+            .bg-toggle .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background-color: #ccc;
+                border-radius: 22px;
+                transition: 0.3s;
+            }
+            .bg-toggle .slider::before {
+                content: "";
+                position: absolute;
+                height: 16px; width: 16px;
+                left: 3px; bottom: 3px;
+                background-color: white;
+                border-radius: 50%;
+                transition: 0.3s;
+            }
+            .bg-toggle .switch input:checked + .slider { background-color: #3273dc; }
+            .bg-toggle .switch input:checked + .slider::before { transform: translateX(18px); }
+
             #overlay {
                 display: none;
                 position: fixed;
@@ -97,6 +141,15 @@ select {
         </style>
     </head>
     <body>
+        <!-- Background toggle -->
+        <div class="bg-toggle">
+            <span>Background</span>
+            <label class="switch">
+                <input type="checkbox" id="bgToggle" checked />
+                <span class="slider"></span>
+            </label>
+        </div>
+
         <div style="height: 20px"></div>
         <div id="terminal-container"></div>
         <div class="container mt-5">
@@ -766,6 +819,18 @@ select {
             </div>
 
             <div class="box mt-5">
+                <h2 class="title">Trajectory Tools</h2>
+                <p class="subtitle" style="font-size: 1.2em; font-family: 'Georgia', serif; color: #555;">
+                    Command-line scripts for playing, selecting parts of, and re-encoding
+                    your MD trajectories.
+                </p>
+                <a href="{{ url_for('tools') }}" class="button is-link is-outlined">
+                    <span class="icon"><i class="fas fa-terminal"></i></span>
+                    <span>View Trajectory Tools</span>
+                </a>
+            </div>
+
+            <div class="box mt-5">
                 <h2 class="title">Retrieve Previous Results</h2>
                 <p
                     class="subtitle"
@@ -982,85 +1047,93 @@ select {
             });
         </script>
 
-        <!-- Performance test and conditional background loading -->
+        <!-- Background animation with cookie persistence + toggle -->
         <script>
             (function() {
-                // Performance test to determine if background animation should be enabled
+                var COOKIE_NAME = 'arny_bg_enabled';
+                var bgLoaded = false;
+                var bgEnabled = true;
+                var toggle = document.getElementById('bgToggle');
+
+                function getBgCookie() {
+                    var m = document.cookie.match('(^|;)\\s*' + COOKIE_NAME + '=([^;]*)');
+                    return m ? m[2] : null;
+                }
+                function setBgCookie(val) {
+                    document.cookie = COOKIE_NAME + '=' + val + ';path=/;max-age=31536000';
+                }
+
                 function shouldEnableBackground() {
-                    // Check 1: Device memory (if available)
-                    if (navigator.deviceMemory && navigator.deviceMemory < 4) {
-                        console.log('Low device memory detected, disabling background');
-                        return false;
+                    if (navigator.deviceMemory && navigator.deviceMemory < 4) return false;
+                    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return false;
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) return false;
+                    var c = document.createElement('canvas'); c.width = 100; c.height = 100;
+                    var ctx = c.getContext('2d');
+                    var t = performance.now();
+                    for (var i = 0; i < 1000; i++) {
+                        ctx.fillStyle = 'rgb(' + (i%255) + ',' + (i%255) + ',' + (i%255) + ')';
+                        ctx.fillRect(Math.random()*100, Math.random()*100, 10, 10);
                     }
-
-                    // Check 2: Hardware concurrency (CPU cores)
-                    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
-                        console.log('Low CPU cores detected, disabling background');
-                        return false;
-                    }
-
-                    // Check 3: Mobile device detection
-                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    if (isMobile) {
-                        console.log('Mobile device detected, disabling background');
-                        return false;
-                    }
-
-                    // Check 4: Battery status (if available and low)
-                    if (navigator.getBattery) {
-                        navigator.getBattery().then(function(battery) {
-                            if (battery.level < 0.2 && !battery.charging) {
-                                console.log('Low battery detected, background may be disabled');
-                            }
-                        });
-                    }
-
-                    // Check 5: Quick render performance test
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 100;
-                    canvas.height = 100;
-                    const ctx = canvas.getContext('2d');
-
-                    const startTime = performance.now();
-                    for (let i = 0; i < 1000; i++) {
-                        ctx.fillStyle = `rgb(${i % 255}, ${i % 255}, ${i % 255})`;
-                        ctx.fillRect(Math.random() * 100, Math.random() * 100, 10, 10);
-                    }
-                    const renderTime = performance.now() - startTime;
-
-                    // If render test takes more than 50ms, consider it low performance
-                    if (renderTime > 50) {
-                        console.log(`Slow render performance detected (${renderTime.toFixed(2)}ms), disabling background`);
-                        return false;
-                    }
-
-                    console.log(`Performance test passed (${renderTime.toFixed(2)}ms), enabling background`);
-                    return true;
+                    return (performance.now() - t) <= 50;
                 }
 
-                // Run performance test and conditionally load background scripts
-                if (shouldEnableBackground()) {
-                    // Load p5.js
-                    const p5Script = document.createElement('script');
-                    p5Script.src = 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js';
-                    document.body.appendChild(p5Script);
-
-                    // Load matter.js
-                    const matterScript = document.createElement('script');
-                    matterScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js';
-                    document.body.appendChild(matterScript);
-
-                    // Load app.js after both libraries are loaded
-                    matterScript.onload = function() {
-                        const appScript = document.createElement('script');
-                        appScript.src = "{{ url_for('static', filename='js/app.js') }}";
-                        document.body.appendChild(appScript);
+                function loadBackground() {
+                    if (bgLoaded) return;
+                    bgLoaded = true;
+                    var p5 = document.createElement('script');
+                    p5.src = 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js';
+                    document.body.appendChild(p5);
+                    var matter = document.createElement('script');
+                    matter.src = 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js';
+                    document.body.appendChild(matter);
+                    matter.onload = function() {
+                        var app = document.createElement('script');
+                        app.src = "{{ url_for('static', filename='js/app.js') }}";
+                        document.body.appendChild(app);
                     };
-                } else {
-                    // Keep the original light grey background
-                    document.body.style.background = '#f0f0f0';
-                    console.log('Background animation disabled for performance');
                 }
+
+                function setCanvasVisible(show) {
+                    var c = document.querySelector('canvas');
+                    if (c) c.style.display = show ? 'block' : 'none';
+                }
+
+                // Read saved preference from cookie, fallback to perf test
+                var saved = getBgCookie();
+                if (saved !== null) {
+                    bgEnabled = saved === '1';
+                } else {
+                    bgEnabled = shouldEnableBackground();
+                    setBgCookie(bgEnabled ? '1' : '0');
+                }
+
+                toggle.checked = bgEnabled;
+                if (bgEnabled) {
+                    loadBackground();
+                } else {
+                    document.body.style.background = '#f0f0f0';
+                }
+
+                toggle.addEventListener('change', function() {
+                    bgEnabled = this.checked;
+                    setBgCookie(bgEnabled ? '1' : '0');
+                    if (bgEnabled) {
+                        if (!bgLoaded) loadBackground();
+                        else setCanvasVisible(true);
+                    } else {
+                        setCanvasVisible(false);
+                        document.body.style.background = '#f0f0f0';
+                    }
+                });
+
+                // Watch for p5.js canvas creation
+                new MutationObserver(function(muts) {
+                    muts.forEach(function(m) {
+                        m.addedNodes.forEach(function(n) {
+                            if (n.tagName === 'CANVAS' && !bgEnabled) n.style.display = 'none';
+                        });
+                    });
+                }).observe(document.body, { childList: true });
             })();
         </script>
         <script src="{{ url_for('static', filename='js/trajectory-cache.js') }}"></script>
