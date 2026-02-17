@@ -59,7 +59,7 @@ note right of COMPUTE
   • RMSD/eRMSD (Structural Deviation)
   • Torsion Angles (Backbone Flexibility)
   • Contact Maps (Inter-residue Interactions)
-  • Energy Landscapes (Free Energy Surfaces)
+  • Conformational Landscapes (Free Energy Surfaces)
   • Arc Diagrams (Secondary Structure)
   • Base Pairing (RNA H-bonding)
 end note

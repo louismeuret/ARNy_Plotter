@@ -93,7 +93,7 @@ digraph ARNy_Plotter_Workflow {
     }
     
     // Analysis Types (side note)
-    analysis_types [label="Analysis Types:\n• RMSD/eRMSD\n• Torsion Angles\n• Contact Maps\n• Energy Landscapes\n• Arc Diagrams\n• Base Pairing", shape=note, fillcolor="#f0f8ff"];
+    analysis_types [label="Analysis Types:\n• RMSD/eRMSD\n• Torsion Angles\n• Contact Maps\n• Conformational Landscapes\n• Arc Diagrams\n• Base Pairing", shape=note, fillcolor="#f0f8ff"];
     
     // Core Technologies (side note)
     technologies [label="Core Technologies:\n• Backend: Flask + Celery + Redis\n• Analysis: MDAnalysis + Barnaba + MDTraj\n• Visualization: Plotly + Matplotlib\n• Optimization: Numba JIT + Multi-level Caching", shape=note, fillcolor="#f0fff0"];

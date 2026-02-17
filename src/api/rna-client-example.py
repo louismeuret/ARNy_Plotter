@@ -2,10 +2,8 @@ from rna_trajectory_client import RNATrajectoryAnalysis
 import os
 
 def main():
-    # Initialize the client
     client = RNATrajectoryAnalysis(base_url="http://127.0.0.1:4242")
     
-    # Get available plot types
     print("Available analysis types:")
     for plot in client.get_available_plots():
         print(f"- {plot}")

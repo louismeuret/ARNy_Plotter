@@ -1,201 +1,192 @@
 <div class="box mt-5">
-  <div class="flex-container">
-    <div id="{{ plot_info[0] }}" class="plot"></div>
-    <!-- <i class="drag-handle" data-lucide="grip"></i> -->
-    <!-- <i class="expand-icon" data-lucide="expand"></i> -->
-  </div>
-  <div id="{{ plot_info[1] }}" style="width: 100%; height: 100%;"></div>
-  <div class="content">
-    <h2>{{ explainations.get(plot_info[0]).title }}</h2>
-    <p>{{ explainations.get(plot_info[0]).content }}</p>
-    {% if explainations.get(plot_info[0]).formula != "" %}
-    <div class="formula">
-      {{ explainations.get(plot_info[0]).formula | safe }}
+    <div class="flex-container">
+        <div id="{{ plot_info[0] }}" class="plot"></div>
     </div>
-    {% endif %}
-  </div>
+    <div id="{{ plot_info[1] }}" style="width: 100%; height: 100%;"></div>
+    <div class="content">
+        <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+        <p>{{ explainations.get(plot_info[0]).content }}</p>
+        {% if explainations.get(plot_info[0]).formula != "" %}
+        <div class="formula">
+            {{ explainations.get(plot_info[0]).formula | safe }}
+        </div>
+        {% endif %}
+    </div>
 
     <script>
-    var previousValue2 = 1;
-    var dataLength = {{ trajectory_length }};
-    var plotDataContact_{{ plot_info[1] }} = {{ plot_info[2] | safe }};
-    var plotDataStacking_{{ plot_info[1] }} = null; // Will be loaded dynamically
-    var currentMode = 'contact'; // Track the current display mode
+    (function() {
+        var plotId = '{{ plot_info[1] }}';
+        var sessionId = '{{ session_id }}';
+        var plotDataContact = {{ plot_info[2] | safe }};
+        var plotDataStacking = null;
+        var currentMode = 'contact';
 
-    // Initial plot with the contact map data
-    var socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
-      query: "session_id={{ session_id }}"
-    });
-    socket.emit('join', { room: "{{ session_id }}" });
+        // Get socket using shared utility
+        var socket = PlotUtils.getSocket(sessionId);
+        socket.emit('join', { room: sessionId });
 
-    // Initialize plot with contact map data by default
-    Plotly.newPlot('{{ plot_info[1] }}', plotDataContact_{{ plot_info[1] }}).then(() => {
-      // Force a resize after plot is created to ensure it fills the container
-      setTimeout(() => {
-        Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
-        console.log('Contact map initialized and resized');
-        
-        // Register contact map for frame updates using a custom approach
-        if (typeof window.contactMapFrameListeners === 'undefined') {
-          window.contactMapFrameListeners = [];
-        }
-        window.contactMapFrameListeners.push({
-          plotId: '{{ plot_info[1] }}',
-          sendSliderValue: sendSliderValue,
-          sendStackingSliderValue: sendStackingSliderValue
+        // Initialize plot with contact map data
+        PlotUtils.initPlot(plotId, plotDataContact).then(function() {
+            // Register for frame updates
+            if (typeof window.contactMapFrameListeners === 'undefined') {
+                window.contactMapFrameListeners = [];
+            }
+            window.contactMapFrameListeners.push({
+                plotId: plotId,
+                sendSliderValue: sendSliderValue,
+                sendStackingSliderValue: sendStackingSliderValue
+            });
+            // Pre-load stacking data for initial frame
+            sendStackingSliderValue(1);
         });
-        console.log('Contact map registered for frame updates');
-      }, 100);
-      
-      // Pre-load stacking data for the initial frame
-      sendStackingSliderValue(previousValue2);
-    });
 
-    // Function to switch between contact map and stacking map modes
-    function switchContactMode(mode) {
-      const plotDiv = document.getElementById('{{ plot_info[1] }}');
-      
-      if (mode === 'contact') {
-        Plotly.react(plotDiv, plotDataContact_{{ plot_info[1] }});
-        document.getElementById('btnContactMap').classList.add('is-active');
-        document.getElementById('btnStackingMap').classList.remove('is-active');
-        currentMode = 'contact';
-      } else if (mode === 'stacking') {
-        if (plotDataStacking_{{ plot_info[1] }}) {
-          Plotly.react(plotDiv, plotDataStacking_{{ plot_info[1] }});
-          document.getElementById('btnStackingMap').classList.add('is-active');
-          document.getElementById('btnContactMap').classList.remove('is-active');
-          currentMode = 'stacking';
-        } else {
-          // Load stacking data for the first time
-          sendStackingSliderValue(previousValue2);
+        // Register for window resize
+        PlotUtils.registerResize(plotId);
+
+        // Mode switch function
+        window.switchContactMode = function(mode) {
+            var plotDiv = document.getElementById(plotId);
+            if (mode === 'contact') {
+                Plotly.react(plotDiv, plotDataContact);
+                document.getElementById('btnContactMap').classList.add('is-active');
+                document.getElementById('btnStackingMap').classList.remove('is-active');
+                currentMode = 'contact';
+            } else if (mode === 'stacking') {
+                if (plotDataStacking) {
+                    Plotly.react(plotDiv, plotDataStacking);
+                    document.getElementById('btnStackingMap').classList.add('is-active');
+                    document.getElementById('btnContactMap').classList.remove('is-active');
+                    currentMode = 'stacking';
+                } else {
+                    sendStackingSliderValue(1);
+                }
+            }
+        };
+
+        // Debounced send functions to prevent excessive server requests
+        var sendSliderValue = PlotUtils.debounce(function(value) {
+            socket.emit('update_contact_map', {
+                value: value,
+                session_id: sessionId
+            }, sessionId);
+        }, 300);
+
+        var sendStackingSliderValue = PlotUtils.debounce(function(value) {
+            socket.emit('update_stacking_map', {
+                value: value,
+                session_id: sessionId
+            }, sessionId);
+        }, 300);
+
+        // Frame slider listener
+        var frameSlider = document.getElementById('frame-slider');
+        var frameNumber = document.getElementById('frame-number');
+
+        function onFrameChange(value) {
+            sendSliderValue(value);
+            sendStackingSliderValue(value);
         }
-      }
-    }
 
-    // Connect to websocket for updates
-    var debounceTimeout;
+        if (frameSlider) {
+            frameSlider.addEventListener('input', function() {
+                onFrameChange(parseInt(this.value));
+            });
+        }
+        if (frameNumber) {
+            frameNumber.addEventListener('input', function() {
+                onFrameChange(parseInt(this.value));
+            });
+        }
 
-    // Debounce function
-    function debounce(func, delay) {
-      return function() {
-        var context = this;
-        var args = arguments;
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(function() {
-          func.apply(context, args);
-        }, delay);
-      };
-    }
+        // Handle contact map updates from server
+        socket.on('contact_map_plot_update', function(data) {
+            var plotData = JSON.parse(data.plotData);
+            plotDataContact = plotData.data;
+            if (currentMode === 'contact') {
+                Plotly.react(document.getElementById(plotId), plotData.data);
+            }
+        });
 
-    // Add debounced resize event listener
-    window.addEventListener('resize', debounce(() => {
-      Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'))
-    }, 250));
+        // Handle stacking map updates from server
+        socket.on('stacking_map_plot_update', function(data) {
+            var plotData = JSON.parse(data.plotData);
+            plotDataStacking = plotData.data;
+            if (currentMode === 'stacking') {
+                Plotly.react(document.getElementById(plotId), plotData.data);
+                document.getElementById('btnStackingMap').classList.add('is-active');
+                document.getElementById('btnContactMap').classList.remove('is-active');
+            }
+        });
 
-    // Handle expand button click
-    document.querySelector(".expand-icon").addEventListener('click', () => {
-      Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}'));
-    });
+        // Track highlighted residue pair for contact map
+        var highlightedPair = null;
 
-    // Send slider value to server
-    function sendSliderValue(value) {
-      console.log('Contact map: Sending contact map update for frame', value);
-      socket.emit("update_contact_map", {
-        value: value,
-        session_id: "{{ session_id }}",
-      }, "{{ session_id }}");
-    }
+        // Click handler to highlight nucleotides in 3D viewer
+        var plotEl = document.getElementById(plotId);
+        plotEl.on('plotly_click', function(data) {
+            if (data.points.length === 0) return;
 
+            // Get the two residue indices from the clicked point
+            var resid1 = parseInt(data.points[0].x);
+            var resid2 = parseInt(data.points[0].y);
 
-    function sendStackingSliderValue(value) {
-      console.log('Contact map: Sending stacking map update for frame', value);
-      socket.emit("update_stacking_map", {
-        value: value,
-        session_id: "{{ session_id }}",
-      }, "{{ session_id }}");
-    }
+            // Check if viewer is ready
+            if (typeof state === 'undefined' || !state.viewerReady) return;
 
-    // Add event listeners for slider and input with error handling
-    const frameSlider = document.getElementById('frame-slider');
-    const frameNumber = document.getElementById('frame-number');
-    
-    if (frameSlider) {
+            // Check if clicking on the same pair (toggle off)
+            if (highlightedPair && highlightedPair[0] === resid1 && highlightedPair[1] === resid2) {
+                // Remove highlighting
+                if (typeof hideColor === 'function') {
+                    hideColor();
+                }
+                highlightedPair = null;
+                state.highlightedResid = undefined;
+            } else {
+                // Clear previous highlighting
+                if (highlightedPair || state.highlightedResid !== undefined) {
+                    if (typeof hideColor === 'function') {
+                        hideColor();
+                    }
+                }
 
-      const socket = io.connect((location.protocol === 'https:' ? 'https://' : 'http://') + document.domain + ":" + location.port, {
-          query: "session_id={{ session_id }}"
-      });
-      frameSlider.addEventListener('input', 
-        debounce(function() {
-          var sliderValue = parseInt(this.value);
-          previousValue2 = sliderValue;
-          console.log('Contact map: Frame slider changed to', sliderValue);
-          // Always request both contact and stacking data when frame changes
-          sendSliderValue(sliderValue);
-          sendStackingSliderValue(sliderValue);
-        }, 500)
-      );
-      console.log('Contact map: Frame slider event listener added');
-    } else {
-      console.log('Contact map: Frame slider not found');
-    }
+                // Highlight both residues with different colors
+                if (typeof LouisMolStarWrapper !== 'undefined' && LouisMolStarWrapper.interactivity) {
+                    // Use highlightMultiple to avoid race conditions
+                    if (LouisMolStarWrapper.interactivity.highlightMultiple) {
+                        LouisMolStarWrapper.interactivity.highlightMultiple([
+                            { seqId: resid1, color: 0xFF00FF },  // Magenta
+                            { seqId: resid2, color: 0x00FFFF }   // Cyan
+                        ]);
+                    } else {
+                        // Fallback for older versions
+                        LouisMolStarWrapper.interactivity.highlightOn(resid1, 0xFF00FF);
+                    }
 
-    if (frameNumber) {
-      frameNumber.addEventListener('input',
-        debounce(function() {
-          var sliderValue = parseInt(this.value);
-          previousValue2 = sliderValue;
-          console.log('Contact map: Frame number input changed to', sliderValue);
-          // Always request both contact and stacking data when frame changes
-          sendSliderValue(sliderValue);
-          sendStackingSliderValue(sliderValue);
-        }, 500)
-      );
-      console.log('Contact map: Frame number input event listener added');
-    } else {
-      console.log('Contact map: Frame number input not found');
-    }
+                    // Focus camera on both residues
+                    if (LouisMolStarWrapper.camera && LouisMolStarWrapper.camera.focus) {
+                        LouisMolStarWrapper.camera.focus([resid1, resid2]);
+                    }
+                }
 
-    // Update plot when receiving new data from server
-    socket.on("contact_map_plot_update", function(data) {
-      const plotData = JSON.parse(data.plotData);
-      
-      // Always store the updated contact data
-      plotDataContact_{{ plot_info[1] }} = plotData.data;
-      
-      // Only update the display if currently in contact mode
-      if (currentMode === 'contact') {
-        Plotly.react(document.getElementById('{{ plot_info[1] }}'), plotData.data);
-        console.log('Contact map updated via socket for frame');
-      }
-    });
+                highlightedPair = [resid1, resid2];
+                state.highlightedResid = resid1; // Track for arc plot compatibility
+            }
+        });
 
-    // Update plot when receiving new stacking data from server
-    socket.on("stacking_map_plot_update", function(data) {
-      const plotData = JSON.parse(data.plotData);
-      
-      // Always store the updated stacking data
-      plotDataStacking_{{ plot_info[1] }} = plotData.data;
-      
-      // Only update the display if currently in stacking mode
-      if (currentMode === 'stacking') {
-        Plotly.react(document.getElementById('{{ plot_info[1] }}'), plotData.data);
-        document.getElementById('btnStackingMap').classList.add('is-active');
-        document.getElementById('btnContactMap').classList.remove('is-active');
-        currentMode = 'stacking';
-        console.log('Stacking map updated via socket for frame');
-      }
-    });
-  </script>
+        // Set up expand icon handler
+        var container = document.getElementById(plotId).closest('.box');
+        PlotUtils.setupExpandHandler(container, plotId);
+    })();
+    </script>
 
-  <!-- Toggle buttons for Contact Map/Stacking Map -->
-  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
-    <button id="btnContactMap" class="button is-link is-active" onclick="switchContactMode('contact')">Contact Map</button>
-    <button id="btnStackingMap" class="button is-link" onclick="switchContactMode('stacking')">Stacking Map</button>
-  </div>
+    <!-- Toggle buttons for Contact Map/Stacking Map -->
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
+        <button id="btnContactMap" class="button is-link is-active" onclick="switchContactMode('contact')">Contact Map</button>
+        <button id="btnStackingMap" class="button is-link" onclick="switchContactMode('stacking')">Stacking Map</button>
+    </div>
 
-  <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
-    <a href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download {{ plot_info[0] }} Data</a>
-    <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
-  </div>
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+        <a href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download {{ plot_info[0] }} Data</a>
+        <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
+    </div>
 </div>

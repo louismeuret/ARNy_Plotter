@@ -5,46 +5,37 @@
         <i class="expand-icon" data-lucide="expand"></i>
     </div>
     <div id="{{ plot_info[1] }}"></div>
-    <div
-        style="
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        "
-    >
-        <div class="content">
-            {% if explainations.get(plot_info[0]).title %}
-            <h2>{{ explainations.get(plot_info[0]).title }}</h2>
-            {% endif %} {% if explainations.get(plot_info[0]).content %}
-            <p>{{ explainations.get(plot_info[0]).content }}</p>
-            {% endif %} {% if explainations.get(plot_info[0]).formula != "" %}
-            <div class="formula">
-                {{ explainations.get(plot_info[0]).formula | safe }}
-            </div>
-            {% endif %}
+    <div class="content">
+        {% if explainations.get(plot_info[0]).title %}
+        <h2>{{ explainations.get(plot_info[0]).title }}</h2>
+        {% endif %}
+        {% if explainations.get(plot_info[0]).content %}
+        <p>{{ explainations.get(plot_info[0]).content }}</p>
+        {% endif %}
+        {% if explainations.get(plot_info[0]).formula != "" %}
+        <div class="formula">
+            {{ explainations.get(plot_info[0]).formula | safe }}
         </div>
+        {% endif %}
     </div>
     <script>
+    (function() {
+        var plotId = '{{ plot_info[1] }}';
         var plotData = {{ plot_info[2] | safe }};
-        Plotly.newPlot('{{ plot_info[1] }}', plotData, {});
-        window.addEventListener('resize', () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
-        $(document).on("click", ".expand-icon", () => Plotly.Plots.resize(document.getElementById('{{ plot_info[1] }}')));
-    </script>
-    <a
-        href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}"
-        class="button is-link"
-        >Download {{ plot_info[0] }} Data</a
-    >
-    <a
-        href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}"
-        class="button is-link"
-        >Download Plot</a
-    >
-</div>
 
-<style>
-    .plot-container.expanded .plot {
-        height: 100%;
-    }
-</style>
+        // Initialize plot with shared utilities
+        PlotUtils.initPlot(plotId, plotData);
+
+        // Register for window resize
+        PlotUtils.registerResize(plotId);
+
+        // Set up expand icon handler
+        var container = document.getElementById(plotId).closest('.box');
+        PlotUtils.setupExpandHandler(container, plotId);
+    })();
+    </script>
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+        <a href="{{ url_for('download_plot_data', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download {{ plot_info[0] }} Data</a>
+        <a href="{{ url_for('download_plot', plot_id=plot_info[0], session_id=session_id) }}" class="button is-link">Download Plot</a>
+    </div>
+</div>

@@ -8,8 +8,10 @@ import time
 import pickle
 import logging
 from celery import Celery
+from celery.exceptions import SoftTimeLimitExceeded
 from functools import wraps
 import sys
+import psutil
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from src.plotting.create_plots import *
@@ -40,7 +42,8 @@ app.conf.update(
     result_backend='redis://localhost:6379/0',
     task_serializer='orjson',
     task_compression="gzip",
-    task_time_limit=360,
+    task_time_limit=1800,  # Hard limit: 30 minutes - task will be killed
+    task_soft_time_limit=1740,  # Soft limit: 29 minutes - raises SoftTimeLimitExceeded
     result_serializer='orjson',
     accept_content=['orjson', 'json'],  # Accept both orjson and json for compatibility
     task_acks_late=False,
@@ -56,7 +59,57 @@ app.conf.update(
     # Enable task result persistence for better debugging
     task_track_started=True,
     task_send_sent_event=True,
+    # Memory management: restart worker if it uses more than 4GB
+    worker_max_memory_per_child=4000000,  # 4GB in KB
 )
+
+# Memory monitoring configuration
+MIN_AVAILABLE_RAM_MB = 500  # Minimum available RAM in MB before killing tasks
+MAX_TASK_MEMORY_MB = 3500   # Maximum memory a single task can use in MB
+
+class MemoryLimitExceeded(Exception):
+    """Exception raised when a task exceeds memory limits"""
+    pass
+
+def check_memory_limits(task_name, task_id):
+    """Check if memory limits are exceeded and raise exception if so"""
+    try:
+        # Check available system RAM
+        available_ram_mb = psutil.virtual_memory().available / (1024 * 1024)
+        if available_ram_mb < MIN_AVAILABLE_RAM_MB:
+            raise MemoryLimitExceeded(
+                f"Task {task_name} [{task_id}] killed: System RAM critically low "
+                f"({available_ram_mb:.0f}MB available, minimum {MIN_AVAILABLE_RAM_MB}MB required)"
+            )
+
+        # Check current process memory usage
+        process = psutil.Process(os.getpid())
+        process_memory_mb = process.memory_info().rss / (1024 * 1024)
+        if process_memory_mb > MAX_TASK_MEMORY_MB:
+            raise MemoryLimitExceeded(
+                f"Task {task_name} [{task_id}] killed: Task memory usage too high "
+                f"({process_memory_mb:.0f}MB used, maximum {MAX_TASK_MEMORY_MB}MB allowed)"
+            )
+
+        return available_ram_mb, process_memory_mb
+    except MemoryLimitExceeded:
+        raise
+    except Exception as e:
+        logger.warning(f"Could not check memory limits: {e}")
+        return None, None
+
+def memory_checkpoint(task_name="unknown", task_id="unknown"):
+    """
+    Call this function periodically during long-running computations to check memory.
+    Raises MemoryLimitExceeded if memory limits are exceeded.
+
+    Usage in tasks:
+        for frame in trajectory:
+            if frame_idx % 100 == 0:  # Check every 100 frames
+                memory_checkpoint(task_name, task_id)
+            # ... process frame
+    """
+    return check_memory_limits(task_name, task_id)
 
 # Check dependencies
 try:
@@ -133,19 +186,41 @@ def load_cached_mdtraj_objects(session_id):
         return None, None
     
 def log_task(func):
-    """Simple task logging decorator with parallel execution tracking"""
+    """Task logging decorator with parallel execution tracking and memory monitoring"""
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         task_name = func.__name__
         task_id = self.request.id if hasattr(self, 'request') else 'unknown'
         start_time = time.time()
-        
+
         try:
-            logger.info(f"Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}]")
+            # Check memory before starting
+            avail_ram, proc_mem = check_memory_limits(task_name, task_id)
+            if avail_ram and proc_mem:
+                logger.info(f"Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}] "
+                           f"[RAM: {avail_ram:.0f}MB available, Process: {proc_mem:.0f}MB]")
+            else:
+                logger.info(f"Starting {task_name} [Task ID: {task_id}] [Worker: {os.getpid()}]")
+
             result = func(self, *args, **kwargs)
+
+            # Check memory after completion
+            avail_ram, proc_mem = check_memory_limits(task_name, task_id)
             duration = time.time() - start_time
-            logger.info(f"Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}]")
+            if avail_ram and proc_mem:
+                logger.info(f"Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}] "
+                           f"[RAM: {avail_ram:.0f}MB available, Process: {proc_mem:.0f}MB]")
+            else:
+                logger.info(f"Completed {task_name} [Task ID: {task_id}] in {duration:.2f}s [Worker: {os.getpid()}]")
             return result
+        except MemoryLimitExceeded as exc:
+            duration = time.time() - start_time
+            logger.error(f"MEMORY LIMIT EXCEEDED {task_name} [Task ID: {task_id}] after {duration:.2f}s: {exc}")
+            raise
+        except SoftTimeLimitExceeded as exc:
+            duration = time.time() - start_time
+            logger.error(f"TIME LIMIT EXCEEDED {task_name} [Task ID: {task_id}] after {duration:.2f}s (soft limit 29min)")
+            raise
         except Exception as exc:
             duration = time.time() - start_time
             logger.error(f"Failed {task_name} [Task ID: {task_id}] after {duration:.2f}s [Worker: {os.getpid()}]: {exc}")

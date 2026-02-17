@@ -82,7 +82,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 from datetime import datetime
 
-# Configure Flask to use correct template and static directories
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../static'))
 uploads_dir = os.path.abspath(os.path.join(static_dir, 'uploads'))
@@ -689,6 +688,19 @@ def authors():
 @app.route("/documentation")
 def documentation():
     return render_template("documentation.html")
+
+@app.route("/tools")
+def tools():
+    scripts_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../scripts/tools'))
+    scripts = sorted([f for f in os.listdir(scripts_dir) if f.endswith('.py')]) if os.path.isdir(scripts_dir) else []
+    return render_template("tools.html", scripts=scripts)
+
+@app.route("/tools/download/<filename>")
+def download_tool(filename):
+    scripts_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../scripts/tools'))
+    if not filename.endswith('.py'):
+        return "Invalid file", 400
+    return send_from_directory(scripts_dir, filename, as_attachment=True)
 
 @app.route("/cache-debug")
 def cache_debug():

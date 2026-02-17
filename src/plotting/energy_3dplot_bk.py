@@ -153,6 +153,8 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     # Check if we need to reverse any axes for Q-values
     # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
     # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+    reverse_x = "RMSDirfjirf" in names_axis[0]
+    reverse_y = "RMSDjfkrijf" in names_axis[1]
      # Create the surface plot
     fig = go.Figure(data=[go.Surface(
         z=matrix_energy_rescaled.T,
@@ -183,8 +185,9 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     custom_x_range = x_min is not None or x_max is not None
     custom_y_range = y_min is not None or y_max is not None
 
-    x_autorange = False if custom_x_range else True
-    y_autorange = False if custom_y_range else True
+    # Set autorange: False if custom range, 'reversed' if Q-value and no custom range, True otherwise
+    x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
+    y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
 
     # Update layout with potential axis reversal
     fig.update_layout(
@@ -195,11 +198,11 @@ def energy_plot_3d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             zaxis_title='-ln(p)  (Frequency)',
             xaxis=dict(
                 autorange=x_autorange,
-                range=[x_min, x_max]
+                range=[x_max, x_min] if reverse_x else [x_min, x_max]
             ),
             yaxis=dict(
                 autorange=y_autorange,
-                range=[y_min, y_max]
+                range=[y_max, y_min] if reverse_y else [y_min, y_max]
             ),
             zaxis=dict(range=[0, np.amax(real_values)])
         ),
@@ -353,6 +356,13 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
     x_centers = np.linspace(0, maximal_Q, matrix_energy_rescaled.shape[0])
     y_centers = np.linspace(0, maximal_RMSD, matrix_energy_rescaled.shape[1])
     
+    # Check if we need to reverse any axes for Q-values
+    # reverse_x = "Q-value" in names_axis[0] or "Fraction of Contact Formed" in names_axis[0]
+    # reverse_y = "Q-value" in names_axis[1] or "Fraction of Contact Formed" in names_axis[1]
+    
+    reverse_x = "RMSDrijfirj" in names_axis[0]
+    reverse_y = "RMSDkrikfri" in names_axis[1]
+    # Create the heatmap
     fig = go.Figure()
     
     # Add the heatmap
@@ -370,9 +380,13 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         )
     ))
     
+    # Determine if custom ranges are set
     custom_x_range = x_min is not None or x_max is not None
     custom_y_range = y_min is not None or y_max is not None
 
+    # Set autorange: False if custom range, 'reversed' if RMSD and no custom range, True otherwise
+    # x_autorange = False if custom_x_range else ('reversed' if reverse_x else True)
+    # y_autorange = False if custom_y_range else ('reversed' if reverse_y else True)
     x_autorange = False if custom_x_range else True
     y_autorange = False if custom_y_range else True
 
@@ -400,8 +414,8 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
             zeroline=False,
             autorange=y_autorange,
         ),
-        xaxis_range=[x_min, x_max],
-        yaxis_range=[y_min, y_max],
+        xaxis_range=[x_max, x_min] if reverse_x else [x_min, x_max],
+        yaxis_range=[y_max, y_min] if reverse_y else [y_min, y_max],
         width=900,
         height=700,
         plot_bgcolor='#a50026',  # Dark blue matching the 0 value in RdYlBu_r colorscale
@@ -414,6 +428,7 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         ),
     )
     
+    # Add contour lines for better interpretation of the energy landscape
     fig.add_trace(go.Contour(
         z=matrix_energy_rescaled.T,
         x=x_centers,
@@ -427,6 +442,12 @@ def energy_plot_2d(matrix_energy_rescaled, bin_size_Q, bin_size_RMSD, maximal_RM
         showscale=False,
         hoverinfo='skip'
     ))
+    
+    # Interactive hover template
+    #fig.update_traces(
+    #    hovertemplate=f"<b>{names_axis[0]}':</b> %{x:.3f}<br><b>{names_axis[1]}:</b> %{y:.3f} nm<br><b>Energy:</b> %{z:.3f}<extra></extra>",
+    #    selector=dict(type='heatmap')
+    #)
     
     return fig
 #inputs:
