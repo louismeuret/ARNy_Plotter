@@ -962,6 +962,64 @@ def _retrieve_results_impl(session_id):
     )
 
 
+@app.route('/status/<session_id>')
+def session_status_page(session_id):
+    """Renders the status dashboard for a session (opens in a new tab)."""
+    return render_template('session_status.html', session_id=session_id)
+
+
+@app.route('/api/session-status/<session_id>')
+def session_status_api(session_id):
+    """Returns JSON status of all calculations for a session."""
+    directory_path = os.path.join(uploads_dir, session_id)
+
+    if not os.path.isdir(directory_path):
+        return jsonify({'error': 'Session not found'}), 404
+
+    # Load session data
+    session_data = {}
+    session_data_path = os.path.join(directory_path, 'session_data.json')
+    if os.path.exists(session_data_path):
+        try:
+            with open(session_data_path) as f:
+                session_data = json.load(f)
+        except Exception:
+            pass
+
+    selected_plots = session_data.get('selected_plots', [])
+    overall_done = os.path.exists(os.path.join(directory_path, 'plot_data.pkl'))
+
+    # Determine per-plot completion by checking output files
+    download_data_dir = os.path.join(directory_path, 'download_data')
+    plots_status = []
+    for plot in selected_plots:
+        plot_dir = os.path.join(download_data_dir, plot)
+        if overall_done or (os.path.isdir(plot_dir) and glob.glob(os.path.join(plot_dir, '*'))):
+            status = 'done'
+        else:
+            status = 'processing'
+        plots_status.append({'name': plot, 'status': status})
+
+    # Read the last 200 lines of the session log
+    log_lines = []
+    log_path = os.path.join(directory_path, 'session.log')
+    if os.path.exists(log_path):
+        try:
+            with open(log_path) as f:
+                log_lines = f.readlines()[-200:]
+        except Exception:
+            pass
+
+    return jsonify({
+        'session_id': session_id,
+        'overall_done': overall_done,
+        'plots': plots_status,
+        'log': ''.join(log_lines),
+        'n_frames': session_data.get('n_frames', 0),
+        'frame_range': session_data.get('frame_range', 'all'),
+    })
+
+
 @app.route("/download/plot_data/<session_id>/<plot_id>")
 def download_plot_data(plot_id, session_id):
     directory_path = os.path.join(uploads_dir, session_id)
