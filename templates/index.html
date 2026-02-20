@@ -153,6 +153,16 @@ select {
         <div style="height: 20px"></div>
         <div id="terminal-container"></div>
         <div class="container mt-5">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="notification is-danger is-light">
+                <button class="delete" onclick="this.parentElement.remove()"></button>
+                <strong>Error:</strong> {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             <div class="box">
                 <h1
                     class="title"
@@ -201,7 +211,7 @@ select {
                                 class="input"
                                 id="nativePdb"
                                 name="nativePdb"
-                                accept=".pdb,.gro,.psf,.top,.prmtop,.mol2,.xyz"
+                                accept=".pdb,.gro,.psf,.top,.prmtop,.parm7,.mol2,.xyz,.tpr"
                             />
                         </div>
                     </div>
@@ -216,7 +226,7 @@ select {
                                 class="input"
                                 id="trajXtc"
                                 name="trajXtc"
-                                accept=".xtc,.trr,.dcd,.binpos,.netcdf,.mdcrd"
+                                accept=".xtc,.trr,.dcd,.nc,.nctraj,.ncdf,.crd,.mdcrd,.binpos,.h5,.lh5,.tng,.lammpstrj,.pdb,.xyz"
                             />
                         </div>
                     </div>

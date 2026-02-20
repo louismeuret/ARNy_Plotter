@@ -152,7 +152,7 @@
                             Trajectory Tools
                         </h1>
                         <p class="subtitle" style="font-size: 1.2em; font-family: 'Georgia', serif; color: #555;">
-                            Command-line Python scripts for manipulating MD trajectories.
+                            Simple python scripts (and Gromacs commands) for manipulating MD trajectories.
                         </p>
                     </div>
                     <a href="{{ url_for('index') }}" class="button is-link is-outlined">
@@ -167,7 +167,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>frame_info.py</code>
-                        <span class="desc"> &mdash; Print trajectory metadata (frame count, timestep, box, atoms).</span>
+                        <span class="desc"> Print trajectory metadata (frame count, timestep, box, atoms).</span>
                         <div class="usage"><span class="prompt">$</span> python frame_info.py --top structure.pdb --traj trajectory.xtc</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='frame_info.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -175,7 +175,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>extract_frames.py</code>
-                        <span class="desc"> &mdash; Extract a frame range with optional stride.</span>
+                        <span class="desc"> Extract a frame range with optional stride.</span>
                         <div class="usage"><span class="prompt">$</span> python extract_frames.py --top structure.pdb --traj trajectory.xtc --start 0 --stop 100 --stride 2 --output subset.xtc</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='extract_frames.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -183,10 +183,17 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>extract_pdb.py</code>
-                        <span class="desc"> &mdash; Save a single frame as a PDB file.</span>
+                        <span class="desc"> Save a single frame as a PDB file.</span>
                         <div class="usage"><span class="prompt">$</span> python extract_pdb.py --top structure.pdb --traj trajectory.xtc --frame 42 --output frame42.pdb</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='extract_pdb.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Extract first Frame</code>
+                        <span class="desc"> Extract first frame of a trajectory.</span>
+                        <div class="usage"><span class="prompt">$</span> python -c "import mdtraj as md; t=md.load('trajectory.dcd', top='topology.pdb'); t[0].save_pdb('first_frame.pdb')"</div>
+                    </div>
                 </div>
             </div>
 
@@ -196,7 +203,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>select_by_rmsd.py</code>
-                        <span class="desc"> &mdash; Keep frames below/above an RMSD threshold.</span>
+                        <span class="desc"> Keep frames below/above an RMSD threshold.</span>
                         <div class="usage"><span class="prompt">$</span> python select_by_rmsd.py --top structure.pdb --traj trajectory.xtc --ref native.pdb --threshold 3.0 --mode below --output filtered.xtc</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='select_by_rmsd.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -204,7 +211,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>select_nucleic_trajectory.py</code>
-                        <span class="desc"> &mdash; Extract only nucleic acid atoms from a trajectory.</span>
+                        <span class="desc"> Extract only nucleic acid atoms from a trajectory.</span>
                         <div class="usage"><span class="prompt">$</span> python select_nucleic_trajectory.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='select_nucleic_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -212,7 +219,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>find_closest_frames_all_trajectories.py</code>
-                        <span class="desc"> &mdash; Find frames closest to target Q-RMSD combinations across trajectories.</span>
+                        <span class="desc"> Find frames closest to target Q-RMSD combinations across trajectories.</span>
                         <div class="usage"><span class="prompt">$</span> python find_closest_frames_all_trajectories.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='find_closest_frames_all_trajectories.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -225,7 +232,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>convert_traj.py</code>
-                        <span class="desc"> &mdash; Convert trajectory format (e.g. TRR to XTC).</span>
+                        <span class="desc"> Convert trajectory format (e.g. TRR to XTC).</span>
                         <div class="usage"><span class="prompt">$</span> python convert_traj.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='convert_traj.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -233,7 +240,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>convert_traj_with_selection.py</code>
-                        <span class="desc"> &mdash; Convert format with atom selection filter.</span>
+                        <span class="desc"> Convert format with atom selection filter.</span>
                         <div class="usage"><span class="prompt">$</span> python convert_traj_with_selection.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='convert_traj_with_selection.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -241,7 +248,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>reencode_trajectory.py</code>
-                        <span class="desc"> &mdash; Re-encode with new stride/selection to reduce file size.</span>
+                        <span class="desc"> Re-encode with new stride/selection to reduce file size.</span>
                         <div class="usage"><span class="prompt">$</span> python reencode_trajectory.py --top structure.pdb --traj trajectory.xtc --stride 10 --output resampled.xtc</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='reencode_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -249,7 +256,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>merge_trajectories.py</code>
-                        <span class="desc"> &mdash; Concatenate multiple trajectories (mdtraj).</span>
+                        <span class="desc"> Concatenate multiple trajectories (mdtraj).</span>
                         <div class="usage"><span class="prompt">$</span> python merge_trajectories.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='merge_trajectories.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -262,7 +269,7 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>align_trajectory.py</code>
-                        <span class="desc"> &mdash; Align all frames to a reference (least-squares fit).</span>
+                        <span class="desc"> Align all frames to a reference (least-squares fit).</span>
                         <div class="usage"><span class="prompt">$</span> python align_trajectory.py --top structure.pdb --traj trajectory.xtc --ref native.pdb --output aligned.xtc</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='align_trajectory.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
@@ -270,31 +277,83 @@
                 <div class="tool-row">
                     <div style="flex:1;">
                         <code>traj_reorder_index_atoms.py</code>
-                        <span class="desc"> &mdash; Reorder atoms in trajectory based on a mapping file.</span>
+                        <span class="desc"> Reorder atoms in trajectory based on a mapping file.</span>
                         <div class="usage"><span class="prompt">$</span> python traj_reorder_index_atoms.py</div>
                     </div>
                     <a href="{{ url_for('download_tool', filename='traj_reorder_index_atoms.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
                 </div>
             </div>
 
-            <!-- Structure Analysis -->
+            <!-- GROMACS Commands -->
             <div class="box">
-                <p class="category-title"><span class="category-dot" style="background: #ff3860;"></span> Structure Analysis</p>
+                <p class="category-title"><span class="category-dot" style="background: #e74c3c;"></span> GROMACS Commands</p>
                 <div class="tool-row">
                     <div style="flex:1;">
-                        <code>extract_dotbracket.py</code>
-                        <span class="desc"> &mdash; Extract dot-bracket secondary structures from PDB files (x3dna-dssr).</span>
-                        <div class="usage"><span class="prompt">$</span> python extract_dotbracket.py</div>
+                        <code>Convert trajectory</code>
+                        <span class="desc"> Convert trajectory format (e.g. TRR to XTC).</span>
+                        <div class="usage"><span class="prompt">$</span> gmx trjconv -s topol.tpr -f traj.trr -o traj.xtc</div>
                     </div>
-                    <a href="{{ url_for('download_tool', filename='extract_dotbracket.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
                 </div>
                 <div class="tool-row">
                     <div style="flex:1;">
-                        <code>mdtraj_select_nucleic_bases.py</code>
-                        <span class="desc"> &mdash; Select and filter specific nucleic base atoms from a PDB.</span>
-                        <div class="usage"><span class="prompt">$</span> python mdtraj_select_nucleic_bases.py</div>
+                        <code>Convert structure</code>
+                        <span class="desc"> Convert structure format (e.g. GRO to PDB).</span>
+                        <div class="usage"><span class="prompt">$</span> gmx editconf -f structure.gro -o structure.pdb</div>
                     </div>
-                    <a href="{{ url_for('download_tool', filename='mdtraj_select_nucleic_bases.py') }}" class="button is-small is-link is-outlined dl-btn">Download</a>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Extract time range</code>
+                        <span class="desc"> Extract frames between time <code>-b</code> and <code>-e</code> (ps), with step <code>-dt</code>.</span>
+                        <div class="usage"><span class="prompt">$</span> gmx trjconv -s topol.tpr -f traj.xtc -o subset.xtc -b 1000 -e 5000 -dt 10</div>
+                    </div>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Remove PBC jumps</code>
+                        <span class="desc"> Prevent molecules from jumping across periodic boundaries.</span>
+                        <div class="usage"><span class="prompt">$</span> gmx trjconv -s topol.tpr -f traj.xtc -o nojump.xtc -pbc nojump</div>
+                    </div>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Center + fix PBC</code>
+                        <span class="desc"> Center the solute in the box and make whole molecules.</span>
+                        <div class="usage"><span class="prompt">$</span> echo "RNA System" | gmx trjconv -s topol.tpr -f traj.xtc -o centered.xtc -center -pbc mol</div>
+                    </div>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Fit to reference</code>
+                        <span class="desc"> Remove overall rotation and translation by fitting to a reference.</span>
+                        <div class="usage"><span class="prompt">$</span> echo "RNA System" | gmx trjconv -s topol.tpr -f centered.xtc -o fitted.xtc -fit rot+trans</div>
+                    </div>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Strip solvent</code>
+                        <span class="desc"> Keep only the solute (remove water and ions).</span>
+                        <div class="usage"><span class="prompt">$</span> echo "RNA" | gmx trjconv -s topol.tpr -f traj.xtc -o nosolvent.xtc</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amber / cpptraj -->
+            <div class="box">
+                <p class="category-title"><span class="category-dot" style="background: #e67e22;"></span> Amber / cpptraj</p>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Convert to XTC</code>
+                        <span class="desc"> Convert an Amber NetCDF trajectory to XTC format.</span>
+                        <div class="usage"><span class="prompt">$</span> cpptraj -p system.parm7 -y traj.nc -x traj.xtc</div>
+                    </div>
+                </div>
+                <div class="tool-row">
+                    <div style="flex:1;">
+                        <code>Extract first frame as PDB</code>
+                        <span class="desc"> Save the first frame as a PDB topology file.</span>
+                        <div class="usage"><span class="prompt">$</span> cpptraj -p system.parm7 -y traj.nc -x structure.pdb onlyframes 1</div>
+                    </div>
                 </div>
             </div>
 
@@ -306,7 +365,6 @@
             </div>
         </div>
 
-        <!-- Background animation with cookie persistence -->
         <script>
             (function() {
                 var COOKIE_NAME = 'arny_bg_enabled';

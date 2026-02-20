@@ -1,4 +1,10 @@
-{% extends 'layout.html' %} {% block content %}
+{% extends 'layout.html' %}
+{% block head_extras %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/molstar@4.8.0/build/viewer/molstar.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.1.1/plotly.min.js" integrity="sha512-QaIUFweb9pyRnQZEYIujSDTHndibSwqsTSb69aedsfAAUpJRUE5yyYfaNAJIbTDuNECyHR/Cc0N7lQJrp0IEpA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ url_for('static', filename='js/molstar.js') }}"></script>
+{% endblock %}
+{% block content %}
 <section class="section trajectory-viewer">
     <!-- Loading overlay -->
     <div id="loading-overlay" class="loading-overlay">

@@ -16,3 +16,5 @@ data/examples/
 src/plotting/__pycache__/
 
 src/core/__pycache__/
+
+logs/

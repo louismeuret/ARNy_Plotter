@@ -34,6 +34,7 @@ from flask import (
     session,
     send_file,
     jsonify,
+    flash,
 )
 from werkzeug.utils import secure_filename
 import uuid
@@ -101,194 +102,26 @@ logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(le
 logger = logging.getLogger(__name__)
 
 
-class OptimizedTrajectoryManager:
-    """Optimized trajectory loading and management with parallel processing"""
-    
-    def __init__(self):
-        self._trajectory_cache = {}
-        self._metadata_cache = {}
-        self._lock = threading.Lock()
-    
-    def preload_trajectory_metadata(self, native_pdb_path: str, trajectory_path: str) -> Dict[str, Any]:
-        """Preload trajectory metadata for optimization"""
-        cache_key = f"{native_pdb_path}:{trajectory_path}"
-        
-        with self._lock:
-            if cache_key in self._metadata_cache:
-                return self._metadata_cache[cache_key]
-        
-        try:
-            # Load minimal trajectory info without full data
-            import mdtraj as md
-            traj = md.load_frame(trajectory_path, 0, top=native_pdb_path)
-            
-            metadata = {
-                'n_frames': md.load(trajectory_path, top=native_pdb_path).n_frames,
-                'n_atoms': traj.n_atoms,
-                'n_residues': traj.n_residues,
-                'topology': traj.topology,
-                'box_vectors': traj.unitcell_vectors[0] if traj.unitcell_vectors is not None else None
-            }
-            
-            with self._lock:
-                self._metadata_cache[cache_key] = metadata
-            
-            logger.info(f"Preloaded trajectory metadata: {metadata['n_frames']} frames, {metadata['n_atoms']} atoms")
-            return metadata
-            
-        except Exception as e:
-            logger.warning(f"Failed to preload trajectory metadata: {e}")
-            return {}
-    
-    def load_trajectory_parallel(self, native_pdb_path: str, trajectory_path: str, stride: int = 1) -> Tuple[Any, Any]:
-        """Load trajectory with parallel optimization"""
-        cache_key = f"{native_pdb_path}:{trajectory_path}:{stride}"
-        
-        with self._lock:
-            if cache_key in self._trajectory_cache:
-                logger.info("Trajectory loaded from memory cache")
-                return self._trajectory_cache[cache_key]
-        
-        def load_native():
-            import mdtraj as md
-            return md.load(native_pdb_path)
-        
-        def load_trajectory():
-            import mdtraj as md
-            if stride > 1:
-                return md.load(trajectory_path, top=native_pdb_path, stride=stride)
-            else:
-                return md.load(trajectory_path, top=native_pdb_path)
-        
-        # Parallel loading
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            native_future = executor.submit(load_native)
-            traj_future = executor.submit(load_trajectory)
-            
-            native_load = native_future.result()
-            traj_load = traj_future.result()
-        
-        # Cache for reuse
-        with self._lock:
-            self._trajectory_cache[cache_key] = (traj_load, native_load)
-        
-        logger.info(f"Loaded trajectory with {traj_load.n_frames} frames in parallel")
-        return traj_load, native_load
+def setup_session_logger(session_id: str) -> logging.FileHandler:
+    """Add a file handler to the logger that writes to the session's upload directory.
+    Returns the handler so it can be removed when the request is done."""
+    session_dir = os.path.join(uploads_dir, session_id)
+    os.makedirs(session_dir, exist_ok=True)
+    log_path = os.path.join(session_dir, "session.log")
+    handler = logging.FileHandler(log_path, mode='a')
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    logger.info(f"=== Session {session_id} started ===")
+    return handler
 
-trajectory_manager = OptimizedTrajectoryManager()
 
-class SharedTrajectoryManager:
-    """Manages shared trajectory data across Celery tasks"""
-    
-    def __init__(self):
-        self._cache = {}
-        self._lock = threading.Lock()
-    
-    def preload_and_cache_trajectory(self, native_pdb_path: str, trajectory_path: str, session_id: str) -> str:
-        """Load trajectory once and cache MDTraj objects for efficient Barnaba sharing"""
-        cache_key = f"{session_id}_trajectory"
-        
-        with self._lock:
-            if cache_key in self._cache:
-                logger.info("Trajectory data already cached")
-                return cache_key
-        
-        try:
-            
-            # Load MDTraj objects (what Barnaba uses internally)
-            import mdtraj as md
-            reference_traj = md.load(native_pdb_path)
-            target_traj = md.load(trajectory_path, top=native_pdb_path)
-            
-            logger.info(f"Loaded MDTraj: {target_traj.n_frames} frames, {target_traj.n_atoms} atoms")
-            
-            # Also load MDAnalysis for compatibility
-            u = mda.Universe(native_pdb_path, trajectory_path)
-            ref = mda.Universe(native_pdb_path)
-            
-            # Pre-compute commonly used data
-            trajectory_data = {
-                'topology_path': native_pdb_path,
-                'trajectory_path': trajectory_path,
-                'n_frames': target_traj.n_frames,
-                'n_atoms': target_traj.n_atoms,
-                'n_residues': target_traj.n_residues,
-                'residue_names': [res.resname for res in u.residues],
-                'residue_ids': [res.resid for res in u.residues],
-                'box_dimensions': u.dimensions if hasattr(u, 'dimensions') else None,
-                'dt': target_traj.timestep if hasattr(target_traj, 'timestep') else 1.0,
-            }
-            
-            # Save to session directory for task access
-            # session_dir = os.path.join("static", "uploads", session_id)
-            
-            session_dir = os.path.join(uploads_dir, session_id)
-            os.makedirs(session_dir, exist_ok=True)
-            
-            # Save trajectory data
-            cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
-            with open(cache_path, 'wb') as f:
-                pickle.dump(trajectory_data, f)
-            
-            # Save MDTraj objects for Barnaba optimization
-            mdtraj_ref_path = os.path.join(session_dir, "mdtraj_reference.pkl")
-            mdtraj_traj_path = os.path.join(session_dir, "mdtraj_trajectory.pkl")
-            
-            with open(mdtraj_ref_path, 'wb') as f:
-                pickle.dump(reference_traj, f)
-                
-            with open(mdtraj_traj_path, 'wb') as f:
-                pickle.dump(target_traj, f)
-            
-            logger.info("MDTraj objects saved for Barnaba task sharing")
-            
-            # Store in memory cache
-            with self._lock:
-                self._cache[cache_key] = {
-                    'data': trajectory_data,
-                    'cache_path': cache_path,
-                    'mdtraj_ref_path': mdtraj_ref_path,
-                    'mdtraj_traj_path': mdtraj_traj_path,
-                    'loaded_at': time.time()
-                }
-            
-            logger.info(f"Trajectory cached: {trajectory_data['n_frames']} frames, {trajectory_data['n_atoms']} atoms")
-            return cache_key
-            
-        except Exception as e:
-            logger.error(f"Failed to cache trajectory: {e}")
-            raise
-    
-    def get_cached_data(self, session_id: str) -> Dict:
-        """Get cached trajectory data"""
-        cache_key = f"{session_id}_trajectory"
-        
-        with self._lock:
-            if cache_key in self._cache:
-                return self._cache[cache_key]['data']
-        
-        # Try loading from disk
-        session_dir = os.path.join("static", "uploads", session_id)
-        cache_path = os.path.join(session_dir, "trajectory_cache.pkl")
-        
-        if os.path.exists(cache_path):
-            try:
-                with open(cache_path, 'rb') as f:
-                    data = pickle.load(f)
-                    
-                with self._lock:
-                    self._cache[cache_key] = {
-                        'data': data,
-                        'cache_path': cache_path,
-                        'loaded_at': time.time()
-                    }
-                return data
-            except Exception as e:
-                logger.error(f"Failed to load cached trajectory data: {e}")
-        
-        return None
+def remove_session_logger(handler: logging.FileHandler):
+    """Remove and close the per-session file handler."""
+    logger.removeHandler(handler)
+    handler.close()
 
-shared_trajectory_manager = SharedTrajectoryManager()
 
 def convert_dimension_to_numeric(dimension_name: str) -> int:
     """
@@ -307,6 +140,54 @@ def convert_dimension_to_numeric(dimension_name: str) -> int:
         "Fraction of Contact Formed": 4
     }
     return dimension_map.get(dimension_name, 1)  # Default to RMSD
+
+def convert_topology_to_pdb(topology_path: str, trajectory_path: str, session_id: str) -> str:
+    """
+    Convert topology file to PDB format if it's not supported by mdtraj and molstar.
+
+    Supported formats (no conversion needed): .pdb, .gro, .mol2
+    Unsupported formats (will be converted): .parm7, .prmtop, .psf, .top, .tpr, etc.
+
+    Args:
+        topology_path: Path to topology file
+        trajectory_path: Path to trajectory file (needed to load coordinates for PDB writing)
+        session_id: Session ID for logging
+
+    Returns:
+        Path to the topology file (original if already supported, converted if not)
+    """
+    logger = logging.getLogger(__name__)
+
+    _, ext = os.path.splitext(topology_path.lower())
+    supported_formats = ['.pdb', '.gro', '.mol2']
+
+    if ext in supported_formats:
+        logger.info(f"Topology format {ext} is supported, no conversion needed")
+        return topology_path
+
+    logger.info(f"Topology format {ext} is not supported by mdtraj/molstar, converting to PDB")
+
+    try:
+        directory = os.path.dirname(topology_path)
+        base_name = os.path.splitext(os.path.basename(topology_path))[0]
+        pdb_path = os.path.join(directory, f"{base_name}_converted.pdb")
+
+        # Load with MDAnalysis using the trajectory to get coordinates
+        u = mda.Universe(topology_path, trajectory_path)
+        u.trajectory[0]  # Use first frame
+
+        # Write as PDB
+        logger.info(f"Converting topology to PDB: {pdb_path}")
+        u.atoms.write(pdb_path)
+
+        logger.info(f"Topology conversion completed: {pdb_path}")
+        return pdb_path
+
+    except Exception as e:
+        logger.error(f"Failed to convert topology to PDB: {e}")
+        emit_error(session_id, f"Topology conversion failed: {e}. Using original format.", 'warning')
+        return topology_path
+
 
 def convert_trajectory_to_xtc(topology_path: str, trajectory_path: str, session_id: str) -> str:
     """
@@ -327,7 +208,7 @@ def convert_trajectory_to_xtc(topology_path: str, trajectory_path: str, session_
     
     # Extract file extension
     _, ext = os.path.splitext(trajectory_path.lower())
-    supported_formats = ['.dcd', '.nc', '.nctraj', '.trr', '.xtc']
+    supported_formats = ['.dcd', '.trr', '.xtc']
     
     # If already in supported format, return original path
     if ext in supported_formats:
@@ -1002,9 +883,16 @@ def upload_files():
 
 @app.route("/retrieve-results", methods=["GET"])
 def retrieve_results():
-    print("RETRIVE RESULTS")
     session_id = request.args.get("session_id")
-    print(session_id)
+    session_log_handler = setup_session_logger(session_id)
+    try:
+        return _retrieve_results_impl(session_id)
+    finally:
+        remove_session_logger(session_log_handler)
+
+
+def _retrieve_results_impl(session_id):
+    logger.info("Retrieving results")
 
     directory_path = os.path.join(uploads_dir, session_id)
     pickle_file_path = os.path.join(directory_path, "plot_data.pkl")
@@ -1022,10 +910,22 @@ def retrieve_results():
     print(f"Native PDB: {native_pdb_path}")
     print(f"Trajectory XTC: {traj_xtc_path}")
 
+    # Check if topology needs conversion to PDB format (for retrieve results)
+    original_topo_path = native_pdb_path
+    native_pdb_path = convert_topology_to_pdb(native_pdb_path, traj_xtc_path, session_id)
+
+    if native_pdb_path != original_topo_path:
+        converted_filename = os.path.basename(native_pdb_path)
+        session_data['files']['nativePdb'] = converted_filename
+        native_pdb = converted_filename
+        with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+            json.dump(session_data, file, indent=4)
+        logger.info(f"Updated retrieve results session data with converted topology: {converted_filename}")
+
     # Check if trajectory needs conversion to XTC format (for retrieve results)
     original_traj_path = traj_xtc_path
     traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
-    
+
     # If conversion happened, update the session data
     if traj_xtc_path != original_traj_path:
         converted_filename = os.path.basename(traj_xtc_path)
@@ -1198,7 +1098,14 @@ def download_frame(session_id, frame_number):
 @app.route('/view-trajectory/<session_id>')
 def view_trajectory(session_id):
     start_time = time.time()
+    session_log_handler = setup_session_logger(session_id)
+    try:
+        return _view_trajectory_impl(session_id, start_time)
+    finally:
+        remove_session_logger(session_log_handler)
 
+
+def _view_trajectory_impl(session_id, start_time):
     # Check if results already exist (from a previous run)
     directory_path = os.path.join(uploads_dir, session_id)
     pickle_file_path = os.path.join(directory_path, "plot_data.pkl")
@@ -1215,10 +1122,22 @@ def view_trajectory(session_id):
         native_pdb_path = os.path.join(directory_path, native_pdb_cached)
         traj_xtc_path = os.path.join(directory_path, traj_xtc_cached)
 
+        # Check if topology needs conversion to PDB format (even for cached results)
+        original_topo_path = native_pdb_path
+        native_pdb_path = convert_topology_to_pdb(native_pdb_path, traj_xtc_path, session_id)
+
+        if native_pdb_path != original_topo_path:
+            converted_filename = os.path.basename(native_pdb_path)
+            session_data['files']['nativePdb'] = converted_filename
+            native_pdb_cached = converted_filename
+            with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+                json.dump(session_data, file, indent=4)
+            logger.info(f"Updated cached session data with converted topology: {converted_filename}")
+
         # Check if trajectory needs conversion to XTC format (even for cached results)
         original_traj_path = traj_xtc_path
         traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
-        
+
         # If conversion happened, update the session data
         if traj_xtc_path != original_traj_path:
             converted_filename = os.path.basename(traj_xtc_path)
@@ -1281,17 +1200,23 @@ def view_trajectory(session_id):
         error_msg = f"Session data file not found. Please re-upload your files."
         emit_error(session_id, error_msg, 'error')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
-        return render_template("error.html", error=error_msg), 404
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
     except KeyError as e:
         error_msg = f"Session data is corrupted or incomplete. Missing key: {e}"
         emit_error(session_id, error_msg, 'error')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
-        return render_template("error.html", error=error_msg), 400
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
     except json.JSONDecodeError as e:
         error_msg = f"Session data file is corrupted: {e}"
         emit_error(session_id, error_msg, 'error')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
-        return render_template("error.html", error=error_msg), 500
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
 
     # Validate paths and session data
     native_pdb_path = os.path.join(directory_path, native_pdb)
@@ -1300,18 +1225,34 @@ def view_trajectory(session_id):
         error_msg = f"Topology file not found: {native_pdb}. Please re-upload your files."
         emit_error(session_id, error_msg, 'error')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
-        return render_template("error.html", error=error_msg), 404
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
     if not os.path.exists(traj_xtc_path):
         error_msg = f"Trajectory file not found: {traj_xtc}. Please re-upload your files."
         emit_error(session_id, error_msg, 'error')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
-        return render_template("error.html", error=error_msg), 404
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
 
-    # Check if trajectory needs conversion to XTC format
-    socketio.emit('update_progress', {"progress": 15, "message": "Checking trajectory format..."}, to=session_id)
+    # Check if topology/trajectory need format conversion
+    socketio.emit('update_progress', {"progress": 15, "message": "Checking file formats..."}, to=session_id)
+
+    original_topo_path = native_pdb_path
+    native_pdb_path = convert_topology_to_pdb(native_pdb_path, traj_xtc_path, session_id)
+
+    if native_pdb_path != original_topo_path:
+        converted_filename = os.path.basename(native_pdb_path)
+        session_data_json['files']['nativePdb'] = converted_filename
+        with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+            json.dump(session_data_json, file, indent=4)
+        logger.info(f"Updated session data with converted topology: {converted_filename}")
+        socketio.emit('update_progress', {"progress": 16, "message": "Topology converted to PDB format."}, to=session_id)
+
     original_traj_path = traj_xtc_path
     traj_xtc_path = convert_trajectory_to_xtc(native_pdb_path, traj_xtc_path, session_id)
-    
+
     # If conversion happened, update the session data
     if traj_xtc_path != original_traj_path:
         converted_filename = os.path.basename(traj_xtc_path)
@@ -1336,12 +1277,10 @@ def view_trajectory(session_id):
     
     def load_and_preprocess_trajectory():
         """Load trajectory with parallel optimization"""
-        # Preload metadata first
-        metadata = trajectory_manager.preload_trajectory_metadata(native_pdb_path, traj_xtc_path)
-        
-        # Load trajectory efficiently
         u = mda.Universe(native_pdb_path, traj_xtc_path)
-        ref = mda.Universe(native_pdb_path)
+        # Load ref with trajectory so topology-only formats (parm7, psf, etc.) get coordinates
+        ref = mda.Universe(native_pdb_path, traj_xtc_path)
+        ref.trajectory[0]  # Snap to first frame as reference
         
         # Parallel computation of trajectory properties
         def compute_alignment():
@@ -1382,7 +1321,9 @@ def view_trajectory(session_id):
             emit_error(session_id, error_msg, 'processing')
         socketio.emit('update_progress', {"progress": 100, "message": error_msg}, to=session_id)
         logger.error(f"Trajectory loading failed: {e}")
-        return render_template("error.html", error=error_msg), 500
+        flash(error_msg, 'error')
+        socketio.sleep(3)
+        return redirect(url_for('index'))
 
     file_name, file_extension = os.path.splitext(traj_xtc_path)
     try:
@@ -1444,10 +1385,6 @@ def view_trajectory(session_id):
 
     socketio.emit('update_progress', {"progress": 40, "message": "Trajectory loaded."}, to=session_id)
     socketio.sleep(0.1)
-
-    # Cache trajectory data for efficient task sharing
-    cache_key = shared_trajectory_manager.preload_and_cache_trajectory(native_pdb_path, traj_xtc_path, session_id)
-    logger.info(f"Trajectory cached with key: {cache_key}")
 
     # Build execution tree and identify shared computations
     planner = CalculationPlanner(session_id)
