@@ -800,6 +800,9 @@ select {
                         <button id="shareSessionBtn" class="button is-info is-small" onclick="shareSession()" style="display: none;">
                             Results Link
                         </button>
+                        <button id="statusPageBtn" class="button is-light is-small ml-2" onclick="openStatusPage()" style="display: none;">
+                            Status of Calculations
+                        </button>
                         <p id="shareSessionText" style="font-size: 0.85em; color: #666; margin-top: 5px; display: none;">
                             Copy link to retrieve results later
                         </p>
@@ -1491,9 +1494,10 @@ select {
                     document.getElementById("overlay").style.display = "flex";
                     listenForUpdates();
                     
-                    // Show the share button once calculations start
+                    // Show the share button and status button once calculations start
                     setTimeout(() => {
                         document.getElementById("shareSessionBtn").style.display = "inline-block";
+                        document.getElementById("statusPageBtn").style.display = "inline-block";
                         document.getElementById("shareSessionText").style.display = "block";
                     }, 2000); // Show after 2 seconds to ensure session is established
                 }
@@ -1654,7 +1658,12 @@ select {
                     }
                 );
             }
-                        
+
+            function openStatusPage() {
+                const sessionId = "{{ session_id }}";
+                window.open(`/status/${sessionId}`, '_blank');
+            }
+
             function initializeTorsionControls() {
                 const torsionCheckbox = document.getElementById('torsion');
                 const torsionOptions = document.getElementById('torsionOptions');
