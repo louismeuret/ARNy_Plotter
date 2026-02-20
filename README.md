@@ -16,13 +16,20 @@ conda create --name ARNy_Plotter python=3.13.2
 conda activate ARNy_Plotter
 ````
 
-### 2. Run the installation script
+### 2. Create a folder for ARNy
 
 ```bash
-python <(curl -s https://raw.githubusercontent.com/louismeuret/ARNy_Plotter/refs/heads/main/install_script.py) --repo https://github.com/louismeuret/ARNy_Plotter --install-path .
+mkdir ARNy_Plotter
+cd ARNy_Plotter
+````
+
+### 3. Run the installation script
+
+```bash
+python <(curl -s https://raw.githubusercontent.com/louismeuret/ARNy_Plotter/refs/heads/main/scripts/install_script.py) --repo https://github.com/louismeuret/ARNy_Plotter --install-path .
 ```
 
-### 3. Launch the server
+### 4. Launch the server
 
 For the moment, only the linux version has been tested.
 
