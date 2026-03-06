@@ -138,17 +138,59 @@ select {
                 text-align: center;
             }
 
-            /* Horizontal radio button styling */
+            /* Horizontal radio button styling with button-like appearance */
             .radio-group {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 1rem;
+                gap: 0.75rem;
                 align-items: center;
             }
 
             .radio-group .radio {
                 margin-bottom: 0 !important;
                 margin-right: 0;
+                position: relative;
+                cursor: pointer;
+                border: 1px solid #dbdbdb;
+                border-radius: 4px;
+                padding: 0.5rem 0.75rem;
+                background-color: #ffffff;
+                transition: all 0.3s ease;
+                font-size: 0.875rem;
+                font-weight: 400;
+                line-height: 1.5;
+                color: #363636;
+                box-shadow: 0 1px 2px rgba(10, 10, 10, 0.1);
+            }
+
+            .radio-group .radio:hover {
+                border-color: #3273dc;
+                box-shadow: 0 2px 4px rgba(50, 115, 220, 0.15);
+                transform: translateY(-1px);
+            }
+
+            .radio-group .radio input[type="radio"] {
+                opacity: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            .radio-group .radio input[type="radio"]:checked + *,
+            .radio-group .radio:has(input[type="radio"]:checked) {
+                background-color: #3273dc;
+                border-color: #3273dc;
+                color: #ffffff;
+                box-shadow: 0 2px 6px rgba(50, 115, 220, 0.25);
+                transform: translateY(-1px);
+            }
+
+            /* Alternative selector for older browsers that don't support :has() */
+            .radio-group .radio.checked {
+                background-color: #3273dc;
+                border-color: #3273dc;
+                color: #ffffff;
+                box-shadow: 0 2px 6px rgba(50, 115, 220, 0.25);
+                transform: translateY(-1px);
             }
 
             @media (max-width: 768px) {
@@ -156,6 +198,11 @@ select {
                     flex-direction: column;
                     align-items: flex-start;
                     gap: 0.5rem;
+                }
+
+                .radio-group .radio {
+                    width: 100%;
+                    text-align: center;
                 }
             }
 
@@ -934,7 +981,7 @@ select {
                     </div>
                     <div class="control">
                         <button type="submit" class="button is-link">
-                            Retrieve Results
+                            Retrieve Resu6ts
                         </button>
                     </div>
                 </form>
@@ -997,7 +1044,7 @@ select {
                     time: new Date().toLocaleTimeString()
                 });
                 
-                // Keep only last 5
+                // Keep only last 6
                 history = history.slice(0, 6);
                 
                 // Save back to cookie
@@ -1669,6 +1716,9 @@ select {
                 // Initial check for frame settings
                 checkFrameSettingsModified();
 
+                // Initialize radio button styling
+                initializeRadioButtonStyling();
+
                 // Listen for upload progress events from SocketIO
                 socket.on('upload_progress', function(data) {
                     console.log(`Upload progress: ${data.file_type} - ${data.progress.toFixed(1)}% (${data.chunk_index}/${data.total_chunks})`);
@@ -1741,6 +1791,34 @@ select {
                 if (radio.value !== "custom") {
                     document.getElementById("custom_selection").value = "";
                 }
+            }
+
+            function initializeRadioButtonStyling() {
+                // Add event listeners to all radio buttons for visual state management
+                const radioGroups = document.querySelectorAll('.radio-group');
+
+                radioGroups.forEach(group => {
+                    const radioInputs = group.querySelectorAll('input[type="radio"]');
+                    const radioLabels = group.querySelectorAll('.radio');
+
+                    // Set initial state
+                    radioInputs.forEach((input, index) => {
+                        if (input.checked) {
+                            radioLabels[index].classList.add('checked');
+                        }
+
+                        // Add change event listener
+                        input.addEventListener('change', function() {
+                            // Remove checked class from all labels in this group
+                            radioLabels.forEach(label => label.classList.remove('checked'));
+
+                            // Add checked class to the selected label
+                            if (this.checked) {
+                                radioLabels[index].classList.add('checked');
+                            }
+                        });
+                    });
+                });
             }
 
             function initializeTorsionControls() {
