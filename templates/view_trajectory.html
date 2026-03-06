@@ -37,6 +37,9 @@
             <button id="share-button" class="share-button">
                 Share Session
             </button>
+            <a href="/download/all/{{ session_id }}" class="share-button" style="margin-left: 8px; text-decoration: none; display: inline-block;">
+                Download All
+            </a>
         </div>
 
         <!-- Links Box -->
@@ -44,6 +47,7 @@
             <a href="/cgu" class="nav-link">Terms & Conditions</a>
             <a href="/authors" class="nav-link">Authors</a>
             <a href="/documentation" class="nav-link">Help</a>
+            <a href="/bug-report?session_id={{ session_id }}" target="_blank" class="nav-link">Report a Bug</a>
         </div>
     </div>
 

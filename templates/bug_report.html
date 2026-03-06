@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report a Bug — ARNy Plotter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 140px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div style="height: 20px"></div>
+<div class="container mt-5" style="max-width: 680px;">
+
+    <!-- Header -->
+    <div class="box">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="title" style="font-size: 2em; font-family: 'Arial', sans-serif; color: #333;">
+                    Report a Bug
+                </h1>
+                <p class="subtitle" style="font-size: 1em; font-family: 'Georgia', serif; color: #555;">
+                    Describe what went wrong and we will look into it.
+                </p>
+            </div>
+            <a href="{{ url_for('index') }}" class="button is-link is-outlined">
+                Back to ARNy Plotter
+            </a>
+        </div>
+    </div>
+
+    {% if submitted %}
+    <!-- Confirmation -->
+    <div class="box">
+        <p style="font-family: 'Georgia', serif; color: #333; font-size: 1.05em;">
+            Your report has been submitted. Thank you for helping improve ARNy Plotter.
+        </p>
+        <div class="mt-4">
+            <a href="{{ url_for('index') }}" class="button is-link is-outlined is-small">
+                Back to ARNy Plotter
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+
+    {% if error %}
+    <div class="notification is-danger is-light mb-4">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <div class="box">
+        <form method="POST" action="{{ url_for('bug_report_submit') }}">
+
+            <div class="field">
+                <label class="label" for="session_id">Session ID</label>
+                <div class="control">
+                    <input
+                        class="input"
+                        type="text"
+                        id="session_id"
+                        name="session_id"
+                        value="{{ session_id }}"
+                        placeholder="e.g. 3f2a91bc…  (leave blank if unknown)"
+                    />
+                </div>
+                <p class="help" style="color: #888;">
+                    Filled automatically when you click "Report a Bug" from the viewer.
+                </p>
+            </div>
+
+            <div class="field mt-4">
+                <label class="label" for="description">Description <span style="color: #d9534f;">*</span></label>
+                <div class="control">
+                    <textarea
+                        class="textarea"
+                        id="description"
+                        name="description"
+                        placeholder="Describe what happened, what you expected, and any steps to reproduce the issue…"
+                    >{{ request.form.get('description', '') }}</textarea>
+                </div>
+            </div>
+
+            <div class="field mt-4">
+                <label class="label" for="email">
+                    Email
+                    <span style="font-weight: normal; color: #888;">(optional — if you want to be kept informed)</span>
+                </label>
+                <div class="control">
+                    <input
+                        class="input"
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ request.form.get('email', '') }}"
+                        placeholder="your@email.com"
+                    />
+                </div>
+            </div>
+
+            <div class="field mt-5">
+                <div class="control">
+                    <button type="submit" class="button is-link">
+                        Send report
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    {% endif %}
+
+</div>
+
+<!-- Pre-fill session ID from URL query param (fallback if Jinja value is empty) -->
+<script>
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    const sid = params.get("session_id");
+    const field = document.getElementById("session_id");
+    if (sid && field && !field.value) {
+        field.value = sid;
+    }
+})();
+</script>
+
+</body>
+</html>

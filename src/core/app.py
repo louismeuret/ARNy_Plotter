@@ -361,17 +361,14 @@ socketio = SocketIO(
     allow_upgrades=True,       # Allow protocol upgrades
     transports=['websocket', 'polling'],  # Support both transport methods
 
-    # Optimized connection settings
     ping_timeout=30,           # Reduced timeout for faster detection
     ping_interval=15,          # Less frequent pings to reduce overhead
 
-    # Handle proxy headers
     engineio_options={
         'ping_timeout': 30,
         'ping_interval': 15,
         'upgrade_timeout': 30,
         'max_http_buffer_size': 1000000,
-        # Additional engineio CORS options
         'cors_allowed_origins': [
             "https://arny-plotter.rpbs.univ-paris-diderot.fr",
             "http://arny-plotter.rpbs.univ-paris-diderot.fr",
@@ -714,7 +711,6 @@ def upload_chunk():
 
     except Exception as e:
         logger.error(f"Error in chunked upload: {str(e)}")
-        # Try to emit error if session_id is available
         if session_id:
             emit_error(session_id, f"Upload failed: {str(e)}", 'error')
         return jsonify({"error": str(e)}), 500
@@ -768,7 +764,6 @@ def upload_files():
         logger.info(f"Using chunked upload files: {native_pdb_name}, {traj_xtc_name}")
 
     else:
-        # Standard upload (fallback for compatibility)
         if "nativePdb" not in request.files or "trajXtc" not in request.files:
             return redirect(request.url)
 
@@ -844,6 +839,9 @@ def upload_files():
             logger.warning(f"Failed to parse plot settings JSON: {e}")
             plot_settings = {}
     
+    atom_selection_mode = request.form.get("atom_selection_mode", "none")
+    custom_selection = request.form.get("custom_selection", "").strip()
+
     session_data = {
         "selected_plots": selected_plots,
         "n_frames": n_frames,
@@ -856,6 +854,8 @@ def upload_files():
         "landscape_first_component": convert_dimension_to_numeric(request.form.get("firstDimension", "RMSD")),
         "landscape_second_component": convert_dimension_to_numeric(request.form.get("secondDimension", "eRMSD")),
         "plot_settings": plot_settings,
+        "atom_selection_mode": atom_selection_mode,
+        "custom_selection": custom_selection,
         "form": list(request.form),
         "files": {
             "nativePdb": str(native_pdb_name),
@@ -960,6 +960,52 @@ def _retrieve_results_impl(session_id):
         explainations=explanations,
         trajectory_converted=session_data.get('trajectory_converted', False)
     )
+
+
+@app.route("/download/all/<session_id>")
+def download_all(session_id):
+    """Bundle every data file and plot for a session into a single zip."""
+    directory_path = os.path.join(uploads_dir, session_id)
+    if not os.path.isdir(directory_path):
+        return jsonify({"error": "Session not found"}), 404
+
+    memory_file = io.BytesIO()
+    added = 0
+
+    with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zf:
+        # Data files  →  data/<PLOT>/<filename>
+        data_root = os.path.join(directory_path, "download_data")
+        if os.path.isdir(data_root):
+            for plot_dir in sorted(os.listdir(data_root)):
+                plot_path = os.path.join(data_root, plot_dir)
+                if not os.path.isdir(plot_path):
+                    continue
+                for fname in sorted(os.listdir(plot_path)):
+                    fpath = os.path.join(plot_path, fname)
+                    if os.path.isfile(fpath):
+                        zf.write(fpath, arcname=os.path.join("data", plot_dir, fname))
+                        added += 1
+
+        # Plot files  →  plots/<PLOT>/<filename>
+        plot_root = os.path.join(directory_path, "download_plot")
+        if os.path.isdir(plot_root):
+            for plot_dir in sorted(os.listdir(plot_root)):
+                plot_path = os.path.join(plot_root, plot_dir)
+                if not os.path.isdir(plot_path):
+                    continue
+                for fname in sorted(os.listdir(plot_path)):
+                    fpath = os.path.join(plot_path, fname)
+                    if os.path.isfile(fpath):
+                        zf.write(fpath, arcname=os.path.join("plots", plot_dir, fname))
+                        added += 1
+
+    if added == 0:
+        return jsonify({"error": "No results available yet for this session"}), 404
+
+    memory_file.seek(0)
+    download_name = f"arny_results_{session_id[:12]}.zip"
+    return send_file(memory_file, download_name=download_name, as_attachment=True,
+                     mimetype="application/zip")
 
 
 @app.route('/status/<session_id>')
@@ -1328,7 +1374,70 @@ def _view_trajectory_impl(session_id, start_time):
     plot_settings = session_data_json.get("plot_settings", {})
 
     socketio.emit('update_progress', {"progress": 20, "message": "Session data validated and trajectory format checked."}, to=session_id)
-    socketio.sleep(0.01)  # Minimal delay for message sending
+    socketio.sleep(0.01)
+
+    # Apply atom selection filter (remove waters / heterogens / custom MDAnalysis string)
+    atom_selection_mode = session_data_json.get("atom_selection_mode", "none")
+    custom_selection    = session_data_json.get("custom_selection", "")
+
+    SELECTION_STRINGS = {
+        "remove_waters":     "not (resname WAT SOL HOH TIP3 TIP3P TIP4P SPC SPCE)",
+        "remove_heterogens": "protein or nucleic",
+        "remove_waters_and_ions": "not (resname WAT SOL HOH TIP3 TIP3P TIP4P SPC SPCE or resname NA CL K CA MG ZN CU FE MN)",
+        "nucleic_only": "nucleic",
+    }
+
+    mda_selection = None
+    if atom_selection_mode == "remove_waters":
+        mda_selection = SELECTION_STRINGS["remove_waters"]
+    elif atom_selection_mode == "remove_heterogens":
+        mda_selection = SELECTION_STRINGS["remove_heterogens"]
+    elif atom_selection_mode == "remove_waters_and_ions":
+        mda_selection = SELECTION_STRINGS["remove_waters_and_ions"]
+    elif atom_selection_mode == "nucleic_only":
+        mda_selection = SELECTION_STRINGS["nucleic_only"]
+    elif atom_selection_mode == "custom" and custom_selection:
+        mda_selection = custom_selection
+
+    if mda_selection:
+        socketio.emit('update_progress', {"progress": 22, "message": f"Applying atom selection: {mda_selection}"}, to=session_id)
+        try:
+            u_raw = mda.Universe(native_pdb_path, traj_xtc_path)
+            ag = u_raw.select_atoms(mda_selection)
+            if len(ag) == 0:
+                emit_error(session_id,
+                           f"Atom selection '{mda_selection}' matched 0 atoms — using full structure.",
+                           'warning')
+            else:
+                filtered_pdb  = os.path.join(directory_path, "filtered_topology.pdb")
+                filtered_xtc  = os.path.join(directory_path, "filtered_trajectory.xtc")
+
+                # Write filtered topology (first frame as PDB)
+                with mda.Writer(filtered_pdb, ag.n_atoms) as W:
+                    u_raw.trajectory[0]
+                    W.write(ag)
+
+                # Write filtered trajectory
+                with mda.Writer(filtered_xtc, ag.n_atoms) as W:
+                    for ts in u_raw.trajectory:
+                        W.write(ag)
+
+                native_pdb_path = filtered_pdb
+                traj_xtc_path   = filtered_xtc
+
+                session_data_json['files']['nativePdb'] = "filtered_topology.pdb"
+                session_data_json['files']['trajXtc']   = "filtered_trajectory.xtc"
+                with open(os.path.join(directory_path, "session_data.json"), "w") as file:
+                    json.dump(session_data_json, file, indent=4)
+
+                logger.info(f"Atom selection applied: {len(ag)} atoms kept from {len(u_raw.atoms)}")
+                socketio.emit('update_progress', {
+                    "progress": 23,
+                    "message": f"Selection applied: {len(ag)} atoms kept (from {len(u_raw.atoms)} total)."
+                }, to=session_id)
+        except Exception as e:
+            emit_error(session_id, f"Atom selection failed: {e}. Using full structure.", 'warning')
+            logger.warning(f"Atom selection error: {e}")
 
     # Optimized trajectory loading with parallel preprocessing
     socketio.emit('update_progress', {"progress": 25, "message": "Loading trajectory..."}, to=session_id)
@@ -1988,6 +2097,56 @@ def save_all_plots(df, directory):
         plot_filename = save_plot(df, time_column, column_to_plot, output_folder)
         plot_filenames.append(plot_filename)
     return plot_filenames
+
+BUG_REPORTS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "data", "bug_reports"
+)
+
+
+@app.route("/bug-report", methods=["GET"])
+def bug_report_page():
+    session_id = request.args.get("session_id", "")
+    return render_template("bug_report.html", session_id=session_id)
+
+
+@app.route("/bug-report", methods=["POST"])
+def bug_report_submit():
+    session_id  = request.form.get("session_id", "").strip()
+    description = request.form.get("description", "").strip()
+    email       = request.form.get("email", "").strip()
+
+    if not description:
+        return render_template(
+            "bug_report.html",
+            session_id=session_id,
+            error="Please provide a description of the bug.",
+        )
+
+    os.makedirs(BUG_REPORTS_DIR, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    slug      = datetime.now().strftime("%Y%m%d_%H%M%S")
+    sid_tag   = session_id[:12] if session_id else "no_session"
+    filename  = f"{slug}_{sid_tag}.txt"
+
+    lines = [
+        f"Timestamp : {timestamp}",
+        f"Session ID: {session_id if session_id else '(none)'}",
+        f"Email     : {email if email else '(not provided)'}",
+        "",
+        "--- Description ---",
+        description,
+        "",
+    ]
+
+    report_path = os.path.join(BUG_REPORTS_DIR, filename)
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+
+    logger.info(f"Bug report saved: {filename}")
+    return render_template("bug_report.html", session_id=session_id, submitted=True)
+
 
 if __name__ == "__main__":
     # eventlet.monkey_patch() already done at top
