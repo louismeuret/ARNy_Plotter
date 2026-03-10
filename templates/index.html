@@ -2551,5 +2551,54 @@ select {
         </script>
 
         <div style="height: 20px"></div>
+
+        <!-- Citation Box -->
+        <section class="section" style="background-color: #f8f9fa; border-top: 3px solid #3273dc; margin-top: 3rem;">
+            <div class="container">
+                <div class="box has-text-centered" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <h3 class="title is-4 has-text-white" style="margin-bottom: 1rem;">
+                        Please Cite Our Work
+                    </h3>
+                    <p class="subtitle is-6 has-text-white-ter" style="margin-bottom: 1.5rem;">
+                        If you use ARNy Plotter in your research, please cite our paper:
+                    </p>
+                    <div class="field has-addons is-justify-content-center">
+                        <div class="control">
+                            <input class="input" type="text" value="https://doi.org/10.64898/2025.12.24.696344" readonly id="citation-doi-main" style="min-width: 350px; font-family: 'Courier New', monospace;">
+                        </div>
+                        <div class="control">
+                            <button class="button is-info is-light" onclick="copyDOIToClipboard()" title="Copy DOI">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <p class="is-size-7 has-text-white-ter" style="margin-top: 1rem; opacity: 0.8;">
+                        Thank you for supporting our research! 
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            function copyDOIToClipboard() {
+                const element = document.getElementById('citation-doi-main');
+                element.select();
+                element.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(element.value).then(() => {
+                    // Show brief feedback
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.classList.remove('is-info');
+                    button.classList.add('is-success');
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('is-success');
+                        button.classList.add('is-info');
+                    }, 2000);
+                });
+            }
+        </script>
+
     </body>
 </html>
