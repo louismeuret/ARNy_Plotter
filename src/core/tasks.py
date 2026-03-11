@@ -7,6 +7,8 @@ import os
 import time
 import pickle
 import logging
+import shutil
+from datetime import datetime, timedelta
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
 from functools import wraps
@@ -1991,6 +1993,54 @@ def extract_frame_as_pdb(self, topology_file, trajectory_file, frame_number, ses
 
     except Exception as exc:
         logger.error(f"Failed to extract frame {frame_number}: {str(exc)}")
+        raise exc
+
+
+@app.task(bind=True)
+@log_task
+def delete_session_folder(self, session_id, uploads_dir):
+    """
+    Delete a session folder after the retention period.
+
+    Args:
+        session_id (str): The session ID to delete
+        uploads_dir (str): The base uploads directory path
+    """
+    try:
+        session_path = os.path.join(uploads_dir, session_id)
+
+        if os.path.exists(session_path):
+            # Get folder size before deletion for logging
+            total_size = 0
+            for dirpath, dirnames, filenames in os.walk(session_path):
+                for file in filenames:
+                    fp = os.path.join(dirpath, file)
+                    if os.path.exists(fp):
+                        total_size += os.path.getsize(fp)
+
+            # Convert bytes to MB
+            size_mb = total_size / (1024 * 1024)
+
+            # Delete the session folder
+            shutil.rmtree(session_path)
+            logger.info(f"Successfully deleted session {session_id} (freed {size_mb:.2f} MB)")
+
+            return {
+                "status": "success",
+                "session_id": session_id,
+                "freed_space_mb": size_mb,
+                "message": f"Session {session_id} deleted successfully"
+            }
+        else:
+            logger.warning(f"Session folder {session_id} not found for deletion")
+            return {
+                "status": "not_found",
+                "session_id": session_id,
+                "message": f"Session {session_id} folder not found"
+            }
+
+    except Exception as exc:
+        logger.error(f"Failed to delete session {session_id}: {str(exc)}")
         raise exc
 
 

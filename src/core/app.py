@@ -81,7 +81,7 @@ import threading
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../static'))
@@ -431,6 +431,28 @@ def handle_connect():
 def create_session_id():
     return uuid.uuid4().hex
 
+def schedule_session_cleanup(session_id):
+    """
+    Schedule automatic deletion of session folder after one month.
+
+    Args:
+        session_id (str): The session ID to schedule for deletion
+    """
+    try:
+        # Calculate delay for one month (30 days)
+        cleanup_time = datetime.utcnow() + timedelta(days=30)
+
+        # Schedule the cleanup task to run in one month
+        delete_session_folder.apply_async(
+            args=[session_id, uploads_dir],
+            eta=cleanup_time
+        )
+
+        logger.info(f"Session {session_id} scheduled for cleanup on {cleanup_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+
+    except Exception as e:
+        logger.warning(f"Failed to schedule cleanup for session {session_id}: {str(e)}")
+
 def parse_topology_file(file_path):
     """Parse topology file and extract residue information for torsion angle calculation"""
     try:
@@ -491,6 +513,10 @@ def index():
     # Create new session if no existing session with results
     session_id = uuid.uuid4().hex
     session["session_id"] = session_id
+
+    # Schedule automatic cleanup after one month
+    schedule_session_cleanup(session_id)
+
     return render_template("index.html", session_id=session_id)
 
 @app.route("/get_session", methods=["GET"])
@@ -1978,6 +2004,9 @@ def _view_trajectory_impl(session_id, start_time):
         final_message = f"Trajectory analysis complete - {total_completed}/{total_requested} plots generated successfully."
     
     socketio.emit('update_progress', {"progress": 100, "message": final_message}, to=session_id)
+
+    # Schedule automatic cleanup of session folder after one month
+    schedule_session_cleanup(session_id)
 
     return render_template(
             "view_trajectory.html",

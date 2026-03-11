@@ -299,6 +299,7 @@
                         <li>Page reloads trigger recalculation of data. Instead, use the "Share session" button at the top to get a "retrieve results" link that will fetch saved data</li>
                         <li>Additional plots are in development, including visualization of pucker positions and torsions</li>
                     </ul>
+                    The results are kept for 1 month for the moment, if you want a sooner deletion, you can send me a mail at louis.meuret at etu.u-paris.fr, I plan to add a settings on how much time results are kept. 
                 </p>
             </div>
             <div class="box">
@@ -320,8 +321,8 @@
                         alt="Full Webpage"
                     />
                       <ul>
-                        <li>A topology file, that couple as a native PDB structure file and is used in all related calculations</li>
-                        <li>A trajectory file (multiple formats supported, primarily tested using XTC, but TRR, DCD are shown to work) if the file is not supported, an attempt is done to convert it to xtc format using MDAnalysis.</li>
+                        <li>A topology file, that couple as a native structure file and is used in all related calculations</li>
+                        <li>A trajectory file (multiple formats supported, primarily tested using XTC, but TRR, DCD are shown to work) if the file is not supported, an attempt is done to convert it to xtc format using MDAnalysis. It's possible to select specific atoms in the trajectory, in this case, the topology and the trajectory will both be filtered using MDAnalysis.  For the moment, the upload limit on the main server is set to 500mb, this limit is not set when the server is self hosted.</li>
                       </ul>
                     </div>
               
