@@ -2,6 +2,7 @@
 {% block head_extras %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/molstar@4.8.0/build/viewer/molstar.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.1.1/plotly.min.js" integrity="sha512-QaIUFweb9pyRnQZEYIujSDTHndibSwqsTSb69aedsfAAUpJRUE5yyYfaNAJIbTDuNECyHR/Cc0N7lQJrp0IEpA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ url_for('static', filename='js/plot-utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/molstar.js') }}"></script>
 {% endblock %}
 {% block content %}
@@ -341,7 +342,7 @@
                             },
                             name: 'Frame Marker'
                         };
-                        
+
                         // Add the marker trace and track its index
                         Plotly.addTraces(plotId, newMarkerTrace).then(() => {
                             // The new trace will be at the last index
@@ -367,8 +368,24 @@
                     console.error(`Could not update marker for plot ${plotId}:`, error);
                 }
             }
-        }
+        },
+
+        // Debounced version of updateAll to prevent excessive updates
+        updateAllDebounced: null
     };
+
+    // Create debounced version of updateAll after frameMarkers is defined
+    if (typeof PlotUtils !== 'undefined' && PlotUtils.debounce) {
+        frameMarkers.updateAllDebounced = PlotUtils.debounce(frameMarkers.updateAll.bind(frameMarkers), 200);
+    } else {
+        // Fallback if PlotUtils isn't available
+        frameMarkers.updateAllDebounced = frameMarkers.updateAll.bind(frameMarkers);
+    }
+
+    // Process any deferred plot registrations now that frameMarkers is available
+    if (typeof PlotUtils !== 'undefined' && PlotUtils.processDeferredRegistrations) {
+        PlotUtils.processDeferredRegistrations();
+    }
 
     // DOM elements_doc
     const elements_doc = {
@@ -798,7 +815,7 @@
     function updateFrameUI(frame) {
         elements_doc.frameSlider.value = frame;
         elements_doc.frameNumber.value = frame;
-        frameMarkers.updateAll(frame);
+        frameMarkers.updateAllDebounced(frame);
         
         // Update contact maps (which don't use frameMarkers system)
         if (window.contactMapFrameListeners) {
@@ -820,7 +837,7 @@
         LouisMolStarWrapper.interactivity.changeFrame(frame);
 
         // Update all frame markers across all plots
-        frameMarkers.updateAll(frame);
+        frameMarkers.updateAllDebounced(frame);
         
         // Update contact maps (which don't use frameMarkers system)
         if (window.contactMapFrameListeners) {

@@ -151,9 +151,13 @@
     if (frameSlider) frameSlider.value = frameNumber;
     if (frameNumberInput) frameNumberInput.value = frameNumber;
 
-    // Update all frame markers
+    // Update all frame markers (debounced)
     if (typeof frameMarkers !== 'undefined') {
-      frameMarkers.updateAll(frameNumber);
+      if (frameMarkers.updateAllDebounced) {
+        frameMarkers.updateAllDebounced(frameNumber);
+      } else {
+        frameMarkers.updateAll(frameNumber);
+      }
     }
 
     // Update contact map via socket
@@ -211,13 +215,37 @@
   };
 
   /**
-   * Register plot with frame markers if available
+   * Deferred registration queue for frame markers
+   */
+  var deferredRegistrations = [];
+
+  /**
+   * Register plot with frame markers if available, or queue for later
    * @param {string} plotId - The plot element ID
    * @param {Array|Object} plotData - The plot data
    */
   PlotUtils.registerFrameMarkers = function(plotId, plotData) {
     if (typeof frameMarkers !== 'undefined') {
       frameMarkers.register(plotId, plotData);
+      console.log(`Registered plot ${plotId} with frameMarkers`);
+    } else {
+      // Queue registration for when frameMarkers becomes available
+      deferredRegistrations.push({plotId: plotId, plotData: plotData});
+      console.log(`Queued registration for plot ${plotId}`);
+    }
+  };
+
+  /**
+   * Process any deferred registrations when frameMarkers becomes available
+   */
+  PlotUtils.processDeferredRegistrations = function() {
+    if (typeof frameMarkers !== 'undefined' && deferredRegistrations.length > 0) {
+      console.log(`Processing ${deferredRegistrations.length} deferred frame marker registrations`);
+      deferredRegistrations.forEach(function(reg) {
+        frameMarkers.register(reg.plotId, reg.plotData);
+        console.log(`Processed deferred registration for plot ${reg.plotId}`);
+      });
+      deferredRegistrations = []; // Clear the queue
     }
   };
 

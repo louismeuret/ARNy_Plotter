@@ -285,7 +285,7 @@ select {
                     </div>
                     <div class="field">
                         <label class="label" for="trajXtc"
-                            >Trajectory File: (Max 200 MB, please use a format
+                            >Trajectory File: (Max 400 MB, please use a format
                             supported by MDAnalysis and MDtraj)</label
                         >
                         <div class="control">
@@ -916,19 +916,52 @@ select {
             <div class="box mt-5">
                 <h2 class="title">Example</h2>
                 <p class="subtitle">
-                    Click the button below to auto-fill the form with example
-                    values or view precomputed results.
+                    Click the buttons below to view precomputed results.
                 </p>
                 <!-- <button id="exampleButton" class="button is-info">
                     Load Example
                 </button> -->
-                <button
+                <!-- <button
                     id="gotolinkbutton"
                     class="button is-info"
                     onclick="window.location.href='https://arny-plotter.rpbs.univ-paris-diderot.fr/retrieve-results?session_id=918697256dfd4cb9abe260f1026616fd'"
-                >
+                > 
                     Go to already precomputed results
+                </button> -->
+                <button
+                    id="gotolinkbutton"
+                    class="button is-info"
+                    onclick="window.location.href='https://arny-plotter.rpbs.univ-paris-diderot.fr/retrieve-results?session_id=cbcf511ab4af4c7fb7432bc373404df5'"
+                >
+                    Tetraloop
                 </button>
+                <button
+                    id="gotolinkbutton"
+                    class="button is-info"
+                    onclick="window.location.href='https://arny-plotter.rpbs.univ-paris-diderot.fr/retrieve-results?session_id=7bc9d9be92914f23969101ca155f79e0'"
+                >
+                    7SK
+                </button>
+                <button
+                    id="gotolinkbutton"
+                    class="button is-info"
+                    onclick="window.location.href='https://arny-plotter.rpbs.univ-paris-diderot.fr/retrieve-results?session_id=0aa90bc2a5fb43a8bf6767f84859b90c'"
+                >
+                    Frameshifting Element
+                </button>
+                <button
+                    id="gotolinkbutton"
+                    class="button is-info"
+                    onclick="window.location.href='https://arny-plotter.rpbs.univ-paris-diderot.fr/retrieve-results?session_id=b0ec24a285df4ae6892e3f5833b73f73'"
+                >
+                    ORF50
+                </button>
+            </div>
+            <div class="box mt-5">
+                <h2 class="title">Documentation</h2>
+                <p class="subtitle">
+                If you want to learn more about how this webserver, click on this button to access the documentation
+                </p>
                 <button
                     id="gotolinkbutton"
                     class="button is-info"
@@ -1533,7 +1566,7 @@ select {
                         return;
                     }
 
-                    const MAX_TRAJ_MB = 200;
+                    const MAX_TRAJ_MB = 400;
                     if (trajXtcFile.size > MAX_TRAJ_MB * 1024 * 1024) {
                         const sizeMB = (trajXtcFile.size / (1024 * 1024)).toFixed(1);
                         document.getElementById("overlay").style.display = "flex";

@@ -243,6 +243,7 @@ done
 
 if command -v rsync &>/dev/null; then
     # rsync is available — clean, fast, shows a diff
+    info "Preserving directories: ${PRESERVE[*]}"
     rsync -a --delete \
         "${RSYNC_EXCLUDES[@]}" \
         "$CLONE_DIR/" "$PROJECT_DIR/" \
@@ -251,6 +252,19 @@ if command -v rsync &>/dev/null; then
 else
     # Fallback: plain copy using cp (same logic as install_script.py)
     warn "rsync not found — falling back to cp."
+
+    # Function to check if a path should be preserved
+    should_preserve_path() {
+        local check_path="$1"
+        for pres in "${PRESERVE[@]}"; do
+            # Check if the path starts with a preserved path
+            if [[ "$check_path" == "$pres"* ]]; then
+                return 0  # Should preserve
+            fi
+        done
+        return 1  # Should not preserve
+    }
+
     for item in "$CLONE_DIR"/*/  "$CLONE_DIR"/.[^.]* "$CLONE_DIR"/*; do
         [ -e "$item" ] || continue
         name="$(basename "$item")"
@@ -260,17 +274,32 @@ else
         for excl in "${EXCLUDE_FROM_SYNC[@]}"; do
             [[ "$name" == $excl ]] && skip=true && break
         done
-        # Skip preserved items
-        for pres in "${PRESERVE[@]}"; do
-            base_pres="$(basename "$pres")"
-            [[ "$name" == "$base_pres" ]] && skip=true && break
-        done
         $skip && continue
 
         dest="$PROJECT_DIR/$name"
         if [ -d "$item" ]; then
-            rm -rf "$dest"
-            cp -r "$item" "$dest"
+            # For directories, we need to be more careful about preserved subdirectories
+            if [ -d "$dest" ]; then
+                # Recursively copy, but preserve protected subdirectories
+                find "$item" -type f | while IFS= read -r src_file; do
+                    rel_path="${src_file#$item/}"
+                    dest_file="$dest/$rel_path"
+
+                    # Check if this file's path should be preserved
+                    if should_preserve_path "$name/$rel_path"; then
+                        continue  # Skip copying this preserved file
+                    fi
+
+                    # Create directory structure if needed
+                    dest_dir="$(dirname "$dest_file")"
+                    [ -d "$dest_dir" ] || mkdir -p "$dest_dir"
+
+                    cp "$src_file" "$dest_file"
+                done
+            else
+                # Destination doesn't exist, safe to copy entirely
+                cp -r "$item" "$dest"
+            fi
         else
             cp -f "$item" "$dest"
         fi
@@ -280,7 +309,30 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Reinstall pip requirements if requirements.txt changed
+# 7. Verify preserved directories are intact
+# ---------------------------------------------------------------------------
+step "Verifying preserved directories"
+
+all_preserved=true
+for pres in "${PRESERVE[@]}"; do
+    pres_path="$PROJECT_DIR/$pres"
+    if [ -e "$pres_path" ]; then
+        success "✓ $pres exists"
+    else
+        error "✗ $pres was not preserved - directory is missing!"
+        all_preserved=false
+    fi
+done
+
+if [ "$all_preserved" = false ]; then
+    error "Some preserved directories are missing after sync!"
+    error "This indicates a problem with the update process."
+    error "Please check your $PROJECT_DIR directory and restore from backup if needed."
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 8. Reinstall pip requirements if requirements.txt changed
 # ---------------------------------------------------------------------------
 step "Checking requirements"
 
